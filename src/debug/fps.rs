@@ -10,13 +10,12 @@ pub fn update_fps_text(
     diagnostics: Res<DiagnosticsStore>,
     mut query: Query<(&mut TextSpan, &mut TextColor), With<FpsText>>,
 ) {
-    
     for (mut span, mut color) in query.iter_mut() {
-	// Try to get a "smoothed" FPS value from Bevy
-	if let Some(value) = diagnostics
+        // Try to get a "smoothed" FPS value from Bevy
+        if let Some(value) = diagnostics
             .get(&FrameTimeDiagnosticsPlugin::FPS)
             .and_then(|fps| fps.smoothed())
-	{
+        {
             // Format the number as to leave space for 4 digits, just in case,
             // right-aligned and rounded. This helps readability when the
             // number changes rapidly.
