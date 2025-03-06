@@ -8,6 +8,7 @@ mod ui;
 
 use crate::debug::*;
 use crate::hotbar::setup_hotbar;
+use crate::reticle::spawn_reticle;
 use crate::ui::hud::*;
 
 pub const PROTOCOL_VERSION: u32 = 758;
@@ -24,7 +25,7 @@ pub fn main() {
             ..default()
         }))
         .insert_resource(Time::<Fixed>::from_hz(50.0))
-        .add_systems(Startup, (setup_debug_hud, setup_hotbar, spawn_camera))
+        .add_systems(Startup, (setup_debug_hud, setup_hotbar, spawn_reticle, spawn_camera))
         .add_systems(Update, toggle_debug_hud)
         .add_systems(FixedUpdate, update_fps_text)
         .run();

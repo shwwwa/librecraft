@@ -48,14 +48,17 @@ pub fn setup_debug_hud(mut commands: Commands, query: Query<(Entity, &Monitor, H
         TextColor(Color::WHITE),
     ));
 
-    // Gets monitor info
+    for (_, monitor, is_primary) in query.iter() {
+	
+    }
+    
     for (_, monitor, is_primary) in query.iter() {
         let mut monitor_info = monitor
             .name
             .clone()
             .unwrap_or_else(|| "undefined".to_string());
-        if is_primary {
-            monitor_info.push_str("(primary) ");
+        if !is_primary {
+            monitor_info.push_str(" (primary) ");
         }
         monitor_info.push_str(&format!(
             "({}x{}, {} hz) ",
