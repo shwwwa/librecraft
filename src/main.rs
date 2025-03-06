@@ -35,8 +35,7 @@ pub fn main() {
 }
 
 fn spawn_camera(mut commands: Commands) {
-    commands.spawn((Camera3d::default(),
-		    Transform::from_translation(vec3(-1.25, 2.25, 4.5)).looking_at(Vec3::ZERO, Vec3::Y),
+    commands.spawn((Camera2d::default(),
 		    Camera {
 			hdr: true,
 			..default()
