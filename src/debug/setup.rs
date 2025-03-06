@@ -6,7 +6,7 @@ use bevy::window::{Monitor, PrimaryMonitor};
 #[derive(Component)]
 pub struct HudRoot;
 
-pub fn setup_hud(mut commands: Commands, query: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>) {
+pub fn setup_debug_hud(mut commands: Commands, query: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>) {
     let hud_root = commands
         .spawn((
             HudRoot,
@@ -63,8 +63,7 @@ pub fn setup_hud(mut commands: Commands, query: Query<(Entity, &Monitor, Has<Pri
             monitor.physical_height.clone(),
             monitor
                 .refresh_rate_millihertz
-                .clone()
-                .unwrap_or_else(|| 0)
+                .unwrap_or(0)
                 .div_ceil(10000)
                 * 10
         ));
@@ -81,7 +80,7 @@ pub fn setup_hud(mut commands: Commands, query: Query<(Entity, &Monitor, Has<Pri
         .add_children(&[text_fps, text_monitor_info]);
 }
 
-pub fn toggle_hud(
+pub fn toggle_debug_hud(
     mut q_hud_root: Query<&mut Visibility, With<HudRoot>>,
     keys: Res<ButtonInput<KeyCode>>,
 ) {

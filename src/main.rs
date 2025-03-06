@@ -1,5 +1,7 @@
+#![allow(clippy::default_constructed_unit_structs)]
+
 use bevy::prelude::*;
-use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, math::vec3, window::PresentMode};
+use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, window::PresentMode};
 
 mod debug;
 mod ui;
@@ -22,9 +24,9 @@ pub fn main() {
             ..default()
         }))
         .insert_resource(Time::<Fixed>::from_hz(50.0))
-        .add_systems(Startup, (setup_hud, setup_hotbar, spawn_camera))
-        .add_systems(Update, (toggle_hud))
-        .add_systems(FixedUpdate, (update_fps_text))
+        .add_systems(Startup, (setup_debug_hud, setup_hotbar, spawn_camera))
+        .add_systems(Update, toggle_debug_hud)
+        .add_systems(FixedUpdate, update_fps_text)
         .run();
 }
 
