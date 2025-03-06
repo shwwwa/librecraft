@@ -2,7 +2,11 @@ use bevy::prelude::*;
 use bevy::{window::PresentMode, diagnostic::FrameTimeDiagnosticsPlugin, math::vec3};
 
 mod debug;
+mod ui;
+
 use crate::debug::*;
+use crate::ui::hud::*;
+use crate::hotbar::setup_hotbar;
 
 pub const PROTOCOL_VERSION : u32 = 758;
 
@@ -19,7 +23,7 @@ pub fn main() {
         }))
 	.insert_resource(Time::<Fixed>::from_hz(50.0))
 	.add_systems(
-	    Startup, (setup_hud, spawn_camera))
+	    Startup, (setup_hud, setup_hotbar, spawn_camera))
 	.add_systems(
 	    Update,
 	    (toggle_hud))
