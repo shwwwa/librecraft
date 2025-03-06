@@ -8,13 +8,14 @@ mod ui;
 
 use crate::debug::*;
 use crate::hotbar::setup_hotbar;
-use crate::reticle::setup_crosshair;
-use crate::ui::hud::*;
+use crate::crosshair::setup_crosshair;
+use crate::ui::{hud::*, GUIScale};
 
 pub const PROTOCOL_VERSION: u32 = 758;
 
 pub fn main() {
     App::new()
+	.insert_resource(GUIScale::Scale(2))
         .add_plugins(FrameTimeDiagnosticsPlugin)
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
