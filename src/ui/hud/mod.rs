@@ -1,2 +1,2 @@
 pub mod hotbar;
-pub mod reticle;
+pub mod crosshair;

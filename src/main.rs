@@ -8,7 +8,7 @@ mod ui;
 
 use crate::debug::*;
 use crate::hotbar::setup_hotbar;
-use crate::reticle::spawn_reticle;
+use crate::reticle::setup_crosshair;
 use crate::ui::hud::*;
 
 pub const PROTOCOL_VERSION: u32 = 758;
@@ -25,13 +25,13 @@ pub fn main() {
             ..default()
         }))
         .insert_resource(Time::<Fixed>::from_hz(50.0))
-        .add_systems(Startup, (setup_debug_hud, setup_hotbar, spawn_reticle, spawn_camera))
+        .add_systems(Startup, (setup_debug_hud, setup_hotbar, setup_crosshair, setup_camera))
         .add_systems(Update, toggle_debug_hud)
         .add_systems(FixedUpdate, update_fps_text)
         .run();
 }
 
-fn spawn_camera(mut commands: Commands) {
+fn setup_camera(mut commands: Commands) {
     commands.spawn((
         Camera2d::default(),
         Camera {
