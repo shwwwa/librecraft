@@ -20,7 +20,7 @@ pub fn update_fps_text(
             // Format the number as to leave space for 4 digits, just in case,
             // right-aligned and rounded. This helps readability when the
             // number changes rapidly.
-            **span = format!("{value:>4.0}");
+            **span = format!("{value:>4.1}");
 
             // Adjust text color based on FPS value
             color.0 = if value >= 120.0 {
