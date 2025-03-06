@@ -24,7 +24,7 @@ pub fn main() {
                 ..default()
             }),
             ..default()
-        }))
+        }).set(ImagePlugin::default_nearest()))
         .insert_resource(Time::<Fixed>::from_hz(50.0))
         .add_systems(Startup, (setup_debug_hud, setup_hotbar, setup_crosshair, setup_camera))
         .add_systems(Update, toggle_debug_hud)
