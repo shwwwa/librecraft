@@ -4,6 +4,8 @@ use bevy::{window::PresentMode, diagnostic::FrameTimeDiagnosticsPlugin, math::ve
 mod debug;
 use crate::debug::*;
 
+pub const PROTOCOL_VERSION : u32 = 758;
+
 pub fn main() {
     App::new()
 	.add_plugins(FrameTimeDiagnosticsPlugin)

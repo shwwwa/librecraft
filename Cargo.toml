@@ -4,4 +4,47 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bevy = "0.15.3"
+anyhow = "1.0.97"
+
+[dependencies.bevy]
+version = "0.15.3"
+default-features = false
+features = [
+#	 "android-game-activity", and next - needed for android support
+#	 "android_shared_stdcxx",
+	 "animation",
+	 "bevy_animation",
+	 "bevy_asset",
+	 "bevy_audio",
+	 "bevy_color",
+	 "bevy_core_pipeline",
+	 "bevy_gilrs",
+	 "bevy_gizmos",
+	 "bevy_gltf",
+	 "bevy_mesh_picking_backend",
+#	 "bevy_pbr" probe reflections
+	 "bevy_picking",
+	 "bevy_render",
+	 "bevy_scene", # useless not to use, it s optional everywhere
+	 "bevy_sprite",
+	 "bevy_sprite_picking_backend",
+	 "bevy_state",
+	 "bevy_text",
+	 "bevy_ui",
+	 "bevy_ui_picking_backend",
+	 "bevy_window",
+	 "bevy_winit",
+#	 "custom_cursor",
+	 "default_font", # default fallback font
+	 "hdr",
+	 "ktx2",
+	 "multi_threaded",
+	 "png", # png image support
+	 "smaa_luts",
+	 "sysinfo_plugin",
+	 "tonemapping_luts", # needed for camera2d/camera3d
+	 "vorbis",
+#	 "webgl2", for web
+	 "x11",
+	 "zstd" # optional for ktx2
+	 ]
