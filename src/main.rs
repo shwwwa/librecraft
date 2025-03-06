@@ -9,13 +9,13 @@ mod ui;
 use crate::debug::*;
 use crate::hotbar::setup_hotbar;
 use crate::crosshair::setup_crosshair;
-use crate::ui::{hud::*, GUIScale};
+use crate::ui::{hud::*, GUIScale, change_gui_scale};
 
 pub const PROTOCOL_VERSION: u32 = 758;
 
 pub fn main() {
     App::new()
-	.insert_resource(GUIScale::Scale(2))
+	.insert_resource(GUIScale::Auto)
         .add_plugins(FrameTimeDiagnosticsPlugin)
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
@@ -27,7 +27,7 @@ pub fn main() {
         }).set(ImagePlugin::default_nearest()))
         .insert_resource(Time::<Fixed>::from_hz(50.0))
         .add_systems(Startup, (setup_debug_hud, setup_hotbar, setup_crosshair, setup_camera))
-        .add_systems(Update, toggle_debug_hud)
+        .add_systems(Update, (toggle_debug_hud, change_gui_scale))
         .add_systems(FixedUpdate, update_fps_text)
         .run();
 }
