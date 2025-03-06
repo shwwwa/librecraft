@@ -52,6 +52,7 @@ pub fn setup_hud(mut commands: Commands, query: Query<(Entity, &Monitor, Has<Pri
     // Gets monitor info
     for (_, monitor, is_primary) in query.iter() {
 	let mut monitor_info = monitor.name.clone().unwrap_or_else(|| "undefined".to_string());
+	if is_primary {monitor_info.push_str("(primary) ");}
 	monitor_info.push_str(&format!("({}x{}, {} hz) ",
 				       monitor.physical_width.clone(),
 				       monitor.physical_height.clone(),
