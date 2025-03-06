@@ -6,7 +6,10 @@ use bevy::window::{Monitor, PrimaryMonitor};
 #[derive(Component)]
 pub struct HudRoot;
 
-pub fn setup_debug_hud(mut commands: Commands, query: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>) {
+pub fn setup_debug_hud(
+    mut commands: Commands,
+    query: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>,
+) {
     let hud_root = commands
         .spawn((
             HudRoot,
@@ -48,10 +51,8 @@ pub fn setup_debug_hud(mut commands: Commands, query: Query<(Entity, &Monitor, H
         TextColor(Color::WHITE),
     ));
 
-    for (_, monitor, is_primary) in query.iter() {
-	
-    }
-    
+    for (_, monitor, is_primary) in query.iter() {}
+
     for (_, monitor, is_primary) in query.iter() {
         let mut monitor_info = monitor
             .name
@@ -64,11 +65,7 @@ pub fn setup_debug_hud(mut commands: Commands, query: Query<(Entity, &Monitor, H
             "({}x{}, {} hz) ",
             monitor.physical_width.clone(),
             monitor.physical_height.clone(),
-            monitor
-                .refresh_rate_millihertz
-                .unwrap_or(0)
-                .div_ceil(10000)
-                * 10
+            monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10
         ));
         text_monitor.with_child((
             TextSpan::new(monitor_info),

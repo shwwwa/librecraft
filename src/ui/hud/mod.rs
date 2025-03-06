@@ -1,3 +1,2 @@
-pub mod hotbar;
 pub mod crosshair;
-
+pub mod hotbar;
