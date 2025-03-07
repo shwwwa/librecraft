@@ -51,7 +51,7 @@ pub fn setup_debug_hud(
         TextColor(Color::WHITE),
     ));
 
-    for (_, monitor, is_primary) in query.iter() {
+    for (_, monitor, is_primary) in query_monitor.iter() {
         let mut monitor_info = monitor
             .name
             .clone()
@@ -72,18 +72,39 @@ pub fn setup_debug_hud(
         ));
     }
 
-    let mut text_adapter = commands.spawn((
-	Text::new("GPU: "),
-	TextFont::from_font_size(16.0),
-	TextColor(Color::WHITE),
-    ));
-    
     let text_monitor_info = text_monitor.id();
+
+    let text_display = commands.spawn((
+        Text::new("Display: "),
+        TextFont::from_font_size(16.0),
+        TextColor(Color::WHITE),
+    ));
+
+    let text_display_info = text_display.id();
+
+    let text_processor = commands.spawn((
+        Text::new("CPU: "),
+        TextFont::from_font_size(16.0),
+        TextColor(Color::WHITE),
+    ));
+
+    let text_processor_info = text_processor.id();
+
+    let text_adapter = commands.spawn((
+        Text::new("GPU: "),
+        TextFont::from_font_size(16.0),
+        TextColor(Color::WHITE),
+    ));
+
     let text_adapter_info = text_adapter.id();
-    
-    commands
-        .entity(hud_root)
-        .add_children(&[text_fps, text_monitor_info, text_adapter_info]);
+
+    commands.entity(hud_root).add_children(&[
+        text_fps,
+        text_monitor_info,
+        text_display_info,
+        text_processor_info,
+        text_adapter_info,
+    ]);
 }
 
 pub fn toggle_debug_hud(
