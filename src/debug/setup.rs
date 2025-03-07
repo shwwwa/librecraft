@@ -8,7 +8,7 @@ pub struct HudRoot;
 
 pub fn setup_debug_hud(
     mut commands: Commands,
-    query: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>,
+    query_monitor: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>,
 ) {
     let hud_root = commands
         .spawn((
@@ -51,8 +51,6 @@ pub fn setup_debug_hud(
         TextColor(Color::WHITE),
     ));
 
-    for (_, monitor, is_primary) in query.iter() {}
-
     for (_, monitor, is_primary) in query.iter() {
         let mut monitor_info = monitor
             .name
@@ -74,10 +72,18 @@ pub fn setup_debug_hud(
         ));
     }
 
+    let mut text_adapter = commands.spawn((
+	Text::new("GPU: "),
+	TextFont::from_font_size(16.0),
+	TextColor(Color::WHITE),
+    ));
+    
     let text_monitor_info = text_monitor.id();
+    let text_adapter_info = text_adapter.id();
+    
     commands
         .entity(hud_root)
-        .add_children(&[text_fps, text_monitor_info]);
+        .add_children(&[text_fps, text_monitor_info, text_adapter_info]);
 }
 
 pub fn toggle_debug_hud(

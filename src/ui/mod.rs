@@ -9,7 +9,7 @@ pub enum GUIScale {
 }
 
 pub fn change_gui_scale(keys: Res<ButtonInput<KeyCode>>, mut gui_scale: ResMut<GUIScale>) {
-    println!("{:#?}", gui_scale);
+    //debug!("{:#?}", gui_scale);
     if let GUIScale::Scale(scale) = *gui_scale {
         if keys.just_pressed(KeyCode::BracketLeft) {
             if scale > 1 {
