@@ -2,8 +2,10 @@
 
 use bevy::prelude::*;
 use bevy::{diagnostic::{FrameTimeDiagnosticsPlugin, SystemInformationDiagnosticsPlugin}, window::PresentMode};
+
 mod debug;
 mod ui;
+mod music;
 
 use crate::crosshair::setup_crosshair;
 use crate::debug::*;
@@ -32,13 +34,14 @@ pub fn main() {
         .insert_resource(Time::<Fixed>::from_hz(50.0))
         .add_systems(
             Startup,
-            (setup_debug_hud, setup_hotbar, setup_crosshair, setup_camera),
+            (setup_debug_hud, setup_hotbar, setup_crosshair, setup_camera, music::setup_soundtrack),
         )
         .add_systems(Update, (toggle_debug_hud, change_gui_scale, limit_fps))
         .add_systems(
             FixedUpdate,
             (update_fps_text, update_display_text, update_focus_text),
         )
+	.add_systems(Update, (music::fade_in, music::fade_out, music::change_track))
         .run();
 }
 

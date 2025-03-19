@@ -2,6 +2,7 @@ use bevy::diagnostic::DiagnosticsStore;
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
 
+
 // Marker to find fps text entity
 #[derive(Component)]
 pub struct FpsText;
