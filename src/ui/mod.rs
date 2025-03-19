@@ -1,4 +1,4 @@
-use bevy::prelude::{ButtonInput, KeyCode, Res, ResMut, Resource};
+use bevy::prelude::{info, ButtonInput, KeyCode, Res, ResMut, Resource};
 
 pub mod hud;
 
@@ -9,25 +9,27 @@ pub enum GUIScale {
 }
 
 pub fn change_gui_scale(keys: Res<ButtonInput<KeyCode>>, mut gui_scale: ResMut<GUIScale>) {
-    //debug!("{:#?}", gui_scale);
     if let GUIScale::Scale(scale) = *gui_scale {
         if keys.just_pressed(KeyCode::BracketLeft) && scale > 1 {
             *gui_scale = GUIScale::Scale(scale - 1);
+	    info!("Gui scale was changed: {:?}", *gui_scale);
         }
 	// todo: recognize max size with the help of display
         if keys.just_pressed(KeyCode::BracketRight) && scale < 5 {
-            *gui_scale = GUIScale::Scale(scale + 1);   
+            *gui_scale = GUIScale::Scale(scale + 1);
+	    info!("Gui scale was changed: {:?}", *gui_scale);
         }
 
         if keys.just_pressed(KeyCode::Backslash) {
             *gui_scale = GUIScale::Auto;
+	    info!("Gui scale was changed: {:?}", *gui_scale);
         }
     } else if keys.just_pressed(KeyCode::BracketLeft)
         || keys.just_pressed(KeyCode::BracketRight)
         || keys.just_pressed(KeyCode::Backslash)
     {
-        // todo: from auto to scale (not needed to replicate minecraft behaviour)
         *gui_scale = GUIScale::Scale(1);
+	info!("Gui scale was changed: {:?}", *gui_scale);
     }
 
 }
