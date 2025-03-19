@@ -1,7 +1,7 @@
 #![allow(clippy::default_constructed_unit_structs)]
 
 use bevy::prelude::*;
-use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, window::PresentMode};
+use bevy::{diagnostic::{FrameTimeDiagnosticsPlugin, SystemInformationDiagnosticsPlugin}, window::PresentMode};
 
 mod debug;
 mod ui;
@@ -16,7 +16,7 @@ pub const PROTOCOL_VERSION: u32 = 758;
 pub fn main() {
     App::new()
         .insert_resource(GUIScale::Auto)
-        .add_plugins(FrameTimeDiagnosticsPlugin)
+        .add_plugins((FrameTimeDiagnosticsPlugin, SystemInformationDiagnosticsPlugin))
         .add_plugins(
             DefaultPlugins
                 .set(WindowPlugin {

@@ -1,5 +1,6 @@
 use crate::{DisplayText, FocusText, FpsText};
 use bevy::prelude::*;
+use bevy::diagnostic::SystemInfo;
 use bevy::window::{Monitor, PrimaryMonitor};
 
 // Marker to find container's entity
@@ -8,6 +9,7 @@ pub struct HudRoot;
 
 pub fn setup_debug_hud(
     mut commands: Commands,
+    system: Res<SystemInfo>,
     query_monitor: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>,
     query_window: Query<&Window>,
 ) {
@@ -103,27 +105,43 @@ pub fn setup_debug_hud(
         ));
     let text_display_info = text_display.id();
 
-    let text_processor = commands.spawn((
-        Text::new("CPU: "),
+    let mut text_system = commands.spawn((
+        Text::new("System: "),
         TextFont::from_font_size(16.0),
         TextColor(Color::WHITE),
     ));
 
-    let text_processor_info = text_processor.id();
+    let system_info = format!("{} ({}), cpu: {} (x{}), memory: {}", system.os, system.kernel, system.cpu, system.core_count, system.memory);
+	
+    text_system
+        .with_child((
+            TextSpan::new(system_info),
+            TextFont::from_font_size(16.0),
+            TextColor(Color::WHITE),
+        ));
+    
+    let text_system_info = text_system.id();
 
-    let text_adapter = commands.spawn((
-        Text::new("GPU: "),
+    let mut text_adapter = commands.spawn((
+        Text::new("Adapter: "),
         TextFont::from_font_size(16.0),
         TextColor(Color::WHITE),
     ));
 
+    text_adapter
+        .with_child((
+            TextSpan::new(""),
+            TextFont::from_font_size(16.0),
+            TextColor(Color::WHITE),
+        ));
+    
     let text_adapter_info = text_adapter.id();
 
     commands.entity(hud_root).add_children(&[
         text_fps,
         text_monitor_info,
         text_display_info,
-        text_processor_info,
+        text_system_info,
         text_adapter_info,
     ]);
 }
