@@ -1,6 +1,4 @@
 use bevy::prelude::*;
-use bevy::sprite::Anchor;
-
 use crate::ui::gui_scale_to_float;
 use crate::{GUIScale, GUIScaleChanged};
 
@@ -29,34 +27,49 @@ pub fn setup_hotbar(
 
     commands.spawn((
         Hotbar { selected: 1 },
-        Sprite {
-            image: asset_server.load("hotbar.png"),
-            anchor: Anchor::BottomCenter,
-            custom_size: Some(Vec2::new(HOTBAR_WIDTH * scale, HOTBAR_HEIGHT * scale)), // original_size * gui_scale; hard-coded to punish changing size of assets
+	Node {
+	    display: Display::Flex,
+	    position_type: PositionType::Absolute,
+	    bottom: Val::Px(40.),
+	    width: Val::Px(HOTBAR_WIDTH * scale),
+	    height: Val::Px(HOTBAR_HEIGHT * scale),
+	    padding: UiRect::ZERO,
+	    border: UiRect::ZERO,
+	    margin: UiRect::all(Val::Auto),
+	    ..default()
+	},
+        ImageNode {
+            image: asset_server.load("hotbar.png"), 
             ..Default::default()
         },
-        Transform::from_xyz(0., 0., 0.),
+	GlobalZIndex(1),
     )).with_child((
         HotbarSelection,
-        Sprite {
+        ImageNode {
             image: asset_server.load("hotbar_selection.png"),
-            anchor: Anchor::BottomCenter,
-	    // original_size * gui_scale; hard-coded to punish changes in the size of assets
-            custom_size: Some(Vec2::new(HOTBAR_SELECTION_WIDTH * scale, HOTBAR_SELECTION_HEIGHT * scale)),
             ..Default::default()
         },
-        Transform::from_xyz(0., 0., 0.),
+	Node {
+	    display: Display::Flex,
+	    position_type: PositionType::Relative,
+	    padding: UiRect::ZERO,
+	    border: UiRect::ZERO,
+	    margin: UiRect::all(Val::Auto),
+	    ..default()
+	},
+	GlobalZIndex(1),
     ));
 }
 
 pub fn update_hotbar(
     mut gui_scale_events: EventReader<GUIScaleChanged>,
-    mut query: Query<&mut Sprite, With<Hotbar>>,
+    mut query: Query<&mut Node, With<Hotbar>>,
 ) {
     for event in gui_scale_events.read() {
-        for mut sprite in query.iter_mut() {
+        for mut node in query.iter_mut() {
             let scale: f32 = gui_scale_to_float(event.gui_scale);
-            sprite.custom_size = Some(Vec2::new(HOTBAR_WIDTH * scale, HOTBAR_HEIGHT * scale));
+            node.width = Val::Px(HOTBAR_WIDTH * scale);
+	    node.height = Val::Px(HOTBAR_HEIGHT * scale);
         }
     }
 }
@@ -65,7 +78,7 @@ pub fn update_hotbar_selection(
     keys: Res<ButtonInput<KeyCode>>,
     mut query: Query<&mut Hotbar, (With<Hotbar>, Without<HotbarSelection>)>,
     mut gui_scale_events: EventReader<GUIScaleChanged>,
-    mut query_selection: Query<&mut Sprite, (With<HotbarSelection>, Without<Hotbar>)>,
+    mut query_selection: Query<&mut Node, (With<HotbarSelection>, Without<Hotbar>)>,
 ) {
     // todo: enum to int conversion?
     if keys.any_pressed([
@@ -107,13 +120,19 @@ pub fn update_hotbar_selection(
             if keys.pressed(KeyCode::Digit9) {
                 hotbar.selected = 9;
             }
+	    
+	    for mut node in query_selection.iter_mut() {
+		// todo: proper placing (not formula one)
+		node.margin.left = Val::Percent(((hotbar.selected - 1) as f32) * (100./((MAX_HOTBAR_SLOTS) as f32)))
+	    }
+    
         }
     }
-
     for event in gui_scale_events.read() {
-        for mut sprite in query_selection.iter_mut() {
+        for mut node in query_selection.iter_mut() {
             let scale: f32 = gui_scale_to_float(event.gui_scale);
-            sprite.custom_size = Some(Vec2::new(HOTBAR_SELECTION_WIDTH * scale, HOTBAR_SELECTION_HEIGHT * scale));
+            node.width = Val::Px(HOTBAR_SELECTION_WIDTH * scale);
+	    node.height = Val::Px(HOTBAR_SELECTION_HEIGHT * scale);
         }
     }
 }

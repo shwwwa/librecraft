@@ -29,6 +29,11 @@ pub fn main() {
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
+			resize_constraints: WindowResizeConstraints {
+			    min_width: 480.,
+			    min_height: 360.,
+			    ..default()
+			},
                         title: "librecraft".into(),
                         present_mode: PresentMode::AutoNoVsync,
                         ..default()
