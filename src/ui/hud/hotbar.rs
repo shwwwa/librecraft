@@ -49,33 +49,45 @@ pub fn update_hotbar_selection(
     mut query: Query<&mut Hotbar, With<Hotbar>>,
 ) {
     // todo: enum to int conversion
-    for mut hotbar in query.iter_mut() {
-        if keys.pressed(KeyCode::Digit1) {
-            hotbar.selected = 1;
-        }
-        if keys.pressed(KeyCode::Digit2) {
-            hotbar.selected = 2;
-        }
-        if keys.pressed(KeyCode::Digit3) {
-            hotbar.selected = 3;
-        }
-        if keys.pressed(KeyCode::Digit4) {
-            hotbar.selected = 4;
-        }
-        if keys.pressed(KeyCode::Digit5) {
-            hotbar.selected = 5;
-        }
-        if keys.pressed(KeyCode::Digit6) {
-            hotbar.selected = 6;
-        }
-        if keys.pressed(KeyCode::Digit7) {
-            hotbar.selected = 7;
-        }
-        if keys.pressed(KeyCode::Digit8) {
-            hotbar.selected = 8;
-        }
-        if keys.pressed(KeyCode::Digit9) {
-            hotbar.selected = 9;
+    if keys.any_pressed([
+        KeyCode::Digit1,
+        KeyCode::Digit2,
+        KeyCode::Digit3,
+        KeyCode::Digit4,
+        KeyCode::Digit5,
+        KeyCode::Digit6,
+        KeyCode::Digit7,
+        KeyCode::Digit8,
+        KeyCode::Digit9,
+    ]) {
+        for mut hotbar in query.iter_mut() {
+            if keys.pressed(KeyCode::Digit1) {
+                hotbar.selected = 1;
+            }
+            if keys.pressed(KeyCode::Digit2) {
+                hotbar.selected = 2;
+            }
+            if keys.pressed(KeyCode::Digit3) {
+                hotbar.selected = 3;
+            }
+            if keys.pressed(KeyCode::Digit4) {
+                hotbar.selected = 4;
+            }
+            if keys.pressed(KeyCode::Digit5) {
+                hotbar.selected = 5;
+            }
+            if keys.pressed(KeyCode::Digit6) {
+                hotbar.selected = 6;
+            }
+            if keys.pressed(KeyCode::Digit7) {
+                hotbar.selected = 7;
+            }
+            if keys.pressed(KeyCode::Digit8) {
+                hotbar.selected = 8;
+            }
+            if keys.pressed(KeyCode::Digit9) {
+                hotbar.selected = 9;
+            }
         }
     }
 }
