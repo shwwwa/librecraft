@@ -36,9 +36,7 @@ pub fn setup_hotbar(
             ..Default::default()
         },
         Transform::from_xyz(0., 0., 0.),
-    ));
-
-    commands.spawn((
+    )).with_child((
         HotbarSelection,
         Sprite {
             image: asset_server.load("hotbar_selection.png"),

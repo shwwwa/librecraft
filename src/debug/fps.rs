@@ -31,9 +31,6 @@ pub fn update_fps_text(
             .get(&FrameTimeDiagnosticsPlugin::FPS)
             .and_then(|fps| fps.smoothed())
         {
-            // Format the number as to leave space for 4 digits, just in case,
-            // right-aligned and rounded. This helps readability when the
-            // number changes rapidly.
             **span = format!("{value:>4.1}");
 
             // Adjust text color based on FPS value
@@ -51,7 +48,6 @@ pub fn update_fps_text(
                 Color::srgb(1.0, 0.0, 0.0)
             };
         } else {
-            // Display "N/A" if we can't get a FPS measurement
             **span = " N/A".into();
             color.0 = Color::WHITE;
         }
