@@ -2,7 +2,6 @@ use bevy::diagnostic::DiagnosticsStore;
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
 
-
 // Marker to find fps text entity
 #[derive(Component)]
 pub struct FpsText;
@@ -10,16 +9,15 @@ pub struct FpsText;
 pub fn limit_fps(
     mut settings: ResMut<bevy_framepace::FramepaceSettings>,
     input: Res<ButtonInput<KeyCode>>,
-){
+) {
     if input.just_pressed(KeyCode::Space) {
-	use bevy_framepace::Limiter;
+        use bevy_framepace::Limiter;
 
-	settings.limiter = match settings.limiter {
-	    Limiter::Auto => Limiter::Off,
-	    Limiter::Off => Limiter::from_framerate(30.0),
-	    Limiter::Manual(_) => Limiter::Auto,
-	}
-	
+        settings.limiter = match settings.limiter {
+            Limiter::Auto => Limiter::Off,
+            Limiter::Off => Limiter::from_framerate(30.0),
+            Limiter::Manual(_) => Limiter::Auto,
+        }
     }
 }
 

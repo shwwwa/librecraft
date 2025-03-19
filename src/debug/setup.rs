@@ -1,8 +1,8 @@
 use crate::{DisplayText, FocusText, FpsText};
-use bevy::prelude::*;
 use bevy::diagnostic::SystemInfo;
-use bevy::window::{Monitor, PrimaryMonitor};
+use bevy::prelude::*;
 use bevy::render::renderer::RenderAdapterInfo;
+use bevy::window::{Monitor, PrimaryMonitor};
 use wgpu_types::DeviceType;
 
 // Marker to find container's entity
@@ -114,40 +114,43 @@ pub fn setup_debug_hud(
         TextColor(Color::WHITE),
     ));
 
-    let system_info = format!("{} ({}), cpu: {} (x{}), memory: {}", system.os, system.kernel, system.cpu, system.core_count, system.memory);
-	
-    text_system
-        .with_child((
-            TextSpan::new(system_info),
-            TextFont::from_font_size(16.0),
-            TextColor(Color::WHITE),
-        ));
-    
+    let system_info = format!(
+        "{} ({}), cpu: {} (x{}), memory: {}",
+        system.os, system.kernel, system.cpu, system.core_count, system.memory
+    );
+
+    text_system.with_child((
+        TextSpan::new(system_info),
+        TextFont::from_font_size(16.0),
+        TextColor(Color::WHITE),
+    ));
+
     let text_system_info = text_system.id();
-    
+
     let mut text_adapter = commands.spawn((
         Text::new("Adapter: "),
         TextFont::from_font_size(16.0),
         TextColor(Color::WHITE),
     ));
 
-    let device_type : String = match adapter.device_type
-    {
-	DeviceType::Other | DeviceType::DiscreteGpu => "".to_string(),
-	DeviceType::IntegratedGpu => " (integrated)".to_string(),
-	DeviceType::VirtualGpu => " (virtual)".to_string(),
-	DeviceType::Cpu => " (cpu)".to_string(),
+    let device_type: String = match adapter.device_type {
+        DeviceType::Other | DeviceType::DiscreteGpu => "".to_string(),
+        DeviceType::IntegratedGpu => " (integrated)".to_string(),
+        DeviceType::VirtualGpu => " (virtual)".to_string(),
+        DeviceType::Cpu => " (cpu)".to_string(),
     };
-    
-    let adapter_info = format!("{}{}, {} ({})", adapter.name, device_type, adapter.driver_info, adapter.backend);
-    
-    text_adapter
-        .with_child((
-            TextSpan::new(adapter_info),
-            TextFont::from_font_size(16.0),
-            TextColor(Color::WHITE),
-        ));
-    
+
+    let adapter_info = format!(
+        "{}{}, {} ({})",
+        adapter.name, device_type, adapter.driver_info, adapter.backend
+    );
+
+    text_adapter.with_child((
+        TextSpan::new(adapter_info),
+        TextFont::from_font_size(16.0),
+        TextColor(Color::WHITE),
+    ));
+
     let text_adapter_info = text_adapter.id();
 
     commands.entity(hud_root).add_children(&[
