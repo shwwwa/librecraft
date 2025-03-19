@@ -35,7 +35,8 @@ pub fn main() {
             (setup_debug_hud, setup_hotbar, setup_crosshair, setup_camera),
         )
         .add_systems(Update, (toggle_debug_hud, change_gui_scale))
-        .add_systems(FixedUpdate, (update_fps_text, update_display_text))
+        .add_systems(FixedUpdate, (update_fps_text, update_display_text,
+	update_focus_text))
         .run();
 }
 

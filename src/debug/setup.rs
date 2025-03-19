@@ -1,4 +1,4 @@
-use crate::{FpsText, DisplayText};
+use crate::{FpsText, DisplayText, FocusText};
 use bevy::prelude::*;
 use bevy::window::{Monitor, PrimaryMonitor};
 
@@ -93,8 +93,13 @@ pub fn setup_debug_hud(
         TextSpan::new(display_info),
         TextFont::from_font_size(16.0),
         TextColor(Color::WHITE),
-    ));
-    
+    ))
+	.with_child((
+	    FocusText,
+            TextSpan::new("".to_string()),
+            TextFont::from_font_size(16.0),
+            TextColor(Color::WHITE),
+	));
     let text_display_info = text_display.id();
 
     let text_processor = commands.spawn((
