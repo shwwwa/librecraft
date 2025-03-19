@@ -1,5 +1,5 @@
-use crate::{GUIScale, GUIScaleChanged};
 use crate::ui::gui_scale_to_float;
+use crate::{GUIScale, GUIScaleChanged};
 
 use bevy::prelude::*;
 
@@ -8,9 +8,8 @@ pub struct HorizontalLine;
 #[derive(Component)]
 pub struct VerticalLine;
 
-
 pub fn setup_crosshair(mut commands: Commands, gui_scale: Res<GUIScale>) {
-    let scale : f32 = gui_scale_to_float(*gui_scale);
+    let scale: f32 = gui_scale_to_float(*gui_scale);
 
     commands
         .spawn((Node {
@@ -25,7 +24,7 @@ pub fn setup_crosshair(mut commands: Commands, gui_scale: Res<GUIScale>) {
         },))
         .with_children(|parent| {
             parent.spawn((
-		HorizontalLine,
+                HorizontalLine,
                 Node {
                     position_type: PositionType::Absolute,
                     width: Val::Px(20.0 * scale),
@@ -38,7 +37,7 @@ pub fn setup_crosshair(mut commands: Commands, gui_scale: Res<GUIScale>) {
             ));
 
             parent.spawn((
-		VerticalLine,
+                VerticalLine,
                 Node {
                     position_type: PositionType::Absolute,
                     width: Val::Px(2.0 * scale),
@@ -58,19 +57,19 @@ pub fn update_crosshair(
     mut query_horizontal: Query<&mut Node, (With<HorizontalLine>, Without<VerticalLine>)>,
 ) {
     for event in gui_scale_events.read() {
-	let scale : f32 = gui_scale_to_float(event.gui_scale);
-	for mut node_v in query_vertical.iter_mut() {
-	    node_v.width = Val::Px(20.0 * scale);
-	    node_v.height = Val::Px(2.0 * scale);
-	    node_v.left = Val::Px(-10.0 * scale);
-	    node_v.top = Val::Px(-1.0 * scale);
-	}
+        let scale: f32 = gui_scale_to_float(event.gui_scale);
+        for mut node_v in query_vertical.iter_mut() {
+            node_v.width = Val::Px(20.0 * scale);
+            node_v.height = Val::Px(2.0 * scale);
+            node_v.left = Val::Px(-10.0 * scale);
+            node_v.top = Val::Px(-1.0 * scale);
+        }
 
-	for mut node_h in query_horizontal.iter_mut() {
-	    node_h.width = Val::Px(2.0 * scale);
-	    node_h.height = Val::Px(20.0 * scale);
-	    node_h.left = Val::Px(-1.0 * scale);
-	    node_h.top = Val::Px(-10.0 * scale);
-	}
+        for mut node_h in query_horizontal.iter_mut() {
+            node_h.width = Val::Px(2.0 * scale);
+            node_h.height = Val::Px(20.0 * scale);
+            node_h.left = Val::Px(-1.0 * scale);
+            node_h.top = Val::Px(-10.0 * scale);
+        }
     }
 }

@@ -1,4 +1,4 @@
-use bevy::prelude::{ButtonInput, KeyCode, Res, ResMut, Resource, info, Event, EventWriter};
+use bevy::prelude::{ButtonInput, Event, EventWriter, KeyCode, Res, ResMut, Resource, info};
 
 pub mod hud;
 
@@ -25,7 +25,7 @@ pub fn change_gui_scale(
     mut gui_scale: ResMut<GUIScale>,
     mut gui_scale_events: EventWriter<GUIScaleChanged>,
 ) {
-    let mut scale_changed : bool = false;
+    let mut scale_changed: bool = false;
     if let GUIScale::Scale(scale) = *gui_scale {
         if keys.just_pressed(KeyCode::BracketLeft) && scale > 1 {
             *gui_scale = GUIScale::Scale(scale - 1);
@@ -46,12 +46,13 @@ pub fn change_gui_scale(
         || keys.just_pressed(KeyCode::Backslash)
     {
         *gui_scale = GUIScale::Scale(1);
-	scale_changed = true;
+        scale_changed = true;
     }
 
-    if scale_changed
-    {
-	info!("Gui scale was changed: {:?}", *gui_scale);
-	gui_scale_events.send(GUIScaleChanged { gui_scale: *gui_scale });
+    if scale_changed {
+        info!("Gui scale was changed: {:?}", *gui_scale);
+        gui_scale_events.send(GUIScaleChanged {
+            gui_scale: *gui_scale,
+        });
     }
 }

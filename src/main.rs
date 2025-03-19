@@ -12,7 +12,7 @@ mod ui;
 
 use crate::crosshair::{setup_crosshair, update_crosshair};
 use crate::debug::*;
-use crate::hotbar::{setup_hotbar, update_hotbar};
+use crate::hotbar::{setup_hotbar, update_hotbar, update_hotbar_selection};
 use crate::ui::{GUIScale, GUIScaleChanged, change_gui_scale, hud::*};
 
 pub const PROTOCOL_VERSION: u32 = 758;
@@ -20,7 +20,7 @@ pub const PROTOCOL_VERSION: u32 = 758;
 pub fn main() {
     App::new()
         .insert_resource(GUIScale::Auto)
-	.insert_resource(Time::<Fixed>::from_hz(50.0))
+        .insert_resource(Time::<Fixed>::from_hz(50.0))
         .add_plugins((
             FrameTimeDiagnosticsPlugin,
             SystemInformationDiagnosticsPlugin,
@@ -38,7 +38,7 @@ pub fn main() {
                 .set(ImagePlugin::default_nearest()),
         )
         .add_plugins(bevy_framepace::FramepacePlugin)
-	.add_event::<GUIScaleChanged>()
+        .add_event::<GUIScaleChanged>()
         .add_systems(
             Startup,
             (
@@ -52,7 +52,14 @@ pub fn main() {
         .add_systems(Update, (toggle_debug_hud, change_gui_scale, limit_fps))
         .add_systems(
             FixedUpdate,
-            (update_fps_text, update_display_text, update_focus_text, update_hotbar, update_crosshair),
+            (
+                update_fps_text,
+                update_display_text,
+                update_focus_text,
+                update_hotbar,
+                update_hotbar_selection,
+                update_crosshair,
+            ),
         )
         .add_systems(
             Update,
