@@ -12,7 +12,10 @@ mod ui;
 
 use crate::crosshair::{setup_crosshair, update_crosshair};
 use crate::debug::*;
-use crate::hotbar::{setup_hotbar, update_hotbar, update_hotbar_selection, update_hotbar_selector, HotbarSelectionChanged};
+use crate::hotbar::{
+    HotbarSelectionChanged, setup_hotbar, update_hotbar, update_hotbar_selection,
+    update_hotbar_selector,
+};
 use crate::ui::{GUIScale, GUIScaleChanged, change_gui_scale, hud::*};
 
 pub const PROTOCOL_VERSION: u32 = 758;
@@ -29,11 +32,11 @@ pub fn main() {
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-			resize_constraints: WindowResizeConstraints {
-			    min_width: 480.,
-			    min_height: 360.,
-			    ..default()
-			},
+                        resize_constraints: WindowResizeConstraints {
+                            min_width: 480.,
+                            min_height: 360.,
+                            ..default()
+                        },
                         title: "librecraft".into(),
                         present_mode: PresentMode::AutoNoVsync,
                         ..default()
@@ -44,7 +47,7 @@ pub fn main() {
         )
         .add_plugins(bevy_framepace::FramepacePlugin)
         .add_event::<GUIScaleChanged>()
-	.add_event::<HotbarSelectionChanged>()
+        .add_event::<HotbarSelectionChanged>()
         .add_systems(
             Startup,
             (
@@ -58,21 +61,17 @@ pub fn main() {
         .add_systems(Update, (toggle_debug_hud, change_gui_scale, limit_fps))
         .add_systems(
             FixedUpdate,
+            (update_fps_text, update_display_text, update_focus_text),
+        )
+        .add_systems(
+            Update,
             (
-                update_fps_text,
-                update_display_text,
-                update_focus_text,
+                update_hotbar,
+                update_hotbar_selection,
+                update_hotbar_selector,
+                update_crosshair,
             ),
         )
-	.add_systems(
-	    Update,
-	    (
-		update_hotbar,
-                update_hotbar_selection,
-		update_hotbar_selector,
-                update_crosshair,
-	    )
-	)
         .add_systems(
             Update,
             (music::fade_in, music::fade_out, music::change_track),
