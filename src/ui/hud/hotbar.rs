@@ -19,7 +19,7 @@ pub fn setup_hotbar(
         Sprite {
             image: asset_server.load("hotbar.png"),
             anchor: Anchor::BottomCenter,
-            custom_size: Some(Vec2::new(182. * scale, 22. * scale)), // original_size * gui_scale; hard-coded to disallow changing size of assets
+            custom_size: Some(Vec2::new(182. * scale, 22. * scale)), // original_size * gui_scale; hard-coded to punish changing size of assets
             ..Default::default()
         },
         Transform::from_xyz(100., 0., 0.),
