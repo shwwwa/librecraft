@@ -21,7 +21,7 @@ pub fn main() {
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        title: "libcraft".into(),
+                        title: "librecraft".into(),
                         present_mode: PresentMode::AutoNoVsync,
                         ..default()
                     }),
@@ -29,12 +29,13 @@ pub fn main() {
                 })
                 .set(ImagePlugin::default_nearest()),
         )
+	.add_plugins(bevy_framepace::FramepacePlugin)
         .insert_resource(Time::<Fixed>::from_hz(50.0))
         .add_systems(
             Startup,
             (setup_debug_hud, setup_hotbar, setup_crosshair, setup_camera),
         )
-        .add_systems(Update, (toggle_debug_hud, change_gui_scale))
+        .add_systems(Update, (toggle_debug_hud, change_gui_scale, limit_fps))
         .add_systems(
             FixedUpdate,
             (update_fps_text, update_display_text, update_focus_text),

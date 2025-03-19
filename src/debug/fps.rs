@@ -6,6 +6,22 @@ use bevy::prelude::*;
 #[derive(Component)]
 pub struct FpsText;
 
+pub fn limit_fps(
+    mut settings: ResMut<bevy_framepace::FramepaceSettings>,
+    input: Res<ButtonInput<KeyCode>>,
+){
+    if input.just_pressed(KeyCode::Space) {
+	use bevy_framepace::Limiter;
+
+	settings.limiter = match settings.limiter {
+	    Limiter::Auto => Limiter::Off,
+	    Limiter::Off => Limiter::from_framerate(30.0),
+	    Limiter::Manual(_) => Limiter::Auto,
+	}
+	
+    }
+}
+
 pub fn update_fps_text(
     diagnostics: Res<DiagnosticsStore>,
     mut query: Query<(&mut TextSpan, &mut TextColor), With<FpsText>>,
