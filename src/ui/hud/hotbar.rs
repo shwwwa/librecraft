@@ -11,6 +11,9 @@ pub struct Hotbar {
     pub selected: u32,
 }
 
+#[derive(Component)]
+pub struct HotbarSelection;
+
 // Hotbar system.
 // Requires a running camera.
 pub fn setup_hotbar(
@@ -30,6 +33,17 @@ pub fn setup_hotbar(
         },
         Transform::from_xyz(100., 0., 0.),
     ));
+
+    commands.spawn((
+        HotbarSelection,
+        Sprite {
+            image: asset_server.load("hotbar_selection.png"),
+            anchor: Anchor::BottomCenter,
+            custom_size: Some(Vec2::new(24. * scale, 23. * scale)), // original_size * gui_scale; hard-coded to punish changing size of assets
+            ..Default::default()
+        },
+        Transform::from_xyz(0., 0., 0.),
+    ));
 }
 
 pub fn update_hotbar(
@@ -46,9 +60,11 @@ pub fn update_hotbar(
 
 pub fn update_hotbar_selection(
     keys: Res<ButtonInput<KeyCode>>,
-    mut query: Query<&mut Hotbar, With<Hotbar>>,
+    mut query: Query<&mut Hotbar, (With<Hotbar>, Without<HotbarSelection>)>,
+    mut gui_scale_events: EventReader<GUIScaleChanged>,
+    mut query_selection: Query<&mut Sprite, (With<HotbarSelection>, Without<Hotbar>)>,
 ) {
-    // todo: enum to int conversion
+    // todo: enum to int conversion?
     if keys.any_pressed([
         KeyCode::Digit1,
         KeyCode::Digit2,
@@ -88,6 +104,13 @@ pub fn update_hotbar_selection(
             if keys.pressed(KeyCode::Digit9) {
                 hotbar.selected = 9;
             }
+        }
+    }
+
+    for event in gui_scale_events.read() {
+        for mut sprite in query_selection.iter_mut() {
+            let scale: f32 = gui_scale_to_float(event.gui_scale);
+            sprite.custom_size = Some(Vec2::new(24. * scale, 23. * scale));
         }
     }
 }
