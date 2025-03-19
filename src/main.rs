@@ -11,7 +11,7 @@ use crate::debug::*;
 use crate::hotbar::setup_hotbar;
 use crate::ui::{GUIScale, change_gui_scale, hud::*};
 
- pub const PROTOCOL_VERSION: u32 = 758;
+pub const PROTOCOL_VERSION: u32 = 758;
 
 pub fn main() {
     App::new()
@@ -35,8 +35,10 @@ pub fn main() {
             (setup_debug_hud, setup_hotbar, setup_crosshair, setup_camera),
         )
         .add_systems(Update, (toggle_debug_hud, change_gui_scale))
-        .add_systems(FixedUpdate, (update_fps_text, update_display_text,
-	update_focus_text))
+        .add_systems(
+            FixedUpdate,
+            (update_fps_text, update_display_text, update_focus_text),
+        )
         .run();
 }
 

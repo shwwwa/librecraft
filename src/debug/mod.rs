@@ -1,7 +1,7 @@
+pub mod display;
 pub mod fps;
 pub mod setup;
-pub mod display;
 
+pub use display::*;
 pub use fps::*;
 pub use setup::*;
-pub use display::*;

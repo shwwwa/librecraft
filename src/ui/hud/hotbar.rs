@@ -11,7 +11,7 @@ pub fn setup_hotbar(
     gui_scale: Res<GUIScale>,
 ) {
     let scale: f32 = match *gui_scale {
-        GUIScale::Auto => 2 as f32,
+        GUIScale::Auto => 2_f32,
         GUIScale::Scale(x) => x as f32,
     };
 

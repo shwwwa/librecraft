@@ -1,4 +1,4 @@
-use crate::{FpsText, DisplayText, FocusText};
+use crate::{DisplayText, FocusText, FpsText};
 use bevy::prelude::*;
 use bevy::window::{Monitor, PrimaryMonitor};
 
@@ -9,7 +9,7 @@ pub struct HudRoot;
 pub fn setup_debug_hud(
     mut commands: Commands,
     query_monitor: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>,
-    query_window: Query<&Window>
+    query_window: Query<&Window>,
 ) {
     let hud_root = commands
         .spawn((
@@ -72,9 +72,9 @@ pub fn setup_debug_hud(
             TextColor(Color::WHITE),
         ));
     }
-    
+
     let text_monitor_info = text_monitor.id();
-    
+
     let mut text_display = commands.spawn((
         Text::new("Display: "),
         TextFont::from_font_size(16.0),
@@ -87,19 +87,20 @@ pub fn setup_debug_hud(
     let height = window.resolution.height();
 
     let display_info = format!("{}x{}", width, height);
-    
-    text_display.with_child((
-	DisplayText,
-        TextSpan::new(display_info),
-        TextFont::from_font_size(16.0),
-        TextColor(Color::WHITE),
-    ))
-	.with_child((
-	    FocusText,
+
+    text_display
+        .with_child((
+            DisplayText,
+            TextSpan::new(display_info),
+            TextFont::from_font_size(16.0),
+            TextColor(Color::WHITE),
+        ))
+        .with_child((
+            FocusText,
             TextSpan::new("".to_string()),
             TextFont::from_font_size(16.0),
             TextColor(Color::WHITE),
-	));
+        ));
     let text_display_info = text_display.id();
 
     let text_processor = commands.spawn((
