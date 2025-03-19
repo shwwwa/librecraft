@@ -2,6 +2,8 @@ use crate::{DisplayText, FocusText, FpsText};
 use bevy::prelude::*;
 use bevy::diagnostic::SystemInfo;
 use bevy::window::{Monitor, PrimaryMonitor};
+use bevy::render::renderer::RenderAdapterInfo;
+use wgpu_types::DeviceType;
 
 // Marker to find container's entity
 #[derive(Component)]
@@ -10,6 +12,7 @@ pub struct HudRoot;
 pub fn setup_debug_hud(
     mut commands: Commands,
     system: Res<SystemInfo>,
+    adapter: Res<RenderAdapterInfo>,
     query_monitor: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>,
     query_window: Query<&Window>,
 ) {
@@ -121,16 +124,26 @@ pub fn setup_debug_hud(
         ));
     
     let text_system_info = text_system.id();
-
+    
     let mut text_adapter = commands.spawn((
         Text::new("Adapter: "),
         TextFont::from_font_size(16.0),
         TextColor(Color::WHITE),
     ));
 
+    let device_type : String = match adapter.device_type
+    {
+	DeviceType::Other | DeviceType::DiscreteGpu => "".to_string(),
+	DeviceType::IntegratedGpu => " (integrated)".to_string(),
+	DeviceType::VirtualGpu => " (virtual)".to_string(),
+	DeviceType::Cpu => " (cpu)".to_string(),
+    };
+    
+    let adapter_info = format!("{}{}, {} ({})", adapter.name, device_type, adapter.driver_info, adapter.backend);
+    
     text_adapter
         .with_child((
-            TextSpan::new(""),
+            TextSpan::new(adapter_info),
             TextFont::from_font_size(16.0),
             TextColor(Color::WHITE),
         ));

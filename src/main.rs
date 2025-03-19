@@ -2,7 +2,6 @@
 
 use bevy::prelude::*;
 use bevy::{diagnostic::{FrameTimeDiagnosticsPlugin, SystemInformationDiagnosticsPlugin}, window::PresentMode};
-
 mod debug;
 mod ui;
 
