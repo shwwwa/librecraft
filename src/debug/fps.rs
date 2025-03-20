@@ -31,7 +31,7 @@ pub fn update_fps_text(
             .get(&FrameTimeDiagnosticsPlugin::FPS)
             .and_then(|fps| fps.smoothed())
         {
-            **span = format!("{value:>4.1}");
+            **span = format!("{value:>3.0}");
 
             // Adjust text color based on FPS value
             color.0 = if value >= 120.0 {
