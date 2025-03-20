@@ -3,7 +3,18 @@ name = "minecraftclone"
 version = "0.1.0"
 edition = "2024"
 
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+codegen-units = 1
+lto = "thin"
+
 [dependencies]
+log = { version = "*", features = ["max_level_debug", "release_max_level_warn"] }
 anyhow = "1.0.97"
 bevy_framepace = { version = "0.18.1", default-features = false }
 rand = "0.9.0"
@@ -39,6 +50,7 @@ features = [
 	 "bevy_winit",
 #	 "custom_cursor",
 	 "default_font", # default fallback font
+	 "dynamic_linking",
 	 "hdr",
 	 "ktx2",
 	 "multi_threaded",
