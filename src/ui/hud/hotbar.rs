@@ -42,7 +42,7 @@ pub fn setup_hotbar(
             Node {
                 display: Display::Flex,
                 position_type: PositionType::Absolute,
-                bottom: Val::Px(40.),
+                bottom: Val::Px(0.),
                 width: Val::Px(HOTBAR_WIDTH * scale),
                 height: Val::Px(HOTBAR_HEIGHT * scale),
                 padding: UiRect::ZERO,
