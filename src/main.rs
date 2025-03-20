@@ -2,9 +2,36 @@
 
 use bevy::prelude::*;
 use bevy::{
+    app::PluginGroupBuilder,
     diagnostic::{FrameTimeDiagnosticsPlugin, SystemInformationDiagnosticsPlugin},
     window::PresentMode,
 };
+
+struct NecessaryPlugins;
+
+impl PluginGroup for NecessaryPlugins {
+    fn build(self) -> PluginGroupBuilder {
+	PluginGroupBuilder::start::<Self>()
+	    .add_group(DefaultPlugins
+                       .set(WindowPlugin {
+			   primary_window: Some(Window {
+                               resize_constraints: WindowResizeConstraints {
+				   min_width: 480.,
+				   min_height: 360.,
+				   ..default()
+                               },
+                               title: "librecraft".into(),
+                               present_mode: PresentMode::AutoNoVsync,
+                               ..default()
+			   }),
+			   ..default()
+                       })
+                 .set(ImagePlugin::default_nearest()))
+	    .add(FrameTimeDiagnosticsPlugin)
+	    .add(SystemInformationDiagnosticsPlugin)
+	    .add(bevy_framepace::FramepacePlugin)
+    }
+}
 
 mod debug;
 mod music;
@@ -24,28 +51,7 @@ pub fn main() {
     App::new()
         .insert_resource(GUIScale::Auto)
         .insert_resource(Time::<Fixed>::from_hz(50.0))
-        .add_plugins((
-            FrameTimeDiagnosticsPlugin,
-            SystemInformationDiagnosticsPlugin,
-        ))
-        .add_plugins(
-            DefaultPlugins
-                .set(WindowPlugin {
-                    primary_window: Some(Window {
-                        resize_constraints: WindowResizeConstraints {
-                            min_width: 480.,
-                            min_height: 360.,
-                            ..default()
-                        },
-                        title: "librecraft".into(),
-                        present_mode: PresentMode::AutoNoVsync,
-                        ..default()
-                    }),
-                    ..default()
-                })
-                .set(ImagePlugin::default_nearest()),
-        )
-        .add_plugins(bevy_framepace::FramepacePlugin)
+        .add_plugins(NecessaryPlugins)
         .add_event::<GUIScaleChanged>()
         .add_event::<HotbarSelectionChanged>()
         .add_systems(
