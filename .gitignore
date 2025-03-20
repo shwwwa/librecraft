@@ -8,6 +8,11 @@
 ## File system
 .DS_Store
 desktop.ini
+Thumbs.db
+
+## Assets
+
+COPYRIGHT_assets
 
 ## Editor
 *.swp
@@ -25,6 +30,7 @@ Session.vim
 .settings/
 .vs/
 .dir-locals.el
+.markdown-preview.html
 
 ## Tool
 .valgrindrc
