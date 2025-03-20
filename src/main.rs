@@ -1,5 +1,4 @@
 #![allow(clippy::default_constructed_unit_structs)]
-
 use bevy::prelude::*;
 use bevy::{
     app::PluginGroupBuilder,
@@ -11,30 +10,33 @@ struct NecessaryPlugins;
 
 impl PluginGroup for NecessaryPlugins {
     fn build(self) -> PluginGroupBuilder {
-	PluginGroupBuilder::start::<Self>()
-	    .add_group(DefaultPlugins
-                       .set(WindowPlugin {
-			   primary_window: Some(Window {
-                               resize_constraints: WindowResizeConstraints {
-				   min_width: 480.,
-				   min_height: 360.,
-				   ..default()
-                               },
-                               title: "librecraft".into(),
-                               present_mode: PresentMode::AutoNoVsync,
-                               ..default()
-			   }),
-			   ..default()
-                       })
-                 .set(ImagePlugin::default_nearest()))
-	    .add(FrameTimeDiagnosticsPlugin)
-	    .add(SystemInformationDiagnosticsPlugin)
-	    .add(bevy_framepace::FramepacePlugin)
+        PluginGroupBuilder::start::<Self>()
+            .add_group(
+                DefaultPlugins
+                    .set(WindowPlugin {
+                        primary_window: Some(Window {
+                            resize_constraints: WindowResizeConstraints {
+                                min_width: 480.,
+                                min_height: 360.,
+                                ..default()
+                            },
+                            title: "librecraft".into(),
+                            present_mode: PresentMode::AutoNoVsync,
+                            ..default()
+                        }),
+                        ..default()
+                    })
+                    .set(ImagePlugin::default_nearest()),
+            )
+            .add(FrameTimeDiagnosticsPlugin)
+            .add(SystemInformationDiagnosticsPlugin)
+            .add(bevy_framepace::FramepacePlugin)
     }
 }
 
 mod debug;
 mod music;
+mod settings;
 mod ui;
 
 use crate::crosshair::{setup_crosshair, update_crosshair};
@@ -43,13 +45,17 @@ use crate::hotbar::{
     HotbarSelectionChanged, setup_hotbar, update_hotbar, update_hotbar_selection,
     update_hotbar_selector,
 };
+use crate::settings::Settings;
 use crate::ui::{GUIScale, GUIScaleChanged, change_gui_scale, hud::*};
 
 pub const PROTOCOL_VERSION: u32 = 758;
 
 pub fn main() {
+    let settings = settings::read_settings("assets/settings.toml").unwrap_or_default();
+
     App::new()
         .insert_resource(GUIScale::Auto)
+        .insert_resource(settings)
         .insert_resource(Time::<Fixed>::from_hz(50.0))
         .add_plugins(NecessaryPlugins)
         .add_event::<GUIScaleChanged>()
@@ -85,7 +91,7 @@ pub fn main() {
         .run();
 }
 
-fn setup_camera(mut commands: Commands) {
+fn setup_camera(mut commands: Commands, settings: Res<Settings>) {
     commands.spawn((
         Camera2d::default(),
         Camera {
@@ -94,4 +100,6 @@ fn setup_camera(mut commands: Commands) {
         },
         Msaa::Off,
     ));
+
+    info!("seed: {}", settings.seed);
 }
