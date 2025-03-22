@@ -8,9 +8,9 @@ We welcome help from anyone willing to contribute!
 
 ## Design Goals
 
-**Fast**: App logic should run quickly, and when possible, in parallel
-**Modular**: To quickly implement changes between versions.
-**Compatible**: Compatible with minecraft servers and clients.
+- **Fast**: App logic should run quickly, and when possible, in parallel
+- **Modular**: To quickly implement changes between versions.
+- **Compatible**: Compatible with minecraft servers and clients.
 
 ## Community
 
