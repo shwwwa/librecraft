@@ -50,7 +50,7 @@ pub fn handle_mouse(
         let is_playing = *gui_mode == GUIMode::Closed;
 	
         if is_playing {
-	    if *gui_mode != GUIMode::Opened && settings.pause_on_lost_focus {
+	    if settings.pause_on_lost_focus {
 		*gui_mode = GUIMode::Opened;
 		gui_mode_events.send(GUIModeChanged {
 		    gui_mode: *gui_mode,
