@@ -8,11 +8,17 @@ use std::error::Error;
 #[derive(Deserialize, Clone, Copy, Resource)]
 pub struct Settings {
     pub seed: u64,
+    pub pause_on_lost_focus: bool,
+    pub mute_on_lost_focus: bool,
 }
 
 impl Default for Settings {
     fn default() -> Self {
-        Self { seed: 0 }
+        Self {
+	    seed: 0,
+	    pause_on_lost_focus: true,
+	    mute_on_lost_focus: true,
+	}
     }
 }
 

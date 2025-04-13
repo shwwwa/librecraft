@@ -39,8 +39,9 @@ mod music;
 mod settings;
 mod ui;
 
-use crate::crosshair::{setup_crosshair, update_crosshair};
 use crate::debug::*;
+use crate::music::{setup_soundtrack, fade_in, fade_out, change_track};
+use crate::crosshair::{setup_crosshair, update_crosshair};
 use crate::hotbar::{
     HotbarSelectionChanged, setup_hotbar, update_hotbar, update_hotbar_selection,
     update_hotbar_selector,
@@ -57,10 +58,10 @@ pub fn main() {
     let settings = settings::read_settings("assets/settings.toml").unwrap_or_default();
 
     App::new()
+	.insert_resource(Time::<Fixed>::from_hz(50.0))
         .insert_resource(GUIScale::Auto)
         .insert_resource(GUIMode::Opened)
         .insert_resource(settings)
-        .insert_resource(Time::<Fixed>::from_hz(50.0))
         .add_plugins(NecessaryPlugins)
         .add_event::<GUIScaleChanged>()
         .add_event::<GUIModeChanged>()
@@ -72,8 +73,12 @@ pub fn main() {
                 setup_hotbar,
                 setup_crosshair,
                 setup_camera,
-                music::setup_soundtrack,
+                setup_soundtrack,
             ),
+        )
+	.add_systems(
+            FixedUpdate,
+            (update_fps_text, update_display_text, update_focus_text),
         )
         .add_systems(
             Update,
@@ -86,10 +91,6 @@ pub fn main() {
             ),
         )
         .add_systems(
-            FixedUpdate,
-            (update_fps_text, update_display_text, update_focus_text),
-        )
-        .add_systems(
             Update,
             (
                 update_hotbar,
@@ -100,7 +101,7 @@ pub fn main() {
         )
         .add_systems(
             Update,
-            (music::fade_in, music::fade_out, music::change_track),
+            (fade_in, fade_out, change_track),
         )
         .run();
 }

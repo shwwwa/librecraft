@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, PrimaryWindow, WindowFocused};
+use crate::settings::*;
 
 pub mod hud;
 
@@ -38,16 +39,28 @@ pub fn gui_scale_to_float(gui_scale: GUIScale) -> f32 {
 
 pub fn handle_mouse(
     mut windows: Query<&mut Window, With<PrimaryWindow>>,
-    gui_mode: ResMut<GUIMode>,
-    mut gui_mode_events: EventReader<GUIModeChanged>,
+    mut gui_mode: ResMut<GUIMode>,
+    settings: Res<Settings>,
+    mut gui_mode_events: ResMut<Events<GUIModeChanged>>,
     mut focus_reader: EventReader<WindowFocused>,
 ) {
+    let mut gui_mode_cursor = gui_mode_events.get_cursor();
+    
     for ev in focus_reader.read() {
         let is_playing = *gui_mode == GUIMode::Closed;
-
+	
         if is_playing {
-            let mut window = windows.single_mut();
+	    if settings.pause_on_lost_focus {
+		*gui_mode = GUIMode::Opened;
+		gui_mode_events.send(GUIModeChanged {
+		    gui_mode: *gui_mode,
+		});
 
+		return;
+	    }
+	    
+            let mut window = windows.single_mut();
+	    
             if ev.focused {
                 window.cursor_options.grab_mode = CursorGrabMode::Locked;
             } else {
@@ -58,7 +71,7 @@ pub fn handle_mouse(
         }
     }
 
-    for ev in gui_mode_events.read() {
+    for ev in gui_mode_cursor.read(&gui_mode_events) {
         let mut window = windows.single_mut();
 
         let is_playing = ev.gui_mode == GUIMode::Closed;

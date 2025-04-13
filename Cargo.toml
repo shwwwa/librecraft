@@ -26,8 +26,8 @@ serde = { version = "1.0.219", features = ["derive"] }
 version = "0.15.3"
 default-features = false
 features = [
-#	 "android-game-activity", and next - needed for android support
-#	 "android_shared_stdcxx",
+#	 "android-game-activity", ;
+#	 "android_shared_stdcxx", ; needed for android support
 	 "animation",
 	 "bevy_animation",
 	 "bevy_asset",
@@ -38,10 +38,10 @@ features = [
 	 "bevy_gizmos",
 	 "bevy_gltf",
 	 "bevy_mesh_picking_backend",
-#	 "bevy_pbr" probe reflections
+#	 "bevy_pbr" ; probe reflections
 	 "bevy_picking",
 	 "bevy_render",
-	 "bevy_scene", # useless not to use, it s optional everywhere
+	 "bevy_scene", # ; useless not to use, it s optional everywhere
 	 "bevy_sprite",
 	 "bevy_sprite_picking_backend",
 	 "bevy_state",

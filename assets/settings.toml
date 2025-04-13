@@ -1,1 +1,3 @@
 seed = 1337
+pause_on_lost_focus = true
+mute_on_lost_focus = true
