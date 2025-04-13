@@ -46,7 +46,10 @@ use crate::hotbar::{
     update_hotbar_selector,
 };
 use crate::settings::Settings;
-use crate::ui::{GUIScale, GUIScaleChanged, change_gui_scale, hud::*};
+use crate::ui::{
+    GUIMode, GUIModeChanged, GUIScale, GUIScaleChanged, change_gui_mode, change_gui_scale,
+    handle_mouse, hud::*,
+};
 
 pub const PROTOCOL_VERSION: u32 = 758;
 
@@ -55,10 +58,12 @@ pub fn main() {
 
     App::new()
         .insert_resource(GUIScale::Auto)
+        .insert_resource(GUIMode::Opened)
         .insert_resource(settings)
         .insert_resource(Time::<Fixed>::from_hz(50.0))
         .add_plugins(NecessaryPlugins)
         .add_event::<GUIScaleChanged>()
+        .add_event::<GUIModeChanged>()
         .add_event::<HotbarSelectionChanged>()
         .add_systems(
             Startup,
@@ -70,7 +75,16 @@ pub fn main() {
                 music::setup_soundtrack,
             ),
         )
-        .add_systems(Update, (toggle_debug_hud, change_gui_scale, limit_fps))
+        .add_systems(
+            Update,
+            (
+                toggle_debug_hud,
+                change_gui_scale,
+                change_gui_mode,
+                limit_fps,
+                handle_mouse,
+            ),
+        )
         .add_systems(
             FixedUpdate,
             (update_fps_text, update_display_text, update_focus_text),

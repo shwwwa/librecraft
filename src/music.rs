@@ -93,7 +93,7 @@ pub fn change_track(
         for track in soundtrack.iter() {
             commands.entity(track).insert(FadeOut);
         }
-        // todo: tracks cannnot repeat themselves
+        // todo: tracks cannot repeat themselves
         let chosen_track = soundtrack_player
             .track_list
             .choose(&mut rand::rng())
