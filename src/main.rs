@@ -6,6 +6,7 @@ use bevy::{
     window::PresentMode,
 };
 
+/** Necessary plugins, responsible for generic app functions. */
 struct NecessaryPlugins;
 
 impl PluginGroup for NecessaryPlugins {
@@ -36,6 +37,7 @@ impl PluginGroup for NecessaryPlugins {
 
 mod debug;
 mod music;
+mod player;
 mod settings;
 mod ui;
 
@@ -46,22 +48,24 @@ use crate::hotbar::{
     HotbarSelectionChanged, setup_hotbar, update_hotbar, update_hotbar_selection,
     update_hotbar_selector,
 };
-use crate::settings::Settings;
+use crate::player::*;
+use crate::settings::*;
 use crate::ui::{
     GUIMode, GUIModeChanged, GUIScale, GUIScaleChanged, change_gui_mode, change_gui_scale,
     handle_mouse, hud::*,
 };
 
+/** Minecraft protocol version that we are trying to support. */
 pub const PROTOCOL_VERSION: u32 = 758;
 
+/** Main entry of the program. */
 pub fn main() {
-    let settings = settings::read_settings("assets/settings.toml").unwrap_or_default();
-
     App::new()
 	.insert_resource(Time::<Fixed>::from_hz(50.0))
         .insert_resource(GUIScale::Auto)
         .insert_resource(GUIMode::Opened)
-        .insert_resource(settings)
+        .init_resource::<Settings>()
+        .init_resource::<Player>()
         .add_plugins(NecessaryPlugins)
         .add_event::<GUIScaleChanged>()
         .add_event::<GUIModeChanged>()
@@ -70,9 +74,11 @@ pub fn main() {
             Startup,
             (
                 setup_debug_hud,
+		setup_settings,
+		setup_player_data,
+		setup_camera,
                 setup_hotbar,
                 setup_crosshair,
-                setup_camera,
                 setup_soundtrack,
             ),
         )
@@ -106,7 +112,8 @@ pub fn main() {
         .run();
 }
 
-fn setup_camera(mut commands: Commands, settings: Res<Settings>) {
+/** Setups camera for game to use. */
+fn setup_camera(mut commands: Commands) {
     commands.spawn((
         Camera2d::default(),
         Camera {
@@ -115,6 +122,4 @@ fn setup_camera(mut commands: Commands, settings: Res<Settings>) {
         },
         Msaa::Off,
     ));
-
-    info!("seed: {}", settings.seed);
 }

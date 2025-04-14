@@ -4,14 +4,16 @@ use crate::settings::*;
 
 pub mod hud;
 
-/** Scales elements on display according to scale. Automatic scale scales depending on window's size. */
+/** Scales elements on display according to scale.
+    Automatic scale scales depending on window's size. */
 #[derive(PartialEq, Eq, Clone, Copy, Resource, Debug)]
 pub enum GUIScale {
     Auto,
     Scale(u8),
 }
 
-/** Determines if GUI is opened, closed, or user is typing something. On opened GUI, allows user to handle his mouse. */
+/** Determines if GUI is opened, closed, or user is typing something.
+    On opened GUI, allows user to handle his mouse. */
 #[derive(PartialEq, Eq, Clone, Copy, Resource, Debug)]
 pub enum GUIMode {
     Closed,

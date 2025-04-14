@@ -1,11 +1,11 @@
-use bevy::prelude::Resource;
-
+use bevy::prelude::*;
 use serde::Deserialize;
 use toml::from_str;
 
 use std::error::Error;
 
-#[derive(Deserialize, Clone, Copy, Resource)]
+#[allow(dead_code)]
+#[derive(Deserialize, Clone, Copy, Resource, Debug)]
 pub struct Settings {
     pub seed: u64,
     pub pause_on_lost_focus: bool,
@@ -22,8 +22,21 @@ impl Default for Settings {
     }
 }
 
-pub fn read_settings(file: &str) -> Result<Settings, Box<dyn Error>> {
+pub fn setup_settings(
+    mut settings: ResMut<Settings>,
+) {
+    match read_settings("./assets/settings.toml", &mut settings) {
+	Ok(()) => info!("{:?}", *settings),
+	Err(e) => warn!("Couldn't retrieve settings: {}", e),
+    } 
+}
+    
+pub fn read_settings(file: &str, settings: &mut Settings) -> Result<(), Box<dyn Error>> {
+    debug!("Path to settings: {:?}", std::fs::canonicalize(file));
+
     let settings_str = std::fs::read_to_string(file)?;
-    let settings = from_str(&settings_str)?;
-    Ok(settings)
+    
+    *settings = from_str(&settings_str)?;
+
+    Ok(())
 }
