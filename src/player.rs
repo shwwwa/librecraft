@@ -55,7 +55,7 @@ impl Default for Abilities {
 /** Contains player's nbt data. */
 #[derive(Deserialize, Clone, Resource, Debug)]
 pub struct Player {
-    /** Data version of player's NBT */
+    /** Data version of player's NBT. */
     pub data_version: i32,
     pub absorption_amount: f32,
     pub dimension: String,
