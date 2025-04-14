@@ -6,22 +6,12 @@ use std::io::prelude::*;
 use valence_nbt::from_binary;
 
 /** Slot in inventory's storage. */
-#[derive(Deserialize, Clone, Debug)]
+#[derive(Deserialize, Clone, Debug, Default)]
 pub struct Slot {
     pub slot: i8,
     pub id: i8,
     pub count: i8,
     /* pub tag: unused */
-}
-
-impl Default for Slot {
-    fn default() -> Self {
-        Self {
-            slot: 0,
-            id: 0,
-            count: 0,
-        }
-    }
 }
 
 /** Contains list of inventory slots. */
