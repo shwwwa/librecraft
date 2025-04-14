@@ -25,7 +25,7 @@ pub struct HotbarSelectionChanged {
 }
 
 /** Hotbar system.
-    Requires a running camera. */
+Requires a running camera. */
 pub fn setup_hotbar(
     mut hotbar_selection_events: EventWriter<HotbarSelectionChanged>,
     mut commands: Commands,

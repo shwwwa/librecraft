@@ -1,11 +1,11 @@
+use crate::settings::*;
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, PrimaryWindow, WindowFocused};
-use crate::settings::*;
 
 pub mod hud;
 
 /** Scales elements on display according to scale.
-    Automatic scale scales depending on window's size. */
+Automatic scale scales depending on window's size. */
 #[derive(PartialEq, Eq, Clone, Copy, Resource, Debug)]
 pub enum GUIScale {
     Auto,
@@ -13,7 +13,7 @@ pub enum GUIScale {
 }
 
 /** Determines if GUI is opened, closed, or user is typing something.
-    On opened GUI, allows user to handle his mouse. */
+On opened GUI, allows user to handle his mouse. */
 #[derive(PartialEq, Eq, Clone, Copy, Resource, Debug)]
 pub enum GUIMode {
     Closed,
@@ -47,22 +47,22 @@ pub fn handle_mouse(
     mut focus_reader: EventReader<WindowFocused>,
 ) {
     let mut gui_mode_cursor = gui_mode_events.get_cursor();
-    
+
     for ev in focus_reader.read() {
         let is_playing = *gui_mode == GUIMode::Closed;
-	
-        if is_playing {
-	    if settings.pause_on_lost_focus {
-		*gui_mode = GUIMode::Opened;
-		gui_mode_events.send(GUIModeChanged {
-		    gui_mode: *gui_mode,
-		});
 
-		return;
-	    }
-	    
+        if is_playing {
+            if settings.pause_on_lost_focus {
+                *gui_mode = GUIMode::Opened;
+                gui_mode_events.send(GUIModeChanged {
+                    gui_mode: *gui_mode,
+                });
+
+                return;
+            }
+
             let mut window = windows.single_mut();
-	    
+
             if ev.focused {
                 window.cursor_options.grab_mode = CursorGrabMode::Locked;
             } else {

@@ -5,6 +5,7 @@ use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, SystemInformationDiagnosticsPlugin},
     window::PresentMode,
 };
+use music::mute_music_on_focus;
 
 /** Necessary plugins, responsible for generic app functions. */
 struct NecessaryPlugins;
@@ -41,13 +42,13 @@ mod player;
 mod settings;
 mod ui;
 
-use crate::debug::*;
-use crate::music::{setup_soundtrack, fade_in, fade_out, change_track};
 use crate::crosshair::{setup_crosshair, update_crosshair};
+use crate::debug::*;
 use crate::hotbar::{
     HotbarSelectionChanged, setup_hotbar, update_hotbar, update_hotbar_selection,
     update_hotbar_selector,
 };
+use crate::music::{change_track, fade_in, fade_out, setup_soundtrack};
 use crate::player::*;
 use crate::settings::*;
 use crate::ui::{
@@ -60,8 +61,8 @@ pub const PROTOCOL_VERSION: u32 = 758;
 
 /** Main entry of the program. */
 pub fn main() {
-    App::new()
-	.insert_resource(Time::<Fixed>::from_hz(50.0))
+    let mut app = App::new();
+    app.insert_resource(Time::<Fixed>::from_hz(50.0))
         .insert_resource(GUIScale::Auto)
         .insert_resource(GUIMode::Opened)
         .init_resource::<Settings>()
@@ -74,15 +75,15 @@ pub fn main() {
             Startup,
             (
                 setup_debug_hud,
-		setup_settings,
-		setup_player_data,
-		setup_camera,
+                setup_settings,
+                setup_player_data,
+                setup_camera,
                 setup_hotbar,
                 setup_crosshair,
                 setup_soundtrack,
             ),
         )
-	.add_systems(
+        .add_systems(
             FixedUpdate,
             (update_fps_text, update_display_text, update_focus_text),
         )
@@ -105,10 +106,8 @@ pub fn main() {
                 update_crosshair,
             ),
         )
-        .add_systems(
-            Update,
-            (fade_in, fade_out, change_track),
-        )
+        .add_systems(Update, (fade_in, fade_out, change_track));
+    app.add_systems(Update, mute_music_on_focus.run_if(is_mute_on_lost_focus))
         .run();
 }
 

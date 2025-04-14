@@ -1,5 +1,10 @@
 use bevy::prelude::*;
+use bevy::window::{PrimaryWindow, WindowFocused};
 use rand::prelude::*;
+
+/** Used to get references for all music in-game e.g. to mute it. */
+#[derive(Component)]
+pub struct Music;
 
 #[derive(Resource)]
 pub struct SoundtrackPlayer {
@@ -55,9 +60,16 @@ pub fn setup_soundtrack(asset_server: Res<AssetServer>, mut commands: Commands) 
 pub fn fade_in(
     mut commands: Commands,
     mut audio_sink: Query<(&mut AudioSink, Entity), With<FadeIn>>,
+    window: Query<&Window, With<PrimaryWindow>>,
     time: Res<Time>,
 ) {
     for (audio, entity) in audio_sink.iter_mut() {
+        for pw in window.iter() {
+            if !pw.focused {
+                commands.entity(entity).remove::<FadeIn>();
+                return;
+            }
+        }
         audio.set_volume(audio.volume() + time.delta_secs() / FADE_TIME);
         if audio.volume() >= 1.0 {
             audio.set_volume(1.0);
@@ -76,6 +88,23 @@ pub fn fade_out(
         if audio.volume() <= 0.0 {
             info!("deleting fade out tracks");
             commands.entity(entity).despawn_recursive();
+        }
+    }
+}
+
+pub fn mute_music_on_focus(
+    mut audio_sink: Query<&mut AudioSink, With<Music>>,
+    mut focus_reader: EventReader<WindowFocused>,
+) {
+    for evr in focus_reader.read() {
+        if evr.focused {
+            for audio in audio_sink.iter_mut() {
+                audio.set_volume(1.);
+            }
+        } else {
+            for audio in audio_sink.iter_mut() {
+                audio.set_volume(0.);
+            }
         }
     }
 }
@@ -109,6 +138,7 @@ pub fn change_track(
                 ..default()
             },
             FadeIn,
+            Music,
         ));
     }
 }
