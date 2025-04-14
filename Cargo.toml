@@ -1,7 +1,15 @@
 [package]
-name = "minecraftclone"
+name = "librecraft"
 version = "0.1.0"
 edition = "2024"
+description = "An open-source implementation of Minecraft client."
+
+[features]
+default = ["fast-compile"]
+embed-assets = ["dep:bevy_embedded_assets"]
+fast-compile = ["bevy/dynamic_linking"]
+# on release, in order to disable dynamic linking, call cargo build -r --no-default-features
+release = ["embed-assets"] 
 
 [profile.dev]
 opt-level = 1
@@ -14,17 +22,19 @@ codegen-units = 1
 lto = "thin"
 
 [dependencies]
+bevy_embedded_assets = { version = "0.12.0", optional = true }
+bevy_window_utils = {version = "0.15.3", default-features = false }
+bevy_framepace = { version = "0.18.1", default-features = false }
 log = { version = "*", features = ["max_level_debug", "release_max_level_warn"] }
 anyhow = "1.0.97"
-bevy_framepace = { version = "0.18.1", default-features = false }
 rand = "0.9.0"
 wgpu-types = "23.0.0"
-toml = "0.8.20"
-# 1.0.200 to have same crate from valence_nbt
+# 1.0.200 to have same crate from valence_nbt.
 serde = { version = "1.0.200", features = ["derive"] }
 valence_nbt = { version = "0.8.0", features = ["binary", "serde"] }
 # Using zlib instead of zlib-rs because bevy has it included.
 flate2 = { version = "1.1.1", features = ["zlib"], default-features = false }
+toml = "0.8.20"
 
 [dependencies.bevy]
 version = "0.15.3"
@@ -56,7 +66,6 @@ features = [
 	 "bevy_winit",
 #	 "custom_cursor",
 	 "default_font", # default fallback font
-	 "dynamic_linking",
 	 "hdr",
 	 "ktx2",
 	 "multi_threaded",

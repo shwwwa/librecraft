@@ -5,6 +5,11 @@ use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, SystemInformationDiagnosticsPlugin},
     window::PresentMode,
 };
+
+#[cfg(feature = "embed-assets")]
+use bevy_embedded_assets::{self, EmbeddedAssetPlugin};
+use bevy_window_utils::{WindowUtils, WindowUtilsPlugin};
+use bevy_framepace::FramepacePlugin;
 use music::mute_music_on_focus;
 
 /** Necessary plugins, responsible for generic app functions. */
@@ -12,27 +17,36 @@ struct NecessaryPlugins;
 
 impl PluginGroup for NecessaryPlugins {
     fn build(self) -> PluginGroupBuilder {
-        PluginGroupBuilder::start::<Self>()
+        let builder = PluginGroupBuilder::start::<Self>();
+	
+        // Must be loaded before DefaultPlugins
+	#[cfg(feature = "embed-assets")]
+	{
+	    builder.add(EmbeddedAssetPlugin {
+		mode: bevy_embedded_assets::PluginMode::ReplaceDefault,
+	    });
+	}
+	builder.add(WindowUtilsPlugin)
             .add_group(
-                DefaultPlugins
+		DefaultPlugins
                     .set(WindowPlugin {
-                        primary_window: Some(Window {
+			primary_window: Some(Window {
                             resize_constraints: WindowResizeConstraints {
-                                min_width: 480.,
-                                min_height: 360.,
-                                ..default()
+				min_width: 480.,
+				min_height: 360.,
+				..default()
                             },
-                            title: "librecraft".into(),
+                            title: (TITLE.to_string() + " v." + VERSION).into(),
                             present_mode: PresentMode::AutoNoVsync,
                             ..default()
-                        }),
-                        ..default()
+			}),
+			..default()
                     })
                     .set(ImagePlugin::default_nearest()),
             )
             .add(FrameTimeDiagnosticsPlugin)
             .add(SystemInformationDiagnosticsPlugin)
-            .add(bevy_framepace::FramepacePlugin)
+            .add(FramepacePlugin)
     }
 }
 
@@ -58,6 +72,10 @@ use crate::ui::{
 
 /** Minecraft protocol version that we are trying to support. */
 pub const PROTOCOL_VERSION: u32 = 758;
+/** Title of the main program. */
+pub const TITLE: &'static str = env!("CARGO_PKG_NAME");
+/** Version of the main program. */
+pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
 /** Main entry of the program. */
 pub fn main() {
@@ -71,6 +89,12 @@ pub fn main() {
         .add_event::<GUIScaleChanged>()
         .add_event::<GUIModeChanged>()
         .add_event::<HotbarSelectionChanged>()
+        .add_systems(
+            Startup,
+            |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
+                window.window_icon = Some(assets.load("icon/icon512.png"));
+            },
+        )
         .add_systems(
             Startup,
             (
