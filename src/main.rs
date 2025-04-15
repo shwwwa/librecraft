@@ -19,7 +19,8 @@ struct NecessaryPlugins;
 
 impl PluginGroup for NecessaryPlugins {
     fn build(self) -> PluginGroupBuilder {
-        let builder = PluginGroupBuilder::start::<Self>();
+	#[allow(unused_mut)]
+        let mut builder = PluginGroupBuilder::start::<Self>();
 	
         // Must be loaded before DefaultPlugins
 	#[cfg(feature = "embed-assets")]
