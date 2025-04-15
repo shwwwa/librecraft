@@ -5,6 +5,7 @@ edition = "2024"
 description = "An open-source implementation of Minecraft client."
 
 [features]
+default = ["fast-compile"]
 embed-assets = ["dep:bevy_embedded_assets"]
 fast-compile = ["bevy/dynamic_linking"]
 # on release, if default has dylib, call cargo build -r --no-default-features

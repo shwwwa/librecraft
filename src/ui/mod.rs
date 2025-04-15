@@ -1,19 +1,23 @@
 use crate::settings::*;
 use bevy::prelude::*;
-use bevy::window::{CursorGrabMode, PrimaryWindow, WindowFocused};
+use bevy::window::{CursorGrabMode, PrimaryWindow, WindowFocused, WindowResized};
 
 pub mod hud;
 
-/** Scales elements on display according to scale.
-Automatic scale scales depending on window's size. */
-#[derive(PartialEq, Eq, Clone, Copy, Resource, Debug)]
+/// Scales elements on display according to scale.
+///
+/// Automatic scale scales depending on window's size and contains its automatic value in itself.
+/// Provide 0 to reload auto scale.
+/// Allows setting custom scale with more precise controls.
+#[derive(PartialEq, Clone, Copy, Resource, Debug)]
 pub enum GUIScale {
-    Auto,
+    Auto(u8),
     Scale(u8),
+    Custom(f32),
 }
 
-/** Determines if GUI is opened, closed, or user is typing something.
-On opened GUI, allows user to handle his mouse. */
+/// Determines if GUI is opened, closed, or user is typing something.
+/// On opened GUI, allows user to handle his mouse.
 #[derive(PartialEq, Eq, Clone, Copy, Resource, Debug)]
 pub enum GUIMode {
     Closed,
@@ -32,13 +36,20 @@ pub struct GUIModeChanged {
     pub gui_mode: GUIMode,
 }
 
+//todo: scale and custom merge?
 pub fn gui_scale_to_float(gui_scale: GUIScale) -> f32 {
     match gui_scale {
-        GUIScale::Auto => 2_f32,
+        GUIScale::Auto(x) => x as f32,
         GUIScale::Scale(x) => x as f32,
+	GUIScale::Custom(x) => x,
     }
 }
 
+/** Controls user's mouse.
+
+Responsible for two following actions:
+- Grabs user cursor if in-game.
+- Releases user cursor on lost focus/menu. */
 pub fn handle_mouse(
     mut windows: Query<&mut Window, With<PrimaryWindow>>,
     mut gui_mode: ResMut<GUIMode>,
@@ -107,6 +118,39 @@ pub fn change_gui_mode(
     }
 }
 
+/** Might cause flickering for a frame. */
+pub fn update_gui_scale(
+    mut gui_scale_reader: EventReader<GUIScaleChanged>,
+    mut resize_reader: EventReader<WindowResized>,
+    mut gui_scale: ResMut<GUIScale>,
+    query_window: Query<&Window>,
+) {
+    // Return if non-auto
+    match *gui_scale {
+	GUIScale::Auto(_) => {},
+	_ => { return },
+    }
+    
+    // Remains 0 if doesn't need any changes
+    let mut scale_change : bool = false;
+    
+    for evr in gui_scale_reader.read() {
+	match evr.gui_scale {
+	    GUIScale::Auto(scale) => {
+		if scale == 0 {
+		    // needs update
+		    scale_change = true;
+		}
+	    },
+	    _ => {}
+	}
+    }
+    
+    for evr in resize_reader.read() {
+	
+    }
+}
+
 pub fn change_gui_scale(
     keys: Res<ButtonInput<KeyCode>>,
     mut gui_scale: ResMut<GUIScale>,
@@ -125,7 +169,7 @@ pub fn change_gui_scale(
         }
 
         if keys.just_pressed(KeyCode::Backslash) {
-            *gui_scale = GUIScale::Auto;
+            *gui_scale = GUIScale::Auto(0);
             scale_changed = true;
         }
     } else if keys.just_pressed(KeyCode::BracketLeft)

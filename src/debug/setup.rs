@@ -5,10 +5,11 @@ use bevy::render::renderer::RenderAdapterInfo;
 use bevy::window::{Monitor, PrimaryMonitor};
 use wgpu_types::DeviceType;
 
-// Marker to find container's entity
+/** Marker to find debug's hud box entity */
 #[derive(Component)]
 pub struct HudRoot;
 
+/** Setups debug hud in the left-up corner of the screen */
 pub fn setup_debug_hud(
     mut commands: Commands,
     system: Res<SystemInfo>,

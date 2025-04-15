@@ -14,6 +14,17 @@ use bevy_window_utils::{WindowUtils, WindowUtilsPlugin};
 use bevy_framepace::FramepacePlugin;
 use music::mute_music_on_focus;
 
+/** Minecraft protocol version that we are trying to support. */
+pub const PROTOCOL_VERSION: u32 = 758;
+/** Title of the main program. */
+pub const TITLE: &'static str = env!("CARGO_PKG_NAME");
+/** Version of the main program. */
+pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+/** Minimum resolution width. */
+pub const MIN_WIDTH: f32 = 320.;
+/** Minimum resolution height. */
+pub const MIN_HEIGHT: f32 = 240.;
+
 /** Necessary plugins, responsible for generic app functions. */
 struct NecessaryPlugins;
 
@@ -34,8 +45,8 @@ impl PluginGroup for NecessaryPlugins {
                 .set(WindowPlugin {
 		    primary_window: Some(Window {
                         resize_constraints: WindowResizeConstraints {
-			    min_width: 480.,
-			    min_height: 360.,
+			    min_width: MIN_WIDTH,
+			    min_height: MIN_HEIGHT,
 			    ..default()
                         },
                         title: (TITLE.to_string() + " v." + VERSION).into(),
@@ -73,18 +84,11 @@ use crate::ui::{
     handle_mouse, hud::*,
 };
 
-/** Minecraft protocol version that we are trying to support. */
-pub const PROTOCOL_VERSION: u32 = 758;
-/** Title of the main program. */
-pub const TITLE: &'static str = env!("CARGO_PKG_NAME");
-/** Version of the main program. */
-pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-
 /** Main entry of the program. */
 pub fn main() {
     let mut app = App::new();
     app.insert_resource(Time::<Fixed>::from_hz(50.0))
-        .insert_resource(GUIScale::Auto)
+        .insert_resource(GUIScale::Custom(2.5))
         .insert_resource(GUIMode::Opened)
         .init_resource::<Settings>()
         .init_resource::<Player>()
@@ -133,8 +137,8 @@ pub fn main() {
                 update_crosshair,
             ),
         )
-        .add_systems(Update, (fade_in, fade_out, change_track));
-    app.add_systems(Update, mute_music_on_focus.run_if(is_mute_on_lost_focus))
+        .add_systems(Update, (fade_in, fade_out, change_track))
+	.add_systems(Update, mute_music_on_focus.run_if(is_mute_on_lost_focus))
         .run();
 }
 
