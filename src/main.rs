@@ -1,4 +1,6 @@
 #![allow(clippy::default_constructed_unit_structs)]
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 use bevy::prelude::*;
 use bevy::{
     app::PluginGroupBuilder,
@@ -17,7 +19,7 @@ struct NecessaryPlugins;
 
 impl PluginGroup for NecessaryPlugins {
     fn build(self) -> PluginGroupBuilder {
-        let mut builder = PluginGroupBuilder::start::<Self>();
+        let builder = PluginGroupBuilder::start::<Self>();
 	
         // Must be loaded before DefaultPlugins
 	#[cfg(feature = "embed-assets")]
