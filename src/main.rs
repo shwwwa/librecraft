@@ -17,12 +17,12 @@ struct NecessaryPlugins;
 
 impl PluginGroup for NecessaryPlugins {
     fn build(self) -> PluginGroupBuilder {
-        let builder = PluginGroupBuilder::start::<Self>();
+        let mut builder = PluginGroupBuilder::start::<Self>();
 	
         // Must be loaded before DefaultPlugins
 	#[cfg(feature = "embed-assets")]
 	{
-	    builder.add(EmbeddedAssetPlugin {
+	    builder = builder.add(EmbeddedAssetPlugin {
 		mode: bevy_embedded_assets::PluginMode::ReplaceDefault,
 	    });
 	}
