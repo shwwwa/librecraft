@@ -26,24 +26,24 @@ impl PluginGroup for NecessaryPlugins {
 		mode: bevy_embedded_assets::PluginMode::ReplaceDefault,
 	    });
 	}
-	builder.add(WindowUtilsPlugin)
-            .add_group(
-		DefaultPlugins
-                    .set(WindowPlugin {
-			primary_window: Some(Window {
-                            resize_constraints: WindowResizeConstraints {
-				min_width: 480.,
-				min_height: 360.,
-				..default()
-                            },
-                            title: (TITLE.to_string() + " v." + VERSION).into(),
-                            present_mode: PresentMode::AutoNoVsync,
-                            ..default()
-			}),
-			..default()
-                    })
-                    .set(ImagePlugin::default_nearest()),
-            )
+        builder.add_group(
+	    DefaultPlugins
+                .set(WindowPlugin {
+		    primary_window: Some(Window {
+                        resize_constraints: WindowResizeConstraints {
+			    min_width: 480.,
+			    min_height: 360.,
+			    ..default()
+                        },
+                        title: (TITLE.to_string() + " v." + VERSION).into(),
+                        present_mode: PresentMode::AutoNoVsync,
+                        ..default()
+		    }),
+		    ..default()
+                })
+                .set(ImagePlugin::default_nearest()),
+        )
+	    .add(WindowUtilsPlugin)
             .add(FrameTimeDiagnosticsPlugin)
             .add(SystemInformationDiagnosticsPlugin)
             .add(FramepacePlugin)

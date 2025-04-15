@@ -7,7 +7,7 @@ description = "An open-source implementation of Minecraft client."
 [features]
 embed-assets = ["dep:bevy_embedded_assets"]
 fast-compile = ["bevy/dynamic_linking"]
-# on release, in order to disable dynamic linking, call cargo build -r --no-default-features
+# on release, if default has dylib, call cargo build -r --no-default-features
 release = ["embed-assets"] 
 
 [profile.dev]
@@ -22,7 +22,7 @@ lto = "thin"
 
 [dependencies]
 bevy_embedded_assets = { version = "0.12.0", optional = true }
-bevy_window_utils = {version = "0.15.3", default-features = false }
+bevy_window_utils = {version = "0.15.5" }
 bevy_framepace = { version = "0.18.1", default-features = false }
 log = { version = "*", features = ["max_level_debug", "release_max_level_warn"] }
 anyhow = "1.0.97"
