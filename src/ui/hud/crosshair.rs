@@ -52,11 +52,11 @@ pub fn setup_crosshair(mut commands: Commands, gui_scale: Res<GUIScale>) {
 }
 
 pub fn update_crosshair(
-    mut gui_scale_events: EventReader<GUIScaleChanged>,
+    mut gui_scale_reader: EventReader<GUIScaleChanged>,
     mut query_vertical: Query<&mut Node, (With<VerticalLine>, Without<HorizontalLine>)>,
     mut query_horizontal: Query<&mut Node, (With<HorizontalLine>, Without<VerticalLine>)>,
 ) {
-    for event in gui_scale_events.read() {
+    for event in gui_scale_reader.read() {
         let scale: f32 = gui_scale_to_float(event.gui_scale);
         for mut node_v in query_vertical.iter_mut() {
             node_v.width = Val::Px(10.0 * scale);

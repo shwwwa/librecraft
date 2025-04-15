@@ -20,9 +20,9 @@ pub const PROTOCOL_VERSION: u32 = 758;
 pub const TITLE: &'static str = env!("CARGO_PKG_NAME");
 /** Version of the main program. */
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-/** Minimum resolution width. */
+/** Minecraft's minimum resolution width. */
 pub const MIN_WIDTH: f32 = 320.;
-/** Minimum resolution height. */
+/** Minecraft's minimum resolution height. */
 pub const MIN_HEIGHT: f32 = 240.;
 
 /** Necessary plugins, responsible for generic app functions. */
@@ -81,7 +81,7 @@ use crate::player::*;
 use crate::settings::*;
 use crate::ui::{
     GUIMode, GUIModeChanged, GUIScale, GUIScaleChanged, change_gui_mode, change_gui_scale,
-    handle_mouse, hud::*,
+    update_gui_scale, handle_mouse, hud::*,
 };
 
 /** Main entry of the program. */
@@ -122,6 +122,7 @@ pub fn main() {
             Update,
             (
                 toggle_debug_hud,
+		update_gui_scale,
                 change_gui_scale,
                 change_gui_mode,
                 limit_fps,

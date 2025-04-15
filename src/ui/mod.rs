@@ -1,4 +1,4 @@
-use crate::settings::*;
+use crate::{settings::*, MIN_HEIGHT, MIN_WIDTH};
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, PrimaryWindow, WindowFocused, WindowResized};
 
@@ -36,20 +36,26 @@ pub struct GUIModeChanged {
     pub gui_mode: GUIMode,
 }
 
-//todo: scale and custom merge?
+//todo: merge scale and custom in future.
 pub fn gui_scale_to_float(gui_scale: GUIScale) -> f32 {
     match gui_scale {
-        GUIScale::Auto(x) => x as f32,
-        GUIScale::Scale(x) => x as f32,
+        GUIScale::Auto(x) | GUIScale::Scale(x) => x as f32,
 	GUIScale::Custom(x) => x,
     }
 }
 
-/** Controls user's mouse.
+pub fn gui_scale_was_changed(gui_scale: &ResMut<GUIScale>, gui_scale_events: &mut ResMut<Events<GUIScaleChanged>>) {
+    info!("GUI scale was changed: {:?}", *gui_scale);
+    gui_scale_events.send(GUIScaleChanged {
+        gui_scale: **gui_scale,
+    });
+}
 
-Responsible for two following actions:
-- Grabs user cursor if in-game.
-- Releases user cursor on lost focus/menu. */
+/// Controls user's mouse.
+///
+/// Responsible for two following actions:
+/// - Grabs user cursor if in-game.
+/// - Releases user cursor on lost focus/menu.
 pub fn handle_mouse(
     mut windows: Query<&mut Window, With<PrimaryWindow>>,
     mut gui_mode: ResMut<GUIMode>,
@@ -102,7 +108,7 @@ pub fn handle_mouse(
 pub fn change_gui_mode(
     keys: Res<ButtonInput<KeyCode>>,
     mut gui_mode: ResMut<GUIMode>,
-    mut gui_mode_events: EventWriter<GUIModeChanged>,
+    mut gui_mode_writer: EventWriter<GUIModeChanged>,
 ) {
     if keys.just_pressed(KeyCode::Escape) {
         if *gui_mode == GUIMode::Closed {
@@ -112,29 +118,40 @@ pub fn change_gui_mode(
         }
 
         info!("GUI mode was changed: {:?}", *gui_mode);
-        gui_mode_events.send(GUIModeChanged {
+        gui_mode_writer.send(GUIModeChanged {
             gui_mode: *gui_mode,
         });
     }
 }
 
-/** Might cause flickering for a frame. */
+/// For automatic gui scale change.
 pub fn update_gui_scale(
-    mut gui_scale_reader: EventReader<GUIScaleChanged>,
+    mut gui_scale_events: ResMut<Events<GUIScaleChanged>>,
     mut resize_reader: EventReader<WindowResized>,
     mut gui_scale: ResMut<GUIScale>,
     query_window: Query<&Window>,
 ) {
-    // Return if non-auto
+    let mut gui_scale_cursor = gui_scale_events.get_cursor();
+    
+    // Return if non-auto.
     match *gui_scale {
 	GUIScale::Auto(_) => {},
 	_ => { return },
     }
     
-    // Remains 0 if doesn't need any changes
+    // Remains 0 if doesn't need any changes.
     let mut scale_change : bool = false;
-    
-    for evr in gui_scale_reader.read() {
+
+    // WindowResized
+    for evr in resize_reader.read() {
+	let scale = gui_scale_to_float(*gui_scale);
+	// Check if scale on both sides needs change.
+	scale_change = (f32::ceil((evr.width+1.) / MIN_WIDTH)-1.) != scale
+	    && (f32::ceil((evr.height+1.) / MIN_HEIGHT)-1.) != scale;
+    }
+
+    // GUIScaleChanged
+    for evr in gui_scale_cursor.read(&gui_scale_events) {
 	match evr.gui_scale {
 	    GUIScale::Auto(scale) => {
 		if scale == 0 {
@@ -145,45 +162,43 @@ pub fn update_gui_scale(
 	    _ => {}
 	}
     }
-    
-    for evr in resize_reader.read() {
-	
+
+    if scale_change {
+	let resolution = query_window.single();
+	// Basically gets best scale for window. We are appending +1 to make sure result of f32::ceil() is always >= 2.
+	*gui_scale = GUIScale::Auto((f32::ceil(f32::min((resolution.width()+1.) / MIN_WIDTH,
+							(resolution.height()+1.) / MIN_HEIGHT)) as u8)-1);
+
+	gui_scale_was_changed(&gui_scale, &mut gui_scale_events);
     }
 }
 
+/** For manual gui scale change. */
 pub fn change_gui_scale(
     keys: Res<ButtonInput<KeyCode>>,
     mut gui_scale: ResMut<GUIScale>,
-    mut gui_scale_events: EventWriter<GUIScaleChanged>,
+    mut gui_scale_events: ResMut<Events<GUIScaleChanged>>,
 ) {
-    let mut scale_changed: bool = false;
     if let GUIScale::Scale(scale) = *gui_scale {
         if keys.just_pressed(KeyCode::BracketLeft) && scale > 1 {
             *gui_scale = GUIScale::Scale(scale - 1);
-            scale_changed = true;
+            gui_scale_was_changed(&gui_scale, &mut gui_scale_events);
         }
-        // todo: recognize max size with the help of display
+
         if keys.just_pressed(KeyCode::BracketRight) && scale < 5 {
             *gui_scale = GUIScale::Scale(scale + 1);
-            scale_changed = true;
+            gui_scale_was_changed(&gui_scale, &mut gui_scale_events);
         }
 
         if keys.just_pressed(KeyCode::Backslash) {
             *gui_scale = GUIScale::Auto(0);
-            scale_changed = true;
+            gui_scale_was_changed(&gui_scale, &mut gui_scale_events);
         }
     } else if keys.just_pressed(KeyCode::BracketLeft)
         || keys.just_pressed(KeyCode::BracketRight)
         || keys.just_pressed(KeyCode::Backslash)
     {
         *gui_scale = GUIScale::Scale(1);
-        scale_changed = true;
-    }
-
-    if scale_changed {
-        info!("GUI scale was changed: {:?}", *gui_scale);
-        gui_scale_events.send(GUIScaleChanged {
-            gui_scale: *gui_scale,
-        });
+        gui_scale_was_changed(&gui_scale, &mut gui_scale_events);
     }
 }
