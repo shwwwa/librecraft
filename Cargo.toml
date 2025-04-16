@@ -28,14 +28,13 @@ debug = false
 bevy_embedded_assets = { version = "0.12.0", optional = true }
 bevy_window_utils = {version = "0.15.5" }
 bevy_framepace = { version = "0.18.1", default-features = false }
-log = { version = "*", features = ["max_level_debug", "release_max_level_warn"] }
+log = { version = "0.4.26", features = ["max_level_debug", "release_max_level_warn"] }
 anyhow = "1.0.97"
 rand = "0.9.0"
 wgpu-types = "23.0.0"
 serde = { version = "1.0.219", features = ["derive"] }
 valence_nbt = { version = "0.8.0", features = ["binary", "serde"] }
-# Using zlib instead of zlib-rs because bevy has it included.
-flate2 = { version = "1.1.1", features = ["zlib"], default-features = false }
+flate2 = { version = "1.1.1"}
 toml = "0.8.20"
 
 [dependencies.bevy]
