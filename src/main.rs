@@ -15,7 +15,6 @@ use bevy::prelude::*;
 use bevy_embedded_assets::{self, EmbeddedAssetPlugin};
 use bevy_window_utils::{WindowUtils, WindowUtilsPlugin};
 use bevy_framepace::FramepacePlugin;
-use music::mute_music_on_focus;
 
 /** Minecraft protocol version that we are trying to support. */
 pub const PROTOCOL_VERSION: u32 = 758;
@@ -72,7 +71,7 @@ mod debug;
 mod music;
 mod player;
 mod settings;
-mod ui;
+mod gui;
 
 use crate::crosshair::{setup_crosshair, update_crosshair};
 use crate::debug::*;
@@ -80,12 +79,12 @@ use crate::hotbar::{
     HotbarSelectionChanged, setup_hotbar, update_hotbar, update_hotbar_selection,
     update_hotbar_selector,
 };
-use crate::music::{change_track, fade_in, fade_out, setup_soundtrack};
+use crate::music::{mute_music_on_focus, change_track, fade_in, fade_out, setup_soundtrack};
 use crate::player::*;
 use crate::settings::*;
-use crate::ui::{
+use crate::gui::{
     GUIMode, GUIModeChanged, GUIScale, GUIScaleChanged, change_gui_mode, change_gui_scale,
-    update_gui_scale, handle_mouse, hud::*,
+    update_gui_scale, handle_mouse, hud::*, menu::*
 };
 
 /** Main entry of the program. */
@@ -118,7 +117,8 @@ pub fn main() {
             Startup,
             (
                 setup_camera,
-                setup_hotbar,
+		setup_pause_menu,
+		setup_hotbar,
                 setup_crosshair,
                 setup_soundtrack,
             ),

@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, PrimaryWindow, WindowFocused, WindowResized};
 
 pub mod hud;
+pub mod menu;
 
 /// Scales elements on display according to scale.
 ///

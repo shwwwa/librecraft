@@ -1,7 +1,7 @@
 use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
 
-use crate::ui::gui_scale_to_float;
+use crate::gui::gui_scale_to_float;
 use crate::{GUIScale, GUIScaleChanged};
 
 pub const HOTBAR_START_SELECTION: u32 = 0;
