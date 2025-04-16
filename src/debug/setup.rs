@@ -5,11 +5,11 @@ use bevy::render::renderer::RenderAdapterInfo;
 use bevy::window::{Monitor, PrimaryMonitor};
 use wgpu_types::DeviceType;
 
-/** Marker to find debug's hud box entity */
+/** Marker to find debug's hud box entity. */
 #[derive(Component)]
-pub struct HudRoot;
+pub struct DebugHudRoot;
 
-/** Setups debug hud in the left-up corner of the screen */
+/** Setups debug hud in the left-up corner of the screen. */
 pub fn setup_debug_hud(
     mut commands: Commands,
     system: Res<SystemInfo>,
@@ -19,7 +19,7 @@ pub fn setup_debug_hud(
 ) {
     let hud_root = commands
         .spawn((
-            HudRoot,
+            DebugHudRoot,
             (
                 BackgroundColor(Color::BLACK.with_alpha(0.5)),
                 GlobalZIndex(i32::MAX),
@@ -27,7 +27,7 @@ pub fn setup_debug_hud(
                     position_type: PositionType::Absolute,
                     left: Val::Percent(1.),
                     top: Val::Percent(1.),
-                    // resized depending on text inside
+                    // Resized depending on text inside.
                     bottom: Val::Auto,
                     right: Val::Auto,
                     padding: UiRect::all(Val::Px(4.0)),
@@ -164,7 +164,7 @@ pub fn setup_debug_hud(
 }
 
 pub fn toggle_debug_hud(
-    mut q_hud_root: Query<&mut Visibility, With<HudRoot>>,
+    mut q_hud_root: Query<&mut Visibility, With<DebugHudRoot>>,
     keys: Res<ButtonInput<KeyCode>>,
 ) {
     if keys.just_pressed(KeyCode::F3) {

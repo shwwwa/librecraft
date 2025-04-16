@@ -77,5 +77,5 @@ features = [
 	 "vorbis",
 #	 "webgl2", ; needed for web
 	 "x11",
-	 "zstd" # needed for ktx2
+	 "zstd"
 	 ]
