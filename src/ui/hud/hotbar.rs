@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use crate::ui::gui_scale_to_float;
 use crate::{GUIScale, GUIScaleChanged};
 
-pub const HOTBAR_START_SELECTION: u32 = 1;
+pub const HOTBAR_START_SELECTION: u32 = 0;
 pub const MAX_HOTBAR_SLOTS: u32 = 9;
 pub const HOTBAR_WIDTH: f32 = 182.;
 pub const HOTBAR_HEIGHT: f32 = 22.;
@@ -97,7 +97,6 @@ pub fn update_hotbar_selection(
     mut evr_scroll: EventReader<MouseWheel>,
     mut hotbar_selection_events: EventWriter<HotbarSelectionChanged>,
 ) {
-    // todo: enum to int conversion?
     for mut hotbar in query.iter_mut() {
         if keys.any_pressed([
             KeyCode::Digit1,
@@ -111,31 +110,31 @@ pub fn update_hotbar_selection(
             KeyCode::Digit9,
         ]) {
             if keys.pressed(KeyCode::Digit1) {
-                hotbar.selected = 1;
+                hotbar.selected = 0;
             }
             if keys.pressed(KeyCode::Digit2) {
-                hotbar.selected = 2;
+                hotbar.selected = 1;
             }
             if keys.pressed(KeyCode::Digit3) {
-                hotbar.selected = 3;
+                hotbar.selected = 2;
             }
             if keys.pressed(KeyCode::Digit4) {
-                hotbar.selected = 4;
+                hotbar.selected = 3;
             }
             if keys.pressed(KeyCode::Digit5) {
-                hotbar.selected = 5;
+                hotbar.selected = 4;
             }
             if keys.pressed(KeyCode::Digit6) {
-                hotbar.selected = 6;
+                hotbar.selected = 5;
             }
             if keys.pressed(KeyCode::Digit7) {
-                hotbar.selected = 7;
+                hotbar.selected = 6;
             }
             if keys.pressed(KeyCode::Digit8) {
-                hotbar.selected = 8;
+                hotbar.selected = 7;
             }
             if keys.pressed(KeyCode::Digit9) {
-                hotbar.selected = 9;
+                hotbar.selected = 8;
             }
 
             hotbar_selection_events.send(HotbarSelectionChanged {
@@ -144,16 +143,16 @@ pub fn update_hotbar_selection(
         }
         for ev in evr_scroll.read() {
             if ev.y > 0. {
-                if hotbar.selected < MAX_HOTBAR_SLOTS {
+                if hotbar.selected < MAX_HOTBAR_SLOTS-1 {
                     hotbar.selected += 1;
                 } else {
-                    hotbar.selected = 1;
+                    hotbar.selected = 0;
                 }
             } else if ev.y < 0. {
-                if hotbar.selected > 1 {
+                if hotbar.selected >= 1 {
                     hotbar.selected -= 1;
                 } else {
-                    hotbar.selected = MAX_HOTBAR_SLOTS;
+                    hotbar.selected = MAX_HOTBAR_SLOTS-1;
                 }
             }
 
@@ -173,7 +172,7 @@ pub fn update_hotbar_selector(
         for mut node in query_selection.iter_mut() {
             // todo: proper placing (not formula one)
             node.margin.left =
-                Val::Percent(((event.selected - 1) as f32) * (100. / ((MAX_HOTBAR_SLOTS) as f32)))
+                Val::Percent(((event.selected) as f32) * (100. / ((MAX_HOTBAR_SLOTS) as f32)))
         }
     }
     for event in gui_scale_events.read() {

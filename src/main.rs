@@ -89,6 +89,7 @@ pub fn main() {
     let mut app = App::new();
     app.insert_resource(Time::<Fixed>::from_hz(50.0))
         .insert_resource(GUIMode::Opened)
+	// Init default resources. Later on startup they should be overwritten.
         .init_resource::<Settings>()
         .init_resource::<Player>()
         .add_plugins(NecessaryPlugins)
