@@ -1,12 +1,15 @@
 #![allow(clippy::default_constructed_unit_structs)]
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use bevy::prelude::*;
 use bevy::{
     app::PluginGroupBuilder,
     diagnostic::{FrameTimeDiagnosticsPlugin, SystemInformationDiagnosticsPlugin},
     window::PresentMode,
 };
+use bevy::render::view::screenshot::{save_to_disk, Capturing, Screenshot};
+use bevy::window::SystemCursorIcon;
+use bevy::winit::cursor::CursorIcon;
+use bevy::prelude::*;
 
 #[cfg(feature = "embed-assets")]
 use bevy_embedded_assets::{self, EmbeddedAssetPlugin};
@@ -129,6 +132,8 @@ pub fn main() {
             (
                 toggle_debug_hud,
 		change_fullscreen,
+		screenshot,
+		save_screenshot,
 		update_gui_scale,
                 change_gui_scale,
                 change_gui_mode,
@@ -160,4 +165,38 @@ fn setup_camera(mut commands: Commands) {
         },
         Msaa::Off,
     ));
+}
+
+fn screenshot(
+    mut commands: Commands,
+    input: Res<ButtonInput<KeyCode>>,
+    mut counter: Local<u32>,
+) {
+    if input.just_pressed(KeyCode::F2) {
+	let path = format!("./screenshot-{}.png", *counter);
+	* counter += 1;
+	commands.spawn(Screenshot::primary_window())
+	    .observe(save_to_disk(path));
+    }
+}
+
+fn save_screenshot(
+    mut commands: Commands,
+    screenshot_saving: Query<Entity, With<Capturing>>,
+    query_window: Query<Entity, With<Window>>,
+) {
+    let Ok(window) = query_window.get_single() else {
+	warn!("Couldn't save screenshot.");
+	return;
+    };
+
+    match screenshot_saving.iter().count() {
+	0 => {
+	    commands.entity(window).remove::<CursorIcon>();
+	}
+	x if x > 0 => {
+	    commands.entity(window).insert(CursorIcon::from(SystemCursorIcon::Progress));
+	}
+	_ => {}
+    }
 }
