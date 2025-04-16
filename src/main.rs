@@ -128,6 +128,7 @@ pub fn main() {
             Update,
             (
                 toggle_debug_hud,
+		change_fullscreen,
 		update_gui_scale,
                 change_gui_scale,
                 change_gui_mode,

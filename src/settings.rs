@@ -21,8 +21,8 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             seed: 0,
-	    gui_scale: 2.5,
-	    fullscreen: true,
+	    gui_scale: 0.1,
+	    fullscreen: false,
             pause_on_lost_focus: true,
             mute_on_lost_focus: true,
         }
@@ -31,6 +31,23 @@ impl Default for Settings {
 
 pub fn is_mute_on_lost_focus(settings: Res<Settings>) -> bool {
     settings.mute_on_lost_focus
+}
+
+pub fn change_fullscreen(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut settings: ResMut<Settings>,
+    mut query_window: Query<&mut Window, With<PrimaryWindow>>,
+) {
+    if keys.just_pressed(KeyCode::F11) {
+	settings.fullscreen = !settings.fullscreen;
+
+	if settings.fullscreen {
+	    query_window.single_mut().mode = WindowMode::Fullscreen(MonitorSelection::Current);
+	}
+	else {
+	    query_window.single_mut().mode = WindowMode::Windowed;
+	}
+    }
 }
 
 pub fn setup_settings(
