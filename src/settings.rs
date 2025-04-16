@@ -3,11 +3,14 @@ use serde::Deserialize;
 use toml::from_str;
 
 use std::error::Error;
+use crate::GUIScale;
 
 #[allow(dead_code)]
 #[derive(Deserialize, Clone, Copy, Resource, Debug)]
 pub struct Settings {
     pub seed: u64,
+    pub gui_scale: f32,
+    pub fullscreen: bool,
     pub pause_on_lost_focus: bool,
     pub mute_on_lost_focus: bool,
 }
@@ -16,6 +19,8 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             seed: 0,
+	    gui_scale: 2.5,
+	    fullscreen: true,
             pause_on_lost_focus: true,
             mute_on_lost_focus: true,
         }
@@ -26,10 +31,22 @@ pub fn is_mute_on_lost_focus(settings: Res<Settings>) -> bool {
     settings.mute_on_lost_focus
 }
 
-pub fn setup_settings(mut settings: ResMut<Settings>) {
+pub fn setup_settings(mut commands: Commands, mut settings: ResMut<Settings>) {
     match read_settings("./assets/settings.toml", &mut settings) {
         Ok(()) => info!("{:?}", *settings),
         Err(e) => warn!("Couldn't retrieve settings: {}", e),
+    }
+
+    let gui_scale = f32::floor(settings.gui_scale);
+    // Protection from negative value
+    if settings.gui_scale < 0.2 {
+	commands.insert_resource(GUIScale::Auto(0));
+    }
+    else if settings.gui_scale == gui_scale {	
+	commands.insert_resource(GUIScale::Scale(gui_scale as u8));
+    }
+    else {
+	commands.insert_resource(GUIScale::Custom(settings.gui_scale));
     }
 }
 

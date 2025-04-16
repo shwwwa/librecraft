@@ -1,3 +1,5 @@
-seed = 1337
+seed = 1988
+gui_scale = 0
+fullscreen = true
 pause_on_lost_focus = true
 mute_on_lost_focus = true

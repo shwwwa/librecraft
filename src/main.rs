@@ -88,7 +88,6 @@ use crate::ui::{
 pub fn main() {
     let mut app = App::new();
     app.insert_resource(Time::<Fixed>::from_hz(50.0))
-        .insert_resource(GUIScale::Custom(2.5))
         .insert_resource(GUIMode::Opened)
         .init_resource::<Settings>()
         .init_resource::<Player>()
@@ -96,8 +95,16 @@ pub fn main() {
         .add_event::<GUIScaleChanged>()
         .add_event::<GUIModeChanged>()
         .add_event::<HotbarSelectionChanged>()
+	.add_systems(
+	    PreStartup,
+	    (
+		setup_debug_hud,
+                setup_settings,
+                setup_player_data,
+	    ),
+	)
         .add_systems(
-            Startup,
+            PreStartup,
             |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
                 window.window_icon = Some(assets.load("icon/icon512.png"));
             },
@@ -105,9 +112,6 @@ pub fn main() {
         .add_systems(
             Startup,
             (
-                setup_debug_hud,
-                setup_settings,
-                setup_player_data,
                 setup_camera,
                 setup_hotbar,
                 setup_crosshair,
