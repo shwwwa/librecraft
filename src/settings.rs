@@ -1,4 +1,6 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::WindowMode};
+use bevy::window::PrimaryWindow;
+
 use serde::Deserialize;
 use toml::from_str;
 
@@ -31,13 +33,18 @@ pub fn is_mute_on_lost_focus(settings: Res<Settings>) -> bool {
     settings.mute_on_lost_focus
 }
 
-pub fn setup_settings(mut commands: Commands, mut settings: ResMut<Settings>) {
+pub fn setup_settings(
+    mut commands: Commands,
+    mut settings: ResMut<Settings>,
+    mut query_window: Query<&mut Window, With<PrimaryWindow>>,
+) {
     match read_settings("./assets/settings.toml", &mut settings) {
         Ok(()) => info!("{:?}", *settings),
         Err(e) => warn!("Couldn't retrieve settings: {}", e),
     }
 
     let gui_scale = f32::floor(settings.gui_scale);
+
     // Protection from negative value
     if settings.gui_scale < 0.2 {
 	commands.insert_resource(GUIScale::Auto(0));
@@ -47,6 +54,10 @@ pub fn setup_settings(mut commands: Commands, mut settings: ResMut<Settings>) {
     }
     else {
 	commands.insert_resource(GUIScale::Custom(settings.gui_scale));
+    }
+
+    if settings.fullscreen {
+	query_window.single_mut().mode = WindowMode::Fullscreen(MonitorSelection::Current);
     }
 }
 

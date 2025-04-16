@@ -50,6 +50,7 @@ impl PluginGroup for NecessaryPlugins {
 			    ..default()
                         },
                         title: (TITLE.to_string() + " v." + VERSION).into(),
+			// Instead of vsync we limit fps by framepace.
                         present_mode: PresentMode::AutoNoVsync,
                         ..default()
 		    }),
