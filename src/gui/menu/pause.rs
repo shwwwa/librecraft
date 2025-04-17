@@ -5,9 +5,7 @@ use bevy::prelude::*;
 pub struct PauseHudRoot;
 
 /** Draws and setups pause menu. */
-pub fn setup_pause_menu(
-    mut commands: Commands,
-) {
+pub fn setup_pause_menu(mut commands: Commands) {
     let hud_root = commands
         .spawn((
             PauseHudRoot,
@@ -24,13 +22,13 @@ pub fn setup_pause_menu(
         ))
         .id();
 
-    let text_pause = commands.spawn((
-	Text::new("Pause menu"),
-	TextFont::from_font_size(16.0),
-	TextColor(Color::WHITE),
-    )).id();
+    let text_pause = commands
+        .spawn((
+            Text::new("Pause menu"),
+            TextFont::from_font_size(16.0),
+            TextColor(Color::WHITE),
+        ))
+        .id();
 
-    commands.entity(hud_root).add_children(&[
-	text_pause,
-    ]);
+    commands.entity(hud_root).add_children(&[text_pause]);
 }

@@ -1,4 +1,4 @@
-use crate::{settings::*, MIN_HEIGHT, MIN_WIDTH};
+use crate::{MIN_HEIGHT, MIN_WIDTH, settings::*};
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, PrimaryWindow, WindowFocused, WindowResized};
 
@@ -41,11 +41,14 @@ pub struct GUIModeChanged {
 pub fn gui_scale_to_float(gui_scale: GUIScale) -> f32 {
     match gui_scale {
         GUIScale::Auto(x) | GUIScale::Scale(x) => x as f32,
-	GUIScale::Custom(x) => x,
+        GUIScale::Custom(x) => x,
     }
 }
 
-pub fn gui_scale_was_changed(gui_scale: &ResMut<GUIScale>, gui_scale_events: &mut ResMut<Events<GUIScaleChanged>>) {
+pub fn gui_scale_was_changed(
+    gui_scale: &ResMut<GUIScale>,
+    gui_scale_events: &mut ResMut<Events<GUIScaleChanged>>,
+) {
     info!("GUI scale was changed: {:?}", *gui_scale);
     gui_scale_events.send(GUIScaleChanged {
         gui_scale: **gui_scale,
@@ -133,44 +136,46 @@ pub fn update_gui_scale(
     query_window: Query<&Window>,
 ) {
     let mut gui_scale_cursor = gui_scale_events.get_cursor();
-    
+
     // Return if non-auto.
     match *gui_scale {
-	GUIScale::Auto(_) => {},
-	_ => { return },
+        GUIScale::Auto(_) => {}
+        _ => return,
     }
-    
+
     // Remains 0 if doesn't need any changes.
-    let mut scale_change : bool = false;
+    let mut scale_change: bool = false;
 
     // WindowResized
     for evr in resize_reader.read() {
-	let scale = gui_scale_to_float(*gui_scale);
-	// Check if scale on both sides needs change.
-	scale_change = (f32::ceil((evr.width+1.) / MIN_WIDTH)-1.) != scale
-	    && (f32::ceil((evr.height+1.) / MIN_HEIGHT)-1.) != scale;
+        let scale = gui_scale_to_float(*gui_scale);
+        // Check if scale on both sides needs change.
+        scale_change = (f32::ceil((evr.width + 1.) / MIN_WIDTH) - 1.) != scale
+            && (f32::ceil((evr.height + 1.) / MIN_HEIGHT) - 1.) != scale;
     }
 
     // GUIScaleChanged
     for evr in gui_scale_cursor.read(&gui_scale_events) {
-	match evr.gui_scale {
-	    GUIScale::Auto(scale) => {
-		if scale == 0 {
-		    // needs update
-		    scale_change = true;
-		}
-	    },
-	    _ => {}
+        if let GUIScale::Auto(scale) = evr.gui_scale {
+	    if scale == 0 {
+		// Needs update.
+		scale_change = true;
+	    }
 	}
     }
 
     if scale_change {
-	let resolution = query_window.single();
-	// Basically gets best scale for window. We are appending +1 to make sure result of f32::ceil() is always >= 2.
-	*gui_scale = GUIScale::Auto((f32::ceil(f32::min((resolution.width()+1.) / MIN_WIDTH,
-							(resolution.height()+1.) / MIN_HEIGHT)) as u8)-1);
+        let resolution = query_window.single();
+        // Basically gets best scale for window. We are appending +1 to make sure result of f32::ceil() is always >= 2.
+        *gui_scale = GUIScale::Auto(
+            (f32::ceil(f32::min(
+                (resolution.width() + 1.) / MIN_WIDTH,
+                (resolution.height() + 1.) / MIN_HEIGHT,
+            )) as u8)
+                - 1,
+        );
 
-	gui_scale_was_changed(&gui_scale, &mut gui_scale_events);
+        gui_scale_was_changed(&gui_scale, &mut gui_scale_events);
     }
 }
 

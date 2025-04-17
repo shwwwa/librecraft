@@ -1,11 +1,11 @@
-use bevy::{prelude::*, window::WindowMode};
 use bevy::window::PrimaryWindow;
+use bevy::{prelude::*, window::WindowMode};
 
 use serde::Deserialize;
 use toml::from_str;
 
-use std::error::Error;
 use crate::GUIScale;
+use std::error::Error;
 
 #[allow(dead_code)]
 #[derive(Deserialize, Clone, Copy, Resource, Debug)]
@@ -21,8 +21,8 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             seed: 0,
-	    gui_scale: 0.1,
-	    fullscreen: false,
+            gui_scale: 0.1,
+            fullscreen: false,
             pause_on_lost_focus: true,
             mute_on_lost_focus: true,
         }
@@ -39,14 +39,13 @@ pub fn change_fullscreen(
     mut query_window: Query<&mut Window, With<PrimaryWindow>>,
 ) {
     if keys.just_pressed(KeyCode::F11) {
-	settings.fullscreen = !settings.fullscreen;
+        settings.fullscreen = !settings.fullscreen;
 
-	if settings.fullscreen {
-	    query_window.single_mut().mode = WindowMode::Fullscreen(MonitorSelection::Current);
-	}
-	else {
-	    query_window.single_mut().mode = WindowMode::Windowed;
-	}
+        if settings.fullscreen {
+            query_window.single_mut().mode = WindowMode::Fullscreen(MonitorSelection::Current);
+        } else {
+            query_window.single_mut().mode = WindowMode::Windowed;
+        }
     }
 }
 
@@ -64,17 +63,15 @@ pub fn setup_settings(
 
     // Protection from negative value
     if settings.gui_scale < 0.2 {
-	commands.insert_resource(GUIScale::Auto(0));
-    }
-    else if settings.gui_scale == gui_scale {	
-	commands.insert_resource(GUIScale::Scale(gui_scale as u8));
-    }
-    else {
-	commands.insert_resource(GUIScale::Custom(settings.gui_scale));
+        commands.insert_resource(GUIScale::Auto(0));
+    } else if settings.gui_scale == gui_scale {
+        commands.insert_resource(GUIScale::Scale(gui_scale as u8));
+    } else {
+        commands.insert_resource(GUIScale::Custom(settings.gui_scale));
     }
 
     if settings.fullscreen {
-	query_window.single_mut().mode = WindowMode::Fullscreen(MonitorSelection::Current);
+        query_window.single_mut().mode = WindowMode::Fullscreen(MonitorSelection::Current);
     }
 }
 

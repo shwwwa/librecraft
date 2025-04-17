@@ -143,7 +143,7 @@ pub fn update_hotbar_selection(
         }
         for ev in evr_scroll.read() {
             if ev.y > 0. {
-                if hotbar.selected < MAX_HOTBAR_SLOTS-1 {
+                if hotbar.selected < MAX_HOTBAR_SLOTS - 1 {
                     hotbar.selected += 1;
                 } else {
                     hotbar.selected = 0;
@@ -152,7 +152,7 @@ pub fn update_hotbar_selection(
                 if hotbar.selected >= 1 {
                     hotbar.selected -= 1;
                 } else {
-                    hotbar.selected = MAX_HOTBAR_SLOTS-1;
+                    hotbar.selected = MAX_HOTBAR_SLOTS - 1;
                 }
             }
 
