@@ -11,7 +11,7 @@ pub struct SoundtrackPlayer {
     track_list: Vec<Handle<AudioSource>>,
 }
 
-#[derive(Resource)]
+#[derive(Resource, Deref, DerefMut)]
 pub struct SoundtrackTimer(Timer);
 
 #[derive(Component)]

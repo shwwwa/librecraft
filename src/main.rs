@@ -91,15 +91,25 @@ use crate::music::{change_track, fade_in, fade_out, mute_music_on_focus, setup_s
 use crate::player::*;
 use crate::settings::*;
 
+#[derive(States, Clone, Copy, Default, Eq, PartialEq, Debug, Hash)]
+pub enum GameState {
+    #[default]
+    Splash,
+    InGame,
+}
+
 /** Main entry of the program. */
 pub fn main() {
     let mut app = App::new();
-    app.insert_resource(Time::<Fixed>::from_hz(50.0))
-        .insert_resource(GUIMode::Opened)
+    app .add_plugins(NecessaryPlugins)
+        .init_state::<GameState>()
+        .enable_state_scoped_entities::<GameState>()
+	.insert_resource(Time::<Fixed>::from_hz(50.0))
+	.insert_resource(GUIMode::Opened)
         // Init default versions of resources. Later on startup they should be overwritten.
         .init_resource::<Settings>()
         .init_resource::<Player>()
-        .add_plugins(NecessaryPlugins)
+        .add_plugins(SplashPlugin)
         .add_event::<GUIScaleChanged>()
         .add_event::<GUIModeChanged>()
         .add_event::<HotbarSelectionChanged>()
