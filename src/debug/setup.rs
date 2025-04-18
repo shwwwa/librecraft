@@ -38,7 +38,7 @@ pub fn setup_debug_hud(
         ))
         .id();
 
-    let text_fps = commands
+    let fps_text = commands
         .spawn((
             Text::new("FPS: "),
             TextFont::from_font_size(16.0),
@@ -52,7 +52,7 @@ pub fn setup_debug_hud(
         ))
         .id();
 
-    let mut text_monitor = commands.spawn((
+    let mut monitor_text = commands.spawn((
         Text::new("Monitor: "),
         TextFont::from_font_size(16.0),
         TextColor(Color::WHITE),
@@ -72,16 +72,16 @@ pub fn setup_debug_hud(
             monitor.physical_height.clone(),
             monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10
         ));
-        text_monitor.with_child((
+        monitor_text.with_child((
             TextSpan::new(monitor_info),
             TextFont::from_font_size(16.0),
             TextColor(Color::WHITE),
         ));
     }
 
-    let text_monitor_info = text_monitor.id();
+    let monitor_info_text = monitor_text.id();
 
-    let mut text_display = commands.spawn((
+    let mut display_text = commands.spawn((
         Text::new("Display: "),
         TextFont::from_font_size(16.0),
         TextColor(Color::WHITE),
@@ -94,7 +94,7 @@ pub fn setup_debug_hud(
 
     let display_info = format!("{}x{}", width, height);
 
-    text_display
+    display_text
         .with_child((
             DisplayText,
             TextSpan::new(display_info),
@@ -107,9 +107,9 @@ pub fn setup_debug_hud(
             TextFont::from_font_size(16.0),
             TextColor(Color::WHITE),
         ));
-    let text_display_info = text_display.id();
+    let display_info_text = display_text.id();
 
-    let mut text_system = commands.spawn((
+    let mut system_text = commands.spawn((
         Text::new("System: "),
         TextFont::from_font_size(16.0),
         TextColor(Color::WHITE),
@@ -120,15 +120,15 @@ pub fn setup_debug_hud(
         system.os, system.kernel, system.cpu, system.core_count, system.memory
     );
 
-    text_system.with_child((
+    system_text.with_child((
         TextSpan::new(system_info),
         TextFont::from_font_size(16.0),
         TextColor(Color::WHITE),
     ));
 
-    let text_system_info = text_system.id();
+    let system_info_text = system_text.id();
 
-    let mut text_adapter = commands.spawn((
+    let mut adapter_text = commands.spawn((
         Text::new("Adapter: "),
         TextFont::from_font_size(16.0),
         TextColor(Color::WHITE),
@@ -146,20 +146,20 @@ pub fn setup_debug_hud(
         adapter.name, device_type, adapter.driver_info, adapter.backend
     );
 
-    text_adapter.with_child((
+    adapter_text.with_child((
         TextSpan::new(adapter_info),
         TextFont::from_font_size(16.0),
         TextColor(Color::WHITE),
     ));
 
-    let text_adapter_info = text_adapter.id();
+    let adapter_info_text = adapter_text.id();
 
     commands.entity(hud_root).add_children(&[
-        text_fps,
-        text_monitor_info,
-        text_display_info,
-        text_system_info,
-        text_adapter_info,
+        fps_text,
+        monitor_info_text,
+        display_info_text,
+        system_info_text,
+        adapter_info_text,
     ]);
 }
 
