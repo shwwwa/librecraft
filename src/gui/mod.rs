@@ -104,8 +104,16 @@ pub fn handle_mouse(
         } else {
             CursorGrabMode::None
         };
-
+	if !is_playing {
+	    let center = Vec2::new(
+		window.width() / 2.,
+		window.height() / 2.,
+	    );
+	    window.set_cursor_position(Some(center));
+	}
+	
         window.cursor_options.visible = !is_playing;
+	
     }
 }
 
