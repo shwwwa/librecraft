@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 use crate::GameState;
 
+pub const SPLASH_SECS: f32 = 3.0;
+
+/** Plugin that renders splash screen for [`SPLASH_SECS`] */
 pub struct SplashPlugin;
 
 #[derive(Resource, Deref, DerefMut)]
@@ -8,7 +11,7 @@ struct SplashTimer(Timer);
 
 impl Default for SplashTimer {
     fn default() -> Self {
-	SplashTimer(Timer::from_seconds(3.0, TimerMode::Once))
+	SplashTimer(Timer::from_seconds(SPLASH_SECS, TimerMode::Once))
     }
 }
 

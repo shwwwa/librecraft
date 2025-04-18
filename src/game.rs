@@ -4,7 +4,6 @@ use bevy::window::SystemCursorIcon;
 use bevy::winit::cursor::CursorIcon;
 
 use crate::crosshair::{setup_crosshair, update_crosshair};
-use crate::debug::*;
 use crate::gui::{
     GUIMode, GUIModeChanged, GUIScale, GUIScaleChanged, change_gui_scale,
     handle_mouse, hud::*, menu::*, update_gui_scale,

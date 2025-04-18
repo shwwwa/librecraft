@@ -32,16 +32,25 @@ pub mod consts {
     pub const MIN_HEIGHT: f32 = 240.;
 }
 
-/** All that belongs to gui starting from debug informatiom ending with hud. (except splash) */
+/** Adds splash screen to app (independent). */
+pub mod splash;
+/** All that belongs to GUI from debug info to hud. (except splash)*/
 pub mod gui;
-/** In game music plugin. */
+/** Responsible for music. (then audio->music, audio->sound) */
 pub mod music;
-/** Accesses player information. */
+/** Accesses player information. (getting transferred to game mod) */
 pub mod player;
 /** Reads and stores user owned settings. */
 pub mod settings;
+/** All resources that belong to game's logic. */
+pub mod game;
 
 use consts::{FIXED_TIME_CLOCK, TITLE, VERSION, MIN_WIDTH, MIN_HEIGHT};
+use splash::SplashPlugin;
+use gui::{GUIScaleChanged, GUIMode, GUIModeChanged}; 
+use player::Player;
+use settings::Settings;
+use game::GamePlugin;
 
 /** Necessary plugins, responsible for generic app functions like windowing or asset packaging (prestartup). */
 struct NecessaryPlugins;
@@ -104,13 +113,14 @@ pub fn main() {
         .init_state::<GameState>()
         .enable_state_scoped_entities::<GameState>()
 	.insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
-        // Init default versions of resources. Later on startup they should be overwritten.
+        // Init default versions of resources.
+	// Later on startup they should be overwritten.
         // In future should be in their own plugin space.
 	.init_resource::<GUIMode>()
         .init_resource::<Settings>()
         .init_resource::<Player>()
 	.add_event::<GUIScaleChanged>()
         .add_event::<GUIModeChanged>()
-        .add_plugins(SplashPlugin, GamePlugin)
+        .add_plugins((SplashPlugin, GamePlugin))
         .run();
 }
