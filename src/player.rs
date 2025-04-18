@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 use flate2::read::GzDecoder;
 use serde::Deserialize;
+use valence_nbt::from_binary;
 use std::error::Error;
 use std::io::prelude::*;
-use valence_nbt::from_binary;
 
 /** Slot in inventory's storage. */
 #[derive(Deserialize, Clone, Debug, Default)]
@@ -116,5 +116,7 @@ pub fn read_player_data(file: &str, player: &mut Player) -> Result<(), Box<dyn E
 
     info!("{:#?}", compound);
 
+    player.absorption_amount = 1.;
+    
     Ok(())
 }

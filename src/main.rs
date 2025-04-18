@@ -32,10 +32,13 @@ pub mod consts {
     pub const MIN_HEIGHT: f32 = 240.;
 }
 
-pub mod debug;
+/** All that belongs to gui starting from debug informatiom ending with hud. (except splash) */
 pub mod gui;
+/** In game music plugin. */
 pub mod music;
+/** Accesses player information. */
 pub mod player;
+/** Reads and stores user owned settings. */
 pub mod settings;
 
 use consts::{FIXED_TIME_CLOCK, TITLE, VERSION, MIN_WIDTH, MIN_HEIGHT};
@@ -81,6 +84,7 @@ impl PluginGroup for NecessaryPlugins {
     }
 }
 
+/** Main game state (alike scenes) */
 #[derive(States, Clone, Copy, Default, Eq, PartialEq, Debug, Hash)]
 pub enum GameState {
     #[default]

@@ -95,6 +95,7 @@ pub fn setup_pause_menu(mut commands: Commands) {
 	});
 }
 
+/** Renders pause menu on request */
 pub fn render_pause_menu(
     queries: (
 	Query<(&PauseButtonAction, &mut BorderColor, &Interaction)>,

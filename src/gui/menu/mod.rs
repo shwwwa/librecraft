@@ -1,5 +1,2 @@
+/** All that belongs to pause menu that is used in-game */
 pub mod pause;
-pub mod splash;
-
-pub use pause::*;
-pub use splash::*;
