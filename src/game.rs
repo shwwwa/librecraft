@@ -3,12 +3,6 @@ use bevy::render::view::screenshot::{Capturing, Screenshot, save_to_disk};
 use bevy::window::SystemCursorIcon;
 use bevy::winit::cursor::CursorIcon;
 
-mod debug;
-mod gui;
-mod music;
-mod player;
-mod settings;
-
 use crate::crosshair::{setup_crosshair, update_crosshair};
 use crate::debug::*;
 use crate::gui::{

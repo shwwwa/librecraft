@@ -1,10 +1,9 @@
-pub mod r#const;
-use crate::game::settings::*;
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, PrimaryWindow, WindowFocused, WindowResized};
 
 pub mod hud;
 pub mod menu;
+pub mod debug;
 
 /// Scales elements on display according to scale.
 ///
