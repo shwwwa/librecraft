@@ -1,5 +1,8 @@
 #![allow(clippy::default_constructed_unit_structs)]
+// Tells windows not to show console window on release.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+// Unsafe code belongs violates one of design goals and used only in crates.
+#![forbid(unsafe_code)]
 
 use bevy::prelude::*;
 use bevy::render::view::screenshot::{Capturing, Screenshot, save_to_disk};
@@ -93,7 +96,7 @@ pub fn main() {
     let mut app = App::new();
     app.insert_resource(Time::<Fixed>::from_hz(50.0))
         .insert_resource(GUIMode::Opened)
-        // Init default resources. Later on startup they should be overwritten.
+        // Init default versions of resources. Later on startup they should be overwritten.
         .init_resource::<Settings>()
         .init_resource::<Player>()
         .add_plugins(NecessaryPlugins)
