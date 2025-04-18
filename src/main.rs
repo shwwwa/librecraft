@@ -19,6 +19,8 @@ use bevy_embedded_assets::{self, EmbeddedAssetPlugin};
 use bevy_framepace::FramepacePlugin;
 use bevy_window_utils::{WindowUtils, WindowUtilsPlugin};
 
+/** Fixed time clock - leave it at 50 HZ */
+pub const FIXED_TIME_CLOCK: f64 = 50.;
 /** Minecraft protocol version that we are trying to support. */
 pub const PROTOCOL_VERSION: u32 = 758;
 /** Title of the main program. */
@@ -104,7 +106,7 @@ pub fn main() {
     app .add_plugins(NecessaryPlugins)
         .init_state::<GameState>()
         .enable_state_scoped_entities::<GameState>()
-	.insert_resource(Time::<Fixed>::from_hz(50.0))
+	.insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
 	.insert_resource(GUIMode::Opened)
         // Init default versions of resources. Later on startup they should be overwritten.
         .init_resource::<Settings>()
