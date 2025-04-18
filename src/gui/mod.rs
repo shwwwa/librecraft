@@ -20,7 +20,7 @@ pub enum GUIScale {
 /// Determines if GUI is opened, closed, or user is typing something.
 /// On opened GUI, allows user to handle his mouse.
 #[derive(PartialEq, Eq, Clone, Copy, Resource, Debug)]
-pub enum GUIMode {
+pub enum GUIMode{
     Closed,
     Opened,
     #[allow(dead_code)]
@@ -106,25 +106,6 @@ pub fn handle_mouse(
         };
 
         window.cursor_options.visible = !is_playing;
-    }
-}
-
-pub fn change_gui_mode(
-    keys: Res<ButtonInput<KeyCode>>,
-    mut gui_mode: ResMut<GUIMode>,
-    mut gui_mode_writer: EventWriter<GUIModeChanged>,
-) {
-    if keys.just_pressed(KeyCode::Escape) {
-        if *gui_mode == GUIMode::Closed {
-            *gui_mode = GUIMode::Opened;
-        } else {
-            *gui_mode = GUIMode::Closed;
-        }
-
-        info!("GUI mode was changed: {:?}", *gui_mode);
-        gui_mode_writer.send(GUIModeChanged {
-            gui_mode: *gui_mode,
-        });
     }
 }
 

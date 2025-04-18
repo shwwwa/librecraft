@@ -80,7 +80,7 @@ mod settings;
 use crate::crosshair::{setup_crosshair, update_crosshair};
 use crate::debug::*;
 use crate::gui::{
-    GUIMode, GUIModeChanged, GUIScale, GUIScaleChanged, change_gui_mode, change_gui_scale,
+    GUIMode, GUIModeChanged, GUIScale, GUIScaleChanged, change_gui_scale,
     handle_mouse, hud::*, menu::*, update_gui_scale,
 };
 use crate::hotbar::{
@@ -136,11 +136,14 @@ pub fn main() {
                 save_screenshot,
                 update_gui_scale,
                 change_gui_scale,
-                change_gui_mode,
                 limit_fps,
                 handle_mouse,
             ),
         )
+	.add_systems(
+            Update,
+	    render_pause_menu,
+	)
         .add_systems(
             Update,
             (
