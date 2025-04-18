@@ -1,4 +1,5 @@
-use crate::{MIN_HEIGHT, MIN_WIDTH, settings::*};
+pub mod r#const;
+use crate::game::settings::*;
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, PrimaryWindow, WindowFocused, WindowResized};
 
@@ -19,8 +20,9 @@ pub enum GUIScale {
 
 /// Determines if GUI is opened, closed, or user is typing something.
 /// On opened GUI, allows user to handle his mouse.
-#[derive(PartialEq, Eq, Clone, Copy, Resource, Debug)]
+#[derive(Default, PartialEq, Eq, Clone, Copy, Resource, Debug)]
 pub enum GUIMode{
+    #[default]
     Closed,
     Opened,
     #[allow(dead_code)]
