@@ -1,0 +1,127 @@
+use bevy::prelude::*;
+use bevy::render::view::screenshot::{Capturing, Screenshot, save_to_disk};
+use bevy::window::SystemCursorIcon;
+use bevy::winit::cursor::CursorIcon;
+
+use crate::gui;
+use crate::gui::debug;
+use crate::gui::hud;
+use crate::gui::menu;
+use crate::music;
+use crate::settings;
+
+/** Accesses player information. */
+pub mod player;
+
+/** InGame plugin */
+pub struct GamePlugin;
+
+impl Plugin for GamePlugin {
+    fn build(&self, app: &mut App) {
+        app.add_event::<hud::HotbarSelectionChanged>()
+            .add_systems(
+                PreStartup,
+                (
+                    debug::setup_debug_hud,
+                    settings::setup_settings,
+                    player::setup_player_data,
+                ),
+            )
+            .add_systems(
+                Startup,
+                (
+                    menu::setup_pause_menu,
+                    hud::setup_hotbar,
+                    hud::setup_crosshair,
+                    music::setup_soundtrack,
+                    setup_camera,
+                ),
+            )
+            .add_systems(
+                FixedUpdate,
+                (
+                    debug::update_fps_text,
+                    debug::update_display_text,
+                    debug::update_focus_text,
+                ),
+            )
+            .add_systems(
+                Update,
+                (
+                    gui::update_gui_scale,
+                    gui::change_gui_scale,
+                    gui::handle_mouse,
+                    debug::toggle_debug_hud,
+                    debug::limit_fps,
+                    settings::change_fullscreen,
+                    screenshot,
+                    save_screenshot,
+                ),
+            )
+            .add_systems(
+                Update,
+                (
+                    hud::update_hotbar,
+                    hud::update_hotbar_selection,
+                    hud::update_hotbar_selector,
+                    hud::update_crosshair,
+                    menu::render_pause_menu,
+                ),
+            )
+            .add_systems(
+                Update,
+                (music::fade_in, music::fade_out, music::change_track),
+            )
+            .add_systems(
+                Update,
+                music::mute_music_on_focus.run_if(settings::is_mute_on_lost_focus),
+            );
+    }
+}
+
+/** Setups camera for GamePlugin to use. */
+fn setup_camera(mut commands: Commands) {
+    commands.spawn((
+        Camera2d::default(),
+        Camera {
+            hdr: true,
+            ..default()
+        },
+        Msaa::Off,
+    ));
+}
+
+/** System that screenshots whole screen by pressing F2 */
+fn screenshot(mut commands: Commands, input: Res<ButtonInput<KeyCode>>, mut counter: Local<u32>) {
+    if input.just_pressed(KeyCode::F2) {
+        let path = format!("./screenshot-{}.png", *counter);
+        *counter += 1;
+        commands
+            .spawn(Screenshot::primary_window())
+            .observe(save_to_disk(path));
+    }
+}
+
+/** Save screenshot */
+fn save_screenshot(
+    mut commands: Commands,
+    screenshot_saving: Query<Entity, With<Capturing>>,
+    query_window: Query<Entity, With<Window>>,
+) {
+    let Ok(window) = query_window.get_single() else {
+        warn!("Couldn't save screenshot.");
+        return;
+    };
+
+    match screenshot_saving.iter().count() {
+        0 => {
+            commands.entity(window).remove::<CursorIcon>();
+        }
+        x if x > 0 => {
+            commands
+                .entity(window)
+                .insert(CursorIcon::from(SystemCursorIcon::Progress));
+        }
+        _ => {}
+    }
+}
