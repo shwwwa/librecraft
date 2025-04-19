@@ -1,7 +1,7 @@
 #![allow(clippy::default_constructed_unit_structs)]
 // Tells windows not to show console window on release.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-// Unsafe code belongs violates one of design goals and used only in crates.
+// Unsafe code violates one of design goals and used only in crates.
 #![forbid(unsafe_code)]
 
 use bevy::prelude::*;

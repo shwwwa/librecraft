@@ -31,7 +31,8 @@ Examples of good commit messages:
 
 ## Code style
 You should follow all rust and clippy recommendations, but not necessary.
-
+Bevy:
+1.1: Use should use ..default() syntax instead of ..Default::default()
 ## Notes to your code
 For notes to your code check the Checklist from [`pull_request_template.md`](.github/pull_request_template.md)
 

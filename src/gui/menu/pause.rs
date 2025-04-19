@@ -28,7 +28,7 @@ pub fn setup_pause_menu(mut commands: Commands) {
 			display: Display::Flex,
 			align_items: AlignItems::Center,
 			justify_content: JustifyContent::Center,
-			..Default::default()
+			..default()
                     },
 		)
             ),
@@ -44,7 +44,7 @@ pub fn setup_pause_menu(mut commands: Commands) {
 		justify_content: JustifyContent::SpaceAround,
 		height: Val::Vh(40.),
 		min_width: Val::Vw(40.),
-		..Default::default()
+		..default()
 	    }
 	)
 	.id();
@@ -78,7 +78,7 @@ pub fn setup_pause_menu(mut commands: Commands) {
                             align_items: AlignItems::Center,
                             justify_content: JustifyContent::Center,
                             padding: UiRect::all(Val::Px(7.)),
-                            ..Default::default()
+                            ..default()
                         },
                         BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
                         BorderColor(Color::BLACK),

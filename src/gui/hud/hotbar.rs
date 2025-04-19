@@ -51,7 +51,7 @@ pub fn setup_hotbar(
             },
             ImageNode {
                 image: asset_server.load("hotbar.png"),
-                ..Default::default()
+                ..default()
             },
             GlobalZIndex(1),
         ))
@@ -59,7 +59,7 @@ pub fn setup_hotbar(
             HotbarSelection,
             ImageNode {
                 image: asset_server.load("hotbar_selection.png"),
-                ..Default::default()
+                ..default()
             },
             Node {
                 display: Display::Flex,

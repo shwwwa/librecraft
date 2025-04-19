@@ -30,7 +30,7 @@ pub fn setup_crosshair(mut commands: Commands, gui_scale: Res<GUIScale>) {
                     height: Val::Px(1.0 * scale),
                     left: Val::Px(-5.0 * scale),
                     top: Val::Px(-0.5 * scale),
-                    ..Default::default()
+                    ..default()
                 },
                 BackgroundColor(Color::WHITE),
             ));
@@ -43,7 +43,7 @@ pub fn setup_crosshair(mut commands: Commands, gui_scale: Res<GUIScale>) {
                     height: Val::Px(10.0 * scale),
                     left: Val::Px(-0.5 * scale),
                     top: Val::Px(-5.0 * scale),
-                    ..Default::default()
+                    ..default()
                 },
                 BackgroundColor(Color::WHITE),
             ));
