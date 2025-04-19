@@ -94,7 +94,7 @@ pub fn handle_mouse(
     for ev in gui_state_reader.read() {
         let mut window = windows.single_mut();
 
-	// todo(gui): may cause panic - tests needed.
+        // todo(gui): may cause panic - tests needed.
         let is_playing = ev.entered.unwrap() == GUIState::Closed;
 
         window.cursor_options.grab_mode = if is_playing {

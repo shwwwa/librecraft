@@ -100,7 +100,7 @@ pub enum GameState {
 pub fn main() {
     let mut app = App::new();
     app.add_plugins(NecessaryPlugins)
-	// todo(bevy 0.16.0): replace it with nec plug defs
+        // todo(bevy 0.16.0): replace it with nec plug defs
         .add_systems(
             PreStartup,
             |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
@@ -110,13 +110,26 @@ pub fn main() {
         .insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
         .init_state::<GameState>()
         .enable_state_scoped_entities::<GameState>()
+        .add_systems(Startup, setup_camera)
         .add_plugins((
             SplashPlugin {
                 state: GameState::Splash,
             },
             GamePlugin {
-		state: GameState::InGame,
-	    },
+                state: GameState::InGame,
+            },
         ))
         .run();
+}
+
+/** Setups camera for [`App`] to use. */
+fn setup_camera(mut commands: Commands) {
+    commands.spawn((
+        Camera2d::default(),
+        Camera {
+            hdr: true,
+            ..default()
+        },
+        Msaa::Off,
+    ));
 }

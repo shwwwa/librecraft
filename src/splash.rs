@@ -1,7 +1,9 @@
 use crate::GameState;
 use bevy::prelude::*;
 
-pub const SPLASH_SECS: f32 = 3.0;
+//todo: when startup time will be bad, start loading resources in SplashPlugin
+
+pub const SPLASH_SECS: f32 = 2.0;
 
 /** Plugin that renders splash screen for [`SPLASH_SECS`]. Unnecessary for librecraft to work. */
 pub struct SplashPlugin<S: States> {

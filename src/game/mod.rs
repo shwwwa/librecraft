@@ -21,27 +21,26 @@ pub struct GamePlugin<S: States> {
 impl<S: States> Plugin for GamePlugin<S> {
     fn build(&self, app: &mut App) {
         app.init_state::<gui::GUIState>()
-	    .init_resource::<settings::Settings>()
+            .init_resource::<settings::Settings>()
             .init_resource::<player::Player>()
             .add_event::<gui::GUIScaleChanged>()
             .add_event::<hud::HotbarSelectionChanged>()
             .add_systems(
-                PreStartup,
+                OnEnter(self.state.clone()),
                 (
-                    debug::setup_debug_hud,
                     settings::setup_settings,
-                    player::setup_player_data,
                 ),
             )
             .add_systems(
-                Startup,
+                OnEnter(self.state.clone()),
                 (
+		    debug::setup_debug_hud,
                     menu::setup_pause_menu,
                     hud::setup_hotbar,
                     hud::setup_crosshair,
+		    player::setup_player_data,
                     music::setup_soundtrack,
-                    setup_camera,
-                ),
+                ).after(settings::setup_settings),
             )
             .add_systems(
                 FixedUpdate,
@@ -49,7 +48,8 @@ impl<S: States> Plugin for GamePlugin<S> {
                     debug::update_fps_text,
                     debug::update_display_text,
                     debug::update_focus_text,
-                ),
+                )
+                    .run_if(in_state(self.state.clone())),
             )
             .add_systems(
                 Update,
@@ -62,7 +62,8 @@ impl<S: States> Plugin for GamePlugin<S> {
                     settings::change_fullscreen,
                     screenshot,
                     save_screenshot,
-                ),
+                )
+                    .run_if(in_state(self.state.clone())),
             )
             .add_systems(
                 Update,
@@ -72,29 +73,21 @@ impl<S: States> Plugin for GamePlugin<S> {
                     hud::update_hotbar_selector,
                     hud::update_crosshair,
                     menu::render_pause_menu,
-                ),
+                )
+                    .run_if(in_state(self.state.clone())),
             )
             .add_systems(
                 Update,
-                (music::fade_in, music::fade_out, music::change_track),
+                (music::fade_in, music::fade_out, music::change_track)
+                    .run_if(in_state(self.state.clone())),
             )
             .add_systems(
                 Update,
-                music::mute_music_on_focus.run_if(settings::is_mute_on_lost_focus),
+                music::mute_music_on_focus
+                    .run_if(settings::is_mute_on_lost_focus)
+                    .run_if(in_state(self.state.clone())),
             );
     }
-}
-
-/** Setups camera for GamePlugin to use. */
-fn setup_camera(mut commands: Commands) {
-    commands.spawn((
-        Camera2d::default(),
-        Camera {
-            hdr: true,
-            ..default()
-        },
-        Msaa::Off,
-    ));
 }
 
 /** System that screenshots whole screen by pressing F2 */

@@ -103,8 +103,8 @@ pub fn render_pause_menu(
     let mut vis = visibility.single_mut();
 
     if keys.just_pressed(KeyCode::Escape) {
-	let is_closed : bool = *gui_state.get() == GUIState::Closed;
-	
+        let is_closed: bool = *gui_state.get() == GUIState::Closed;
+
         *vis = match *vis {
             Visibility::Visible | Visibility::Inherited => Visibility::Hidden,
             Visibility::Hidden => Visibility::Visible,
@@ -116,7 +116,7 @@ pub fn render_pause_menu(
             next_gui_state.set(GUIState::Closed);
         }
 
-	let state = if is_closed { "opened" } else { "closed" };
+        let state = if is_closed { "opened" } else { "closed" };
         info!("Pause menu was {} (via key).", state);
     }
 
