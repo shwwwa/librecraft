@@ -1,9 +1,15 @@
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, PrimaryWindow, WindowFocused, WindowResized};
 
-pub mod hud;
-pub mod menu;
+use crate::consts::{MIN_WIDTH, MIN_HEIGHT};
+use crate::settings::Settings;
+
+/** All that includes debug GUI */
 pub mod debug;
+/** HUD systems */
+pub mod hud;
+/** Menu systems: main menu, pause menu, game menus (inventory) */
+pub mod menu;
 
 /// Scales elements on display according to scale.
 ///
@@ -20,7 +26,7 @@ pub enum GUIScale {
 /// Determines if GUI is opened, closed, or user is typing something.
 /// On opened GUI, allows user to handle his mouse.
 #[derive(Default, PartialEq, Eq, Clone, Copy, Resource, Debug)]
-pub enum GUIMode{
+pub enum GUIMode {
     #[default]
     Closed,
     Opened,
@@ -105,16 +111,12 @@ pub fn handle_mouse(
         } else {
             CursorGrabMode::None
         };
-	if !is_playing {
-	    let center = Vec2::new(
-		window.width() / 2.,
-		window.height() / 2.,
-	    );
-	    window.set_cursor_position(Some(center));
-	}
-	
+        if !is_playing {
+            let center = Vec2::new(window.width() / 2., window.height() / 2.);
+            window.set_cursor_position(Some(center));
+        }
+
         window.cursor_options.visible = !is_playing;
-	
     }
 }
 
@@ -147,11 +149,11 @@ pub fn update_gui_scale(
     // GUIScaleChanged
     for evr in gui_scale_cursor.read(&gui_scale_events) {
         if let GUIScale::Auto(scale) = evr.gui_scale {
-	    if scale == 0 {
-		// Needs update.
-		scale_change = true;
-	    }
-	}
+            if scale == 0 {
+                // Needs update.
+                scale_change = true;
+            }
+        }
     }
 
     if scale_change {

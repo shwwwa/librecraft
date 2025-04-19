@@ -1,9 +1,11 @@
-use crate::{DisplayText, FocusText, FpsText};
 use bevy::diagnostic::SystemInfo;
 use bevy::prelude::*;
 use bevy::render::renderer::RenderAdapterInfo;
 use bevy::window::{Monitor, PrimaryMonitor};
+
 use wgpu_types::DeviceType;
+
+use super::{FpsText, FocusText, DisplayText};
 
 /** Marker to find debug's hud box entity. */
 #[derive(Component)]

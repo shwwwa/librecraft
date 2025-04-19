@@ -17,38 +17,34 @@ pub fn setup_pause_menu(mut commands: Commands) {
     let pause_menu = commands
         .spawn((
             PauseMenu,
-	    Name::new("PauseMenu"),
+            Name::new("PauseMenu"),
             (
                 BackgroundColor(Color::BLACK.with_alpha(0.6)),
                 GlobalZIndex(5),
-                (
-		    Node {
-			width: Val::Vw(100.),
-			height: Val::Vh(100.),
-			display: Display::Flex,
-			align_items: AlignItems::Center,
-			justify_content: JustifyContent::Center,
-			..default()
-                    },
-		)
+                (Node {
+                    width: Val::Vw(100.),
+                    height: Val::Vh(100.),
+                    display: Display::Flex,
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    ..default()
+                },),
             ),
         ))
         .id();
 
     let pause_gui_root = commands
-	.spawn(
-	    Node {
-		display: Display::Flex,
-		flex_direction: FlexDirection::Column,
-		align_items: AlignItems::Center,
-		justify_content: JustifyContent::SpaceAround,
-		height: Val::Vh(40.),
-		min_width: Val::Vw(40.),
-		..default()
-	    }
-	)
-	.id();
-    
+        .spawn(Node {
+            display: Display::Flex,
+            flex_direction: FlexDirection::Column,
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::SpaceAround,
+            height: Val::Vh(40.),
+            min_width: Val::Vw(40.),
+            ..default()
+        })
+        .id();
+
     let pause_text = commands
         .spawn((
             Text::new("Pause menu"),
@@ -60,13 +56,13 @@ pub fn setup_pause_menu(mut commands: Commands) {
     commands.entity(pause_menu).add_children(&[pause_gui_root]);
     commands.entity(pause_gui_root).add_children(&[pause_text]);
 
-    commands.entity(pause_gui_root)
-	.with_children(|wrapper| {
-	    for (msg, action) in [
-		("Resume", PauseButtonAction::Resume),
-		("Exit", PauseButtonAction::Exit),
-	    ] {
-		wrapper.spawn((
+    commands.entity(pause_gui_root).with_children(|wrapper| {
+        for (msg, action) in [
+            ("Resume", PauseButtonAction::Resume),
+            ("Exit", PauseButtonAction::Exit),
+        ] {
+            wrapper
+                .spawn((
                     action,
                     (
                         Button,
@@ -91,15 +87,15 @@ pub fn setup_pause_menu(mut commands: Commands) {
                         TextColor(Color::WHITE),
                     ));
                 });
-	    }
-	});
+        }
+    });
 }
 
 /** Renders pause menu on request */
 pub fn render_pause_menu(
     queries: (
-	Query<(&PauseButtonAction, &mut BorderColor, &Interaction)>,
-	Query<&mut Visibility, With<PauseMenu>>,
+        Query<(&PauseButtonAction, &mut BorderColor, &Interaction)>,
+        Query<&mut Visibility, With<PauseMenu>>,
     ),
     keys: Res<ButtonInput<KeyCode>>,
     // todo: rewrite it using states?
@@ -109,40 +105,40 @@ pub fn render_pause_menu(
 ) {
     let (mut button, mut visibility) = queries;
     let mut vis = visibility.single_mut();
-    
-    if keys.just_pressed(KeyCode::Escape) {
-	*vis = match *vis {
-	    Visibility::Visible | Visibility::Inherited => Visibility::Hidden,
-	    Visibility::Hidden => Visibility::Visible,
-	};
 
-	if *gui_mode == GUIMode::Closed {
+    if keys.just_pressed(KeyCode::Escape) {
+        *vis = match *vis {
+            Visibility::Visible | Visibility::Inherited => Visibility::Hidden,
+            Visibility::Hidden => Visibility::Visible,
+        };
+
+        if *gui_mode == GUIMode::Closed {
             *gui_mode = GUIMode::Opened;
         } else {
             *gui_mode = GUIMode::Closed;
         }
-	
-	info!("Pause menu was opened (via key): {:?}", *gui_mode);
+
+        info!("Pause menu was opened (via key): {:?}", *gui_mode);
         gui_mode_writer.send(GUIModeChanged {
             gui_mode: *gui_mode,
         });
     }
 
     if *vis != Visibility::Visible {
-	return;
+        return;
     }
-    
+
     for (action, mut bcolor, interaction) in button.iter_mut() {
         match *interaction {
             Interaction::Pressed => match *action {
                 PauseButtonAction::Resume => {
                     *vis = Visibility::Hidden;
-		    *gui_mode = GUIMode::Closed;
+                    *gui_mode = GUIMode::Closed;
 
-		    info!("Resuming game: {:?}", *gui_mode);
-		    gui_mode_writer.send(GUIModeChanged {
-			gui_mode: *gui_mode,
-		    });
+                    info!("Resuming game: {:?}", *gui_mode);
+                    gui_mode_writer.send(GUIModeChanged {
+                        gui_mode: *gui_mode,
+                    });
                 }
                 PauseButtonAction::Exit => {
                     exit.send(AppExit::Success);

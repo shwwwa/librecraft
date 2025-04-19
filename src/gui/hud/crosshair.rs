@@ -1,4 +1,4 @@
-use crate::gui::{gui_scale_to_float, GUIScale, GUIScaleChanged};
+use crate::gui::{GUIScale, GUIScaleChanged, gui_scale_to_float};
 
 use bevy::prelude::*;
 

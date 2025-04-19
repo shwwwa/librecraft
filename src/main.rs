@@ -32,8 +32,8 @@ pub mod consts {
     pub const MIN_HEIGHT: f32 = 240.;
 }
 
-/** Adds splash screen to app (independent). */
-pub mod splash;
+/** All resources that belong to game's logic. */
+pub mod game;
 /** All that belongs to GUI from debug info to hud. (except splash)*/
 pub mod gui;
 /** Responsible for music. (then audio->music, audio->sound) */
@@ -42,15 +42,15 @@ pub mod music;
 pub mod player;
 /** Reads and stores user owned settings. */
 pub mod settings;
-/** All resources that belong to game's logic. */
-pub mod game;
+/** Adds splash screen to app (independent). */
+pub mod splash;
 
-use consts::{FIXED_TIME_CLOCK, TITLE, VERSION, MIN_WIDTH, MIN_HEIGHT};
-use splash::SplashPlugin;
-use gui::{GUIScaleChanged, GUIMode, GUIModeChanged}; 
+use consts::{FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH, TITLE, VERSION};
+use game::GamePlugin;
+use gui::{GUIMode, GUIModeChanged, GUIScaleChanged};
 use player::Player;
 use settings::Settings;
-use game::GamePlugin;
+use splash::SplashPlugin;
 
 /** Necessary plugins, responsible for generic app functions like windowing or asset packaging (prestartup). */
 struct NecessaryPlugins;
@@ -105,21 +105,22 @@ pub enum GameState {
 pub fn main() {
     let mut app = App::new();
     app.add_plugins(NecessaryPlugins)
-	.add_systems(
-	    PreStartup,
-	    |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
+        .add_systems(
+            PreStartup,
+            |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
                 window.window_icon = Some(assets.load("icon/icon512.png"));
-	    },)
+            },
+        )
         .init_state::<GameState>()
         .enable_state_scoped_entities::<GameState>()
-	.insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
+        .insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
         // Init default versions of resources.
-	// Later on startup they should be overwritten.
+        // Later on startup they should be overwritten.
         // In future should be in their own plugin space.
-	.init_resource::<GUIMode>()
+        .init_resource::<GUIMode>()
         .init_resource::<Settings>()
         .init_resource::<Player>()
-	.add_event::<GUIScaleChanged>()
+        .add_event::<GUIScaleChanged>()
         .add_event::<GUIModeChanged>()
         .add_plugins((SplashPlugin, GamePlugin))
         .run();
