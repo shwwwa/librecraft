@@ -114,7 +114,7 @@ pub fn handle_mouse(
 }
 
 /** If GUIScale::Auto(c) && c == 0, trigger update. */
-pub fn setup_gui_scale(
+pub fn update_auto_gui_scale(
     gui_scale: ResMut<GUIScale>,
     mut gui_scale_writer: EventWriter<GUIScaleChanged>,
 ) {

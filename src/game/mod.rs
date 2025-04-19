@@ -3,7 +3,7 @@ use bevy::render::view::screenshot::{Capturing, Screenshot, save_to_disk};
 use bevy::window::SystemCursorIcon;
 use bevy::winit::cursor::CursorIcon;
 
-use crate::gui;
+use crate::gui::{self, GUIState};
 use crate::gui::debug;
 use crate::gui::hud;
 use crate::gui::menu;
@@ -18,9 +18,15 @@ pub struct GamePlugin<S: States> {
     pub state: S,
 }
 
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+struct GameplaySet;
+
 impl<S: States> Plugin for GamePlugin<S> {
     fn build(&self, app: &mut App) {
         app.init_state::<gui::GUIState>()
+            .configure_sets(Update, (
+		GameplaySet.run_if(in_state(self.state.clone())),
+                GameplaySet.run_if(in_state(GUIState::Closed))))
             .init_resource::<settings::Settings>()
             .init_resource::<player::Player>()
             .add_event::<gui::GUIScaleChanged>()
@@ -30,8 +36,6 @@ impl<S: States> Plugin for GamePlugin<S> {
             .add_systems(
                 OnEnter(self.state.clone()),
                 (
-                    /* needs to be updated once in case gui scale is 0 */
-                    gui::setup_gui_scale,
                     debug::setup_debug_hud,
                     menu::setup_pause_menu,
                     hud::setup_hotbar,
@@ -51,21 +55,27 @@ impl<S: States> Plugin for GamePlugin<S> {
                     .run_if(in_state(self.state.clone())),
             )
             .add_systems(
-                Update,
-                (
-                    gui::update_gui_scale,
+		Update,
+		(
+		    gui::update_gui_scale,
                     gui::change_gui_scale,
                     gui::handle_mouse,
-                    debug::toggle_debug_hud,
-                    debug::limit_fps,
-                    settings::change_fullscreen,
+		    debug::limit_fps,
+		    settings::change_fullscreen,
                     settings::update_settings,
 		    settings::save_window_position,
 		    settings::save_window_size,
+		    menu::render_pause_menu,
+		).run_if(in_state(self.state.clone())),
+	    )
+            .add_systems(
+                Update,
+                (
+                    debug::toggle_debug_hud,
+		    gui::update_auto_gui_scale,
                     screenshot,
                     save_screenshot,
-                )
-                    .run_if(in_state(self.state.clone())),
+                ).in_set(GameplaySet),
             )
             .add_systems(
                 Update,
@@ -74,9 +84,7 @@ impl<S: States> Plugin for GamePlugin<S> {
                     hud::update_hotbar_selection,
                     hud::update_hotbar_selector,
                     hud::update_crosshair,
-                    menu::render_pause_menu,
-                )
-                    .run_if(in_state(self.state.clone())),
+                ).in_set(GameplaySet),
             )
             .add_systems(
                 Update,
