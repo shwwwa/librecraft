@@ -24,7 +24,7 @@ pub fn setup_debug_hud(
             DebugHudRoot,
             (
                 BackgroundColor(Color::BLACK.with_alpha(0.5)),
-                GlobalZIndex(i32::MAX),
+                GlobalZIndex(10),
                 Node {
                     position_type: PositionType::Absolute,
                     left: Val::Percent(1.),

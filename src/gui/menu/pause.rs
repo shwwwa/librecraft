@@ -32,7 +32,7 @@ pub fn setup_pause_menu(
 	    StateScoped(GameState::InGame),
             (
                 BackgroundColor(Color::BLACK.with_alpha(0.6)),
-                GlobalZIndex(5),
+                GlobalZIndex(15),
                 (Node {
                     width: Val::Vw(100.),
                     height: Val::Vh(100.),
