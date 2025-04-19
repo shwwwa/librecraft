@@ -6,6 +6,7 @@ use toml::from_str;
 
 use crate::gui::GUIScale;
 use std::error::Error;
+use std::path::PathBuf;
 
 #[allow(dead_code)]
 #[derive(Deserialize, Clone, Copy, Resource, Debug)]
@@ -27,6 +28,12 @@ impl Default for Settings {
             mute_on_lost_focus: true,
         }
     }
+}
+
+/** Contains only 1 field: path to settings file. */
+#[derive(Resource)]
+pub struct SettingsPath {
+    pub path: PathBuf,
 }
 
 pub fn is_mute_on_lost_focus(settings: Res<Settings>) -> bool {
@@ -52,9 +59,10 @@ pub fn change_fullscreen(
 pub fn setup_settings(
     mut commands: Commands,
     mut settings: ResMut<Settings>,
+    settings_path: Res<SettingsPath>,
     mut query_window: Query<&mut Window, With<PrimaryWindow>>,
 ) {
-    match read_settings("./assets/settings.toml", &mut settings) {
+    match read_settings((*settings_path.path).to_path_buf(), &mut settings) {
         Ok(()) => info!("{:?}", *settings),
         Err(e) => warn!("Couldn't retrieve settings: {}", e),
     }
@@ -75,10 +83,10 @@ pub fn setup_settings(
     }
 }
 
-pub fn read_settings(file: &str, settings: &mut Settings) -> Result<(), Box<dyn Error>> {
-    debug!("Path to settings: {:?}", std::fs::canonicalize(file));
+pub fn read_settings(file_path: PathBuf, settings: &mut Settings) -> Result<(), Box<dyn Error>> {
+    debug!("Path to settings: {:?}", std::fs::canonicalize(&file_path));
 
-    let settings_str = std::fs::read_to_string(file)?;
+    let settings_str = std::fs::read_to_string(file_path)?;
 
     *settings = from_str(&settings_str)?;
 

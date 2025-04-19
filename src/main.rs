@@ -17,11 +17,13 @@ use bevy_framepace::FramepacePlugin;
 use bevy_window_utils::{WindowUtils, WindowUtilsPlugin};
 
 /** Librecraft's main hard-coded constants. */
-pub mod consts {
+pub mod consts {    
     /** Fixed time clock - leave it at 50 hz. */
     pub const FIXED_TIME_CLOCK: f64 = 50.;
     /** Minecraft protocol version that we are trying to support. */
     pub const PROTOCOL_VERSION: u32 = 758;
+    /** Path to the settings file when on debug. */
+    pub const DEBUG_SETTINGS_PATH: &str = "./";
     /** Title of the main program. */
     pub const TITLE: &str = env!("CARGO_PKG_NAME");
     /** Version of the main program. */
@@ -43,9 +45,17 @@ pub mod settings;
 /** Adds splash screen to app (independent). */
 pub mod splash;
 
+
 use consts::{FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH, TITLE, VERSION};
+#[cfg(debug_assertions)]
+use consts::DEBUG_SETTINGS_PATH;
+
 use game::GamePlugin;
+use settings::SettingsPath;
 use splash::SplashPlugin;
+
+use std::path::PathBuf;
+use std::str::FromStr;
 
 /** Necessary plugins, responsible for generic app functions like windowing or asset packaging (prestartup). */
 struct NecessaryPlugins;
@@ -99,6 +109,17 @@ pub enum GameState {
 /** Main entry of the program. */
 pub fn main() {
     let mut app = App::new();
+
+    /* Panic if we don't have a cwd handle */
+    #[cfg(debug_assertions)]
+    let mut settings_path: PathBuf = PathBuf::from_str(DEBUG_SETTINGS_PATH).unwrap();
+    /* Panic if no handle to config dir in release mode.*/
+    #[cfg(not(debug_assertions))]
+    let mut settings_path: PathBuf = config_dir().unwrap().push(TITLE);
+
+    settings_path.push("settings");
+    settings_path.set_extension("toml");
+
     app.add_plugins(NecessaryPlugins)
         // todo(bevy 0.16.0): replace it with nec plug defs
         .add_systems(
@@ -107,6 +128,7 @@ pub fn main() {
                 window.window_icon = Some(assets.load("icon/icon512.png"));
             },
         )
+        .insert_resource(SettingsPath { path: settings_path })
         .insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
         .init_state::<GameState>()
         .enable_state_scoped_entities::<GameState>()
