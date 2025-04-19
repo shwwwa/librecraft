@@ -44,11 +44,8 @@ pub mod settings;
 pub mod splash;
 
 use consts::{FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH, TITLE, VERSION};
-use game::GamePlugin;
-use game::player::Player;
-use gui::{GUIMode, GUIModeChanged, GUIScaleChanged};
-use settings::Settings;
 use splash::SplashPlugin;
+use game::GamePlugin;
 
 /** Necessary plugins, responsible for generic app functions like windowing or asset packaging (prestartup). */
 struct NecessaryPlugins;
@@ -112,14 +109,6 @@ pub fn main() {
         .init_state::<GameState>()
         .enable_state_scoped_entities::<GameState>()
         .insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
-        // Init default versions of resources.
-        // Later on startup they should be overwritten.
-        // In future should be in their own plugin space.
-        .init_resource::<GUIMode>()
-        .init_resource::<Settings>()
-        .init_resource::<Player>()
-        .add_event::<GUIScaleChanged>()
-        .add_event::<GUIModeChanged>()
         .add_plugins((SplashPlugin, GamePlugin))
         .run();
 }

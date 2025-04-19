@@ -18,7 +18,12 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<hud::HotbarSelectionChanged>()
+        app.init_resource::<gui::GUIMode>()
+            .init_resource::<settings::Settings>()
+            .init_resource::<player::Player>()
+            .add_event::<gui::GUIScaleChanged>()
+            .add_event::<gui::GUIModeChanged>()
+	    .add_event::<hud::HotbarSelectionChanged>()
             .add_systems(
                 PreStartup,
                 (
