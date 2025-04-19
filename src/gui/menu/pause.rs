@@ -14,12 +14,20 @@ pub enum PauseButtonAction {
 }
 
 /** Creates and setups pause menu. */
-pub fn setup_pause_menu(mut commands: Commands) {
+pub fn setup_pause_menu(
+    mut commands: Commands,
+    gui_state: Res<State<GUIState>>,
+) {
+    let vis_state = match gui_state.get() {
+	GUIState::Opened => Visibility::Visible,
+	GUIState::Closed | GUIState::Typing => Visibility::Hidden,
+    };
+    
     let pause_menu = commands
         .spawn((
             PauseMenu,
             Name::new("PauseMenu"),
-	    Visibility::Hidden,
+	    vis_state,
 	    FocusPolicy::Block,
 	    StateScoped(GameState::InGame),
             (
