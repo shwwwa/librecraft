@@ -1,7 +1,10 @@
 use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
 
-use crate::{game::player::Player, gui::{gui_scale_to_float, GUIScale, GUIScaleChanged}};
+use crate::{
+    game::player::Player,
+    gui::{GUIScale, GUIScaleChanged, gui_scale_to_float},
+};
 
 /** Maximum amount of hotbar slots. */
 pub const MAX_HOTBAR_SLOTS: u32 = 9;

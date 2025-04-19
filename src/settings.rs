@@ -31,13 +31,13 @@ impl Default for Settings {
             fullscreen: false,
             pause_on_lost_focus: true,
             mute_on_lost_focus: true,
-	    position_x: -1,
-	    position_y: -1,
-	    size_x: -1.,
-	    size_y: -1.,
-	    maximized: false,
-	    seed: 0,
-	    gui_scale: 0.,
+            position_x: -1,
+            position_y: -1,
+            size_x: -1.,
+            size_y: -1.,
+            maximized: false,
+            seed: 0,
+            gui_scale: 0.,
         }
     }
 }
@@ -73,8 +73,8 @@ pub fn change_fullscreen(
             query_window.single_mut().mode = WindowMode::Windowed;
         }
 
-	debug!("Fullscreen mode: {}", settings.fullscreen);
-	
+        debug!("Fullscreen mode: {}", settings.fullscreen);
+
         settings_writer.send(SettingsUpdated {
             settings: *settings,
         });
@@ -88,25 +88,28 @@ pub fn save_window_position(
     mut position_reader: EventReader<WindowMoved>,
 ) {
     for ev in position_reader.read() {
-	match windows.get_window(ev.window) {
-	    Some(window_wrapper) => {
-		if settings.maximized != window_wrapper.is_maximized(){
-		    settings.maximized = window_wrapper.is_maximized();
-		    info!("Window was maximized/minimized.");
-		}
-	    },
-	    None => info!("Couldn't intercept maximized method.")
-	}
-	
-	settings.position_x = ev.position.x;
-	settings.position_y = ev.position.y;
-	
-	// produces a lot of events when moving, but so far works
-	debug!("Window changed position: {}x{}px", settings.position_x, settings.position_y);
+        match windows.get_window(ev.window) {
+            Some(window_wrapper) => {
+                if settings.maximized != window_wrapper.is_maximized() {
+                    settings.maximized = window_wrapper.is_maximized();
+                    info!("Window was maximized/minimized.");
+                }
+            }
+            None => info!("Couldn't intercept maximized method."),
+        }
 
-	settings_writer.send(SettingsUpdated {
+        settings.position_x = ev.position.x;
+        settings.position_y = ev.position.y;
+
+        // produces a lot of events when moving, but so far works
+        debug!(
+            "Window changed position: {}x{}px",
+            settings.position_x, settings.position_y
+        );
+
+        settings_writer.send(SettingsUpdated {
             settings: *settings,
-	});
+        });
     }
 }
 
@@ -116,14 +119,14 @@ pub fn save_window_size(
     mut size_reader: EventReader<WindowResized>,
 ) {
     for ev in size_reader.read() {
-	settings.size_x = ev.width;
-	settings.size_y = ev.height;
-	
-	debug!("Window resized: {}x{}px", settings.size_x, settings.size_y);
-	
-	settings_writer.send(SettingsUpdated {
+        settings.size_x = ev.width;
+        settings.size_y = ev.height;
+
+        debug!("Window resized: {}x{}px", settings.size_x, settings.size_y);
+
+        settings_writer.send(SettingsUpdated {
             settings: *settings,
-	});
+        });
     }
 }
 
@@ -164,7 +167,7 @@ pub fn setup_settings(
     }
 
     let gui_scale = f32::floor(settings.gui_scale);
-    
+
     // Too small/negative values.
     if settings.gui_scale < 0.5 {
         commands.insert_resource(GUIScale::Auto(0));
@@ -175,19 +178,19 @@ pub fn setup_settings(
     }
 
     let mut window = query_window.single_mut();
-	
+
     if settings.position_x > 0 && settings.position_y > 0 {
-	window.position = WindowPosition::At(IVec2::new(settings.position_x, settings.position_y));
+        window.position = WindowPosition::At(IVec2::new(settings.position_x, settings.position_y));
     }
 
     if settings.size_x > 0. && settings.size_y > 0. {
-	window.resolution = WindowResolution::new(settings.size_x, settings.size_y);
+        window.resolution = WindowResolution::new(settings.size_x, settings.size_y);
     }
-    
+
     if settings.maximized {
-	window.set_maximized(true);
+        window.set_maximized(true);
     }
-    
+
     if settings.fullscreen {
         window.mode = WindowMode::Fullscreen(MonitorSelection::Current);
     }

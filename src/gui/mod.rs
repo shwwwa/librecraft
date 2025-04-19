@@ -187,7 +187,7 @@ pub fn change_gui_scale(
     mut settings: ResMut<Settings>,
     mut settings_writer: EventWriter<SettingsUpdated>,
 ) {
-    let mut scale_changed : bool = false;
+    let mut scale_changed: bool = false;
     if let GUIScale::Scale(scale) = *gui_scale {
         if keys.just_pressed(KeyCode::BracketLeft) && scale > 1 {
             *gui_scale = GUIScale::Scale(scale - 1);
@@ -208,15 +208,15 @@ pub fn change_gui_scale(
         || keys.just_pressed(KeyCode::Backslash)
     {
         *gui_scale = GUIScale::Scale(1);
-	scale_changed = true;
+        scale_changed = true;
     }
 
     if scale_changed {
-	gui_scale_changed(&gui_scale, &mut gui_scale_events);
+        gui_scale_changed(&gui_scale, &mut gui_scale_events);
 
-	settings.gui_scale = gui_scale_to_float(*gui_scale);
-	settings_writer.send(SettingsUpdated {
+        settings.gui_scale = gui_scale_to_float(*gui_scale);
+        settings_writer.send(SettingsUpdated {
             settings: *settings,
-	});
+        });
     }
 }

@@ -20,9 +20,10 @@ pub fn update_fps_text(
             .and_then(|fps| fps.smoothed())
         {
             **span = format!("{value:>3.0}");
-	    
-	    let monitor = query_monitor.single().1;
-	    let hz : f64 = (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
+
+            let monitor = query_monitor.single().1;
+            let hz: f64 =
+                (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
             // Adjust text color based on FPS value.
             color.0 = if value >= hz {
                 Color::srgb(0.0, 1.0, 0.0)

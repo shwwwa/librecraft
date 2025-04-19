@@ -37,7 +37,7 @@ impl Default for Abilities {
             walk_speed: 0.1,
             fly_speed: 0.05,
             flying: 0,
-	    instabuild: 0,
+            instabuild: 0,
             invulnerable: 0,
             may_build: 1,
             may_fly: 0,
@@ -62,13 +62,13 @@ pub struct Player {
     pub xp_total: i32,
     #[serde(rename = "abilities")]
     pub abilities: Abilities,
-    #[serde(rename = "foodExhaustionLevel")] 
+    #[serde(rename = "foodExhaustionLevel")]
     pub food_exhaustion_level: f32,
-    #[serde(rename = "foodLevel")] 
+    #[serde(rename = "foodLevel")]
     pub food_level: i32,
-    #[serde(rename = "foodSaturationLevel")] 
+    #[serde(rename = "foodSaturationLevel")]
     pub food_saturation_level: f32,
-    #[serde(rename = "playerGameType")] 
+    #[serde(rename = "playerGameType")]
     pub player_game_type: i32,
 }
 
@@ -118,4 +118,3 @@ pub fn read_player_data(file: &str, player: &mut Player) -> Result<(), Box<dyn E
     //info!("{:#?}", compound_2);
     Ok(())
 }
-

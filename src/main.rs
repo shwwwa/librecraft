@@ -132,13 +132,13 @@ pub fn main() {
     settings_path.set_extension("toml");
 
     app.add_plugins(NecessaryPlugins)
-	.add_systems(
-	    PreStartup,
-	    |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
+        .add_systems(
+            PreStartup,
+            |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
                 window.window_icon = Some(assets.load("icon/icon512.png"));
-	    },
+            },
         )
-	.add_systems(Update, limit_fps)
+        .add_systems(Update, limit_fps)
         .insert_resource(SettingsPath {
             path: settings_path,
             save_settings: false,
@@ -178,21 +178,20 @@ fn limit_fps(
 ) {
     if input.just_pressed(KeyCode::Space) {
         use bevy_framepace::Limiter;
-	let monitor = query_monitor.single().1;
-	let hz : f64 = (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
-	
+        let monitor = query_monitor.single().1;
+        let hz: f64 = (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
+
         settings.limiter = match settings.limiter {
-	    Limiter::Auto => Limiter::Off,
+            Limiter::Auto => Limiter::Off,
             Limiter::Off => Limiter::from_framerate(30.0),
             Limiter::Manual(fps) => {
-		// Attempt to fix 180 fps bug. Has no effect.
-		if fps != Duration::from_secs_f64(1.0 / hz){
-		    Limiter::from_framerate(hz)
-		}
-		else {
-		    Limiter::Off
-		}
-	    }
+                // Attempt to fix 180 fps bug. Has no effect.
+                if fps != Duration::from_secs_f64(1.0 / hz) {
+                    Limiter::from_framerate(hz)
+                } else {
+                    Limiter::Off
+                }
+            }
         };
     }
 }

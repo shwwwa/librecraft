@@ -1,6 +1,6 @@
 use bevy::{prelude::*, ui::FocusPolicy};
 
-use crate::{gui::GUIState, GameState};
+use crate::{GameState, gui::GUIState};
 
 /** Marker to find pause menu background entity. */
 #[derive(Component)]
@@ -14,22 +14,19 @@ pub enum PauseButtonAction {
 }
 
 /** Creates and setups pause menu. */
-pub fn setup_pause_menu(
-    mut commands: Commands,
-    gui_state: Res<State<GUIState>>,
-) {
+pub fn setup_pause_menu(mut commands: Commands, gui_state: Res<State<GUIState>>) {
     let vis_state = match gui_state.get() {
-	GUIState::Opened => Visibility::Visible,
-	GUIState::Closed | GUIState::Typing => Visibility::Hidden,
+        GUIState::Opened => Visibility::Visible,
+        GUIState::Closed | GUIState::Typing => Visibility::Hidden,
     };
-    
+
     let pause_menu = commands
         .spawn((
             PauseMenu,
             Name::new("PauseMenu"),
-	    vis_state,
-	    FocusPolicy::Block,
-	    StateScoped(GameState::InGame),
+            vis_state,
+            FocusPolicy::Block,
+            StateScoped(GameState::InGame),
             (
                 BackgroundColor(Color::BLACK.with_alpha(0.6)),
                 GlobalZIndex(15),
@@ -71,7 +68,7 @@ pub fn setup_pause_menu(
     commands.entity(pause_gui_root).with_children(|wrapper| {
         for (msg, action) in [
             ("Resume", PauseButtonAction::Resume),
-	    ("Options", PauseButtonAction::Options),
+            ("Options", PauseButtonAction::Options),
             ("Exit", PauseButtonAction::Exit),
         ] {
             wrapper
@@ -117,12 +114,13 @@ pub fn render_pause_menu(
     let mut vis = visibility.single_mut();
 
     for ev in gui_state_reader.read() {
-	if GUIState::Closed == ev.entered.unwrap() {
-	    *vis = Visibility::Hidden;
-	}
-	else { *vis = Visibility::Visible; }
+        if GUIState::Closed == ev.entered.unwrap() {
+            *vis = Visibility::Hidden;
+        } else {
+            *vis = Visibility::Visible;
+        }
     }
-    
+
     if keys.just_pressed(KeyCode::Escape) {
         let is_closed: bool = *gui_state.get() == GUIState::Closed;
 
@@ -135,7 +133,7 @@ pub fn render_pause_menu(
         let state = if is_closed { "opened" } else { "closed" };
         info!("Pause menu was {} (via key).", state);
     }
-    
+
     if *vis != Visibility::Visible {
         return;
     }
@@ -147,9 +145,9 @@ pub fn render_pause_menu(
                     next_gui_state.set(GUIState::Closed);
                     info!("Resuming game.");
                 }
-		PauseButtonAction::Options => {
-		    info!("todo!(options)");
-		}
+                PauseButtonAction::Options => {
+                    info!("todo!(options)");
+                }
                 PauseButtonAction::Exit => {
                     exit.send(AppExit::Success);
                 }
