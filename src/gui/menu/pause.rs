@@ -110,18 +110,21 @@ pub fn render_pause_menu(
     mut button: Query<(&PauseButtonAction, &mut BorderColor, &Interaction)>,
     mut visibility: Query<&mut Visibility, With<PauseMenu>>,
     gui_state: Res<State<GUIState>>,
+    mut gui_state_reader: EventReader<StateTransitionEvent<GUIState>>,
     mut next_gui_state: ResMut<NextState<GUIState>>,
     mut exit: EventWriter<AppExit>,
 ) {
     let mut vis = visibility.single_mut();
 
+    for ev in gui_state_reader.read() {
+	if GUIState::Closed == ev.entered.unwrap() {
+	    *vis = Visibility::Hidden;
+	}
+	else { *vis = Visibility::Visible; }
+    }
+    
     if keys.just_pressed(KeyCode::Escape) {
         let is_closed: bool = *gui_state.get() == GUIState::Closed;
-
-        *vis = match *vis {
-            Visibility::Visible | Visibility::Inherited => Visibility::Hidden,
-            Visibility::Hidden => Visibility::Visible,
-        };
 
         if is_closed {
             next_gui_state.set(GUIState::Opened);
@@ -132,7 +135,7 @@ pub fn render_pause_menu(
         let state = if is_closed { "opened" } else { "closed" };
         info!("Pause menu was {} (via key).", state);
     }
-
+    
     if *vis != Visibility::Visible {
         return;
     }
@@ -141,9 +144,7 @@ pub fn render_pause_menu(
         match *interaction {
             Interaction::Pressed => match *action {
                 PauseButtonAction::Resume => {
-                    *vis = Visibility::Hidden;
                     next_gui_state.set(GUIState::Closed);
-
                     info!("Resuming game.");
                 }
 		PauseButtonAction::Options => {
