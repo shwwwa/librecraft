@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::gui::{GUIMode, GUIModeChanged};
+use crate::gui::GUIState;
 
 /** Marker to find pause menu background entity. */
 #[derive(Component)]
@@ -96,29 +96,28 @@ pub fn render_pause_menu(
     keys: Res<ButtonInput<KeyCode>>,
     mut button: Query<(&PauseButtonAction, &mut BorderColor, &Interaction)>,
     mut visibility: Query<&mut Visibility, With<PauseMenu>>,
-    // todo: rewrite it using states?
-    mut gui_mode: ResMut<GUIMode>,
-    mut gui_mode_writer: EventWriter<GUIModeChanged>,
+    gui_state: Res<State<GUIState>>,
+    mut next_gui_state: ResMut<NextState<GUIState>>,
     mut exit: EventWriter<AppExit>,
 ) {
     let mut vis = visibility.single_mut();
 
     if keys.just_pressed(KeyCode::Escape) {
+	let is_closed : bool = *gui_state.get() == GUIState::Closed;
+	
         *vis = match *vis {
             Visibility::Visible | Visibility::Inherited => Visibility::Hidden,
             Visibility::Hidden => Visibility::Visible,
         };
 
-        if *gui_mode == GUIMode::Closed {
-            *gui_mode = GUIMode::Opened;
+        if is_closed {
+            next_gui_state.set(GUIState::Opened);
         } else {
-            *gui_mode = GUIMode::Closed;
+            next_gui_state.set(GUIState::Closed);
         }
 
-        info!("Pause menu was opened (via key): {:?}", *gui_mode);
-        gui_mode_writer.send(GUIModeChanged {
-            gui_mode: *gui_mode,
-        });
+	let state = if is_closed { "opened" } else { "closed" };
+        info!("Pause menu was {} (via key).", state);
     }
 
     if *vis != Visibility::Visible {
@@ -130,12 +129,9 @@ pub fn render_pause_menu(
             Interaction::Pressed => match *action {
                 PauseButtonAction::Resume => {
                     *vis = Visibility::Hidden;
-                    *gui_mode = GUIMode::Closed;
+                    next_gui_state.set(GUIState::Closed);
 
-                    info!("Resuming game: {:?}", *gui_mode);
-                    gui_mode_writer.send(GUIModeChanged {
-                        gui_mode: *gui_mode,
-                    });
+                    info!("Resuming game.");
                 }
                 PauseButtonAction::Exit => {
                     exit.send(AppExit::Success);

@@ -44,8 +44,8 @@ pub mod settings;
 pub mod splash;
 
 use consts::{FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH, TITLE, VERSION};
-use splash::SplashPlugin;
 use game::GamePlugin;
+use splash::SplashPlugin;
 
 /** Necessary plugins, responsible for generic app functions like windowing or asset packaging (prestartup). */
 struct NecessaryPlugins;
@@ -73,7 +73,7 @@ impl PluginGroup for NecessaryPlugins {
                                 ..default()
                             },
                             title: TITLE.to_string() + " v." + VERSION,
-                            // Instead of vsync we limit fps by framepace.
+                            // [`FramepacePlugin`] handles it.
                             present_mode: PresentMode::AutoNoVsync,
                             ..default()
                         }),
@@ -100,15 +100,23 @@ pub enum GameState {
 pub fn main() {
     let mut app = App::new();
     app.add_plugins(NecessaryPlugins)
+	// todo(bevy 0.16.0): replace it with nec plug defs
         .add_systems(
             PreStartup,
             |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
                 window.window_icon = Some(assets.load("icon/icon512.png"));
             },
         )
+        .insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
         .init_state::<GameState>()
         .enable_state_scoped_entities::<GameState>()
-        .insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
-        .add_plugins((SplashPlugin, GamePlugin))
+        .add_plugins((
+            SplashPlugin {
+                state: GameState::Splash,
+            },
+            GamePlugin {
+		state: GameState::InGame,
+	    },
+        ))
         .run();
 }

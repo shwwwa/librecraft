@@ -23,28 +23,23 @@ pub enum GUIScale {
     Custom(f32),
 }
 
-/// Determines if GUI is opened, closed, or user is typing something.
-/// On opened GUI, allows user to handle his mouse.
-#[derive(Default, PartialEq, Eq, Clone, Copy, Resource, Debug)]
-pub enum GUIMode {
-    #[default]
-    Closed,
-    Opened,
-    #[allow(dead_code)]
-    Typing,
-}
-
 #[derive(Event, Debug)]
 pub struct GUIScaleChanged {
     pub gui_scale: GUIScale,
 }
 
-#[derive(Event, Debug)]
-pub struct GUIModeChanged {
-    pub gui_mode: GUIMode,
+/// In-game only.
+/// Determines if GUI is opened, closed, or user is typing something.
+/// On opened GUI, allows user to handle his mouse, disables in-game controls.
+#[derive(States, Clone, Copy, Default, Eq, PartialEq, Debug, Hash)]
+pub enum GUIState {
+    #[default]
+    Opened,
+    Closed,
+    #[allow(dead_code)]
+    Typing,
 }
 
-//todo: merge scale and custom in future.
 pub fn gui_scale_to_float(gui_scale: GUIScale) -> f32 {
     match gui_scale {
         GUIScale::Auto(x) | GUIScale::Scale(x) => x as f32,
@@ -69,23 +64,18 @@ pub fn gui_scale_was_changed(
 /// - Releases user cursor on lost focus/menu.
 pub fn handle_mouse(
     mut windows: Query<&mut Window, With<PrimaryWindow>>,
-    mut gui_mode: ResMut<GUIMode>,
-    settings: Res<Settings>,
-    mut gui_mode_events: ResMut<Events<GUIModeChanged>>,
     mut focus_reader: EventReader<WindowFocused>,
+    settings: Res<Settings>,
+    gui_state: Res<State<GUIState>>,
+    mut gui_state_reader: EventReader<StateTransitionEvent<GUIState>>,
+    mut next_gui_state: ResMut<NextState<GUIState>>,
 ) {
-    let mut gui_mode_cursor = gui_mode_events.get_cursor();
-
     for ev in focus_reader.read() {
-        let is_playing = *gui_mode == GUIMode::Closed;
+        let is_playing = *gui_state.get() == GUIState::Closed;
 
         if is_playing {
             if settings.pause_on_lost_focus {
-                *gui_mode = GUIMode::Opened;
-                gui_mode_events.send(GUIModeChanged {
-                    gui_mode: *gui_mode,
-                });
-
+                next_gui_state.set(GUIState::Opened);
                 return;
             }
 
@@ -101,10 +91,11 @@ pub fn handle_mouse(
         }
     }
 
-    for ev in gui_mode_cursor.read(&gui_mode_events) {
+    for ev in gui_state_reader.read() {
         let mut window = windows.single_mut();
 
-        let is_playing = ev.gui_mode == GUIMode::Closed;
+	// todo(gui): may cause panic - tests needed.
+        let is_playing = ev.entered.unwrap() == GUIState::Closed;
 
         window.cursor_options.grab_mode = if is_playing {
             CursorGrabMode::Locked
@@ -120,7 +111,7 @@ pub fn handle_mouse(
     }
 }
 
-/// For automatic gui scale change.
+/// System that handles automatic gui scale change.
 pub fn update_gui_scale(
     mut gui_scale_events: ResMut<Events<GUIScaleChanged>>,
     mut resize_reader: EventReader<WindowResized>,
@@ -171,7 +162,7 @@ pub fn update_gui_scale(
     }
 }
 
-/** For manual gui scale change. */
+/** System that handles gui scale change by request. */
 pub fn change_gui_scale(
     keys: Res<ButtonInput<KeyCode>>,
     mut gui_scale: ResMut<GUIScale>,

@@ -13,17 +13,18 @@ use crate::settings;
 /** Accesses player information. */
 pub mod player;
 
-/** InGame plugin */
-pub struct GamePlugin;
+/** Plugin responsible for game logic. */
+pub struct GamePlugin<S: States> {
+    pub state: S,
+}
 
-impl Plugin for GamePlugin {
+impl<S: States> Plugin for GamePlugin<S> {
     fn build(&self, app: &mut App) {
-        app.init_resource::<gui::GUIMode>()
-            .init_resource::<settings::Settings>()
+        app.init_state::<gui::GUIState>()
+	    .init_resource::<settings::Settings>()
             .init_resource::<player::Player>()
             .add_event::<gui::GUIScaleChanged>()
-            .add_event::<gui::GUIModeChanged>()
-	    .add_event::<hud::HotbarSelectionChanged>()
+            .add_event::<hud::HotbarSelectionChanged>()
             .add_systems(
                 PreStartup,
                 (

@@ -3,8 +3,10 @@ use bevy::prelude::*;
 
 pub const SPLASH_SECS: f32 = 3.0;
 
-/** Plugin that renders splash screen for [`SPLASH_SECS`] */
-pub struct SplashPlugin;
+/** Plugin that renders splash screen for [`SPLASH_SECS`]. Unnecessary for librecraft to work. */
+pub struct SplashPlugin<S: States> {
+    pub state: S,
+}
 
 #[derive(Resource, Deref, DerefMut)]
 struct SplashTimer(Timer);
@@ -15,14 +17,22 @@ impl Default for SplashTimer {
     }
 }
 
-impl Plugin for SplashPlugin {
+/** Done for easier transfer within my projects, with sacrificing few clone values. */
+impl<S: States> Plugin for SplashPlugin<S> {
     fn build(&self, app: &mut App) {
         app.init_resource::<SplashTimer>()
-            .add_systems(OnEnter(GameState::Splash), setup_splash)
-            .add_systems(Update, splash_countdown.run_if(in_state(GameState::Splash)));
+            .add_systems(Startup, setup_splash.run_if(in_state(self.state.clone())))
+            .add_systems(
+                Update,
+                splash_countdown.run_if(in_state(self.state.clone())),
+            )
+            .add_systems(OnExit(self.state.clone()), |mut commands: Commands| {
+                commands.remove_resource::<SplashTimer>()
+            });
     }
 }
 
+/** Setups splash screen. */
 fn setup_splash(mut commands: Commands, asset_server: Res<AssetServer>) {
     let icon = asset_server.load("icon/logo-highres.png");
 
@@ -54,6 +64,7 @@ fn setup_splash(mut commands: Commands, asset_server: Res<AssetServer>) {
         });
 }
 
+/** Splash countdown. Sets new game state when [`SplashTimer`] is expired. */
 fn splash_countdown(
     time: Res<Time>,
     mut timer: ResMut<SplashTimer>,
