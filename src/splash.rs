@@ -29,7 +29,7 @@ impl<S: States> Plugin for SplashPlugin<S> {
                 splash_countdown.run_if(in_state(self.state.clone())),
             )
             .add_systems(OnExit(self.state.clone()), |mut commands: Commands| {
-                commands.remove_resource::<SplashTimer>()
+                commands.remove_resource::<SplashTimer>();
             });
     }
 }

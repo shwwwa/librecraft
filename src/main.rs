@@ -1,4 +1,6 @@
 #![allow(clippy::default_constructed_unit_structs)]
+// Can warn of some basic pitfalls, but basically too pedantic.
+// #![warn(clippy::pedantic)]
 // Tells windows not to show console window on release.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 // Unsafe code violates one of design goals and used only in crates.
@@ -183,7 +185,7 @@ fn limit_fps(
 	    Limiter::Auto => Limiter::Off,
             Limiter::Off => Limiter::from_framerate(30.0),
             Limiter::Manual(fps) => {
-		// Attempt to fix 180 fps bug. Doesnt work.
+		// Attempt to fix 180 fps bug. Has no effect.
 		if fps != Duration::from_secs_f64(1.0 / hz){
 		    Limiter::from_framerate(hz)
 		}
@@ -192,7 +194,5 @@ fn limit_fps(
 		}
 	    }
         };
-
-	info!("{}",settings.limiter);
     }
 }

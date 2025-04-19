@@ -102,7 +102,7 @@ pub fn save_window_position(
 	settings.position_y = ev.position.y;
 	
 	// produces a lot of events when moving, but so far works
-	info!("Window changed position: {}x{}px", settings.position_x, settings.position_y);
+	debug!("Window changed position: {}x{}px", settings.position_x, settings.position_y);
 
 	settings_writer.send(SettingsUpdated {
             settings: *settings,
@@ -119,7 +119,7 @@ pub fn save_window_size(
 	settings.size_x = ev.width;
 	settings.size_y = ev.height;
 	
-	info!("Window resized: {}x{}px", settings.size_x, settings.size_y);
+	debug!("Window resized: {}x{}px", settings.size_x, settings.size_y);
 	
 	settings_writer.send(SettingsUpdated {
             settings: *settings,
@@ -209,7 +209,7 @@ pub fn update_settings(
 }
 
 pub fn write_settings(file_path: PathBuf, settings: &Settings) -> Result<(), Box<dyn Error>> {
-    let settings_toml = toml::to_string(*&settings)?;
+    let settings_toml = toml::to_string(settings)?;
 
     std::fs::write(file_path, settings_toml)?;
 
