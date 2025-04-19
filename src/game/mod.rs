@@ -34,6 +34,8 @@ impl<S: States> Plugin for GamePlugin<S> {
             .add_systems(
                 OnEnter(self.state.clone()),
                 (
+		    /* needs to be updated once in case gui scale is 0 */
+		    gui::setup_gui_scale,
 		    debug::setup_debug_hud,
                     menu::setup_pause_menu,
                     hud::setup_hotbar,
