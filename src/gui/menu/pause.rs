@@ -93,17 +93,14 @@ pub fn setup_pause_menu(mut commands: Commands) {
 
 /** Renders pause menu on request */
 pub fn render_pause_menu(
-    queries: (
-        Query<(&PauseButtonAction, &mut BorderColor, &Interaction)>,
-        Query<&mut Visibility, With<PauseMenu>>,
-    ),
     keys: Res<ButtonInput<KeyCode>>,
+    mut button: Query<(&PauseButtonAction, &mut BorderColor, &Interaction)>,
+    mut visibility: Query<&mut Visibility, With<PauseMenu>>,
     // todo: rewrite it using states?
     mut gui_mode: ResMut<GUIMode>,
     mut gui_mode_writer: EventWriter<GUIModeChanged>,
     mut exit: EventWriter<AppExit>,
 ) {
-    let (mut button, mut visibility) = queries;
     let mut vis = visibility.single_mut();
 
     if keys.just_pressed(KeyCode::Escape) {
