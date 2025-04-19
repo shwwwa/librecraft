@@ -28,9 +28,26 @@ pub mod consts {
     /** Path to the settings file when on debug. */
     pub const DEBUG_SETTINGS_PATH: &str = "./";
     /** Title of the main program. */
-    pub const TITLE: &str = env!("CARGO_PKG_NAME");
+    macro_rules! title {
+	() => (env!("CARGO_PKG_NAME"))
+    }
     /** Version of the main program. */
-    pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+    macro_rules! version {
+	() => ( env!("CARGO_PKG_VERSION") )
+    }
+    /** Version string. */
+    macro_rules! version_string {
+	() => ( concat!(crate::consts::title!(), " v.", crate::consts::version!()) )
+    }
+    /** About (developer and version string) */
+    macro_rules! about {
+	() => ( concat!(crate::consts::version_string!(), " | made by caffidev") )
+    }
+    pub(crate) use title;
+    pub(crate) use version;
+    pub(crate) use version_string;
+    pub(crate) use about;
+    
     /** Librecraft's minimum resolution width. */
     pub const MIN_WIDTH: f32 = 320.;
     /** Librecraft's minimum resolution height. */
@@ -57,7 +74,7 @@ use consts::DEBUG_SETTINGS_PATH;
 use std::str::FromStr;
 use std::time::Duration;
 
-use consts::{FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH, TITLE, VERSION};
+use consts::{FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH};
 
 use game::GamePlugin;
 use settings::SettingsPath;
@@ -91,7 +108,7 @@ impl PluginGroup for NecessaryPlugins {
                                 min_height: MIN_HEIGHT,
                                 ..default()
                             },
-                            title: TITLE.to_string() + " v." + VERSION,
+                            title: consts::version_string!().to_string(),
                             // [`FramepacePlugin`] handles it.
                             present_mode: PresentMode::AutoNoVsync,
                             ..default()

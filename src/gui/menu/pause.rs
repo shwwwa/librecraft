@@ -1,6 +1,7 @@
 use bevy::{prelude::*, ui::FocusPolicy};
 
-use crate::{GameState, gui::GUIState};
+use crate::{game::player::Player, GameState, gui::GUIState};
+use crate::consts;
 
 /** Marker to find pause menu background entity. */
 #[derive(Component)]
@@ -14,7 +15,11 @@ pub enum PauseButtonAction {
 }
 
 /** Creates and setups pause menu. */
-pub fn setup_pause_menu(mut commands: Commands, gui_state: Res<State<GUIState>>) {
+pub fn setup_pause_menu(
+    mut commands: Commands,
+    gui_state: Res<State<GUIState>>,
+    player: Res<Player>,
+) {
     let vis_state = match gui_state.get() {
         GUIState::Opened => Visibility::Visible,
         GUIState::Closed | GUIState::Typing => Visibility::Hidden,
@@ -42,6 +47,73 @@ pub fn setup_pause_menu(mut commands: Commands, gui_state: Res<State<GUIState>>)
         ))
         .id();
 
+    let pause_left_corner_root = commands
+        .spawn(Node {
+	    display: Display::Flex,
+	    position_type: PositionType::Absolute,
+	    left: Val::Percent(1.),
+	    bottom: Val::Percent(1.),
+            flex_direction: FlexDirection::Column,
+            justify_content: JustifyContent::SpaceAround,
+            ..default()
+        })
+        .id();
+    
+    let data_version_text = commands
+        .spawn((
+            Text::new("Data version: "),
+            TextFont::from_font_size(14.0),
+            TextColor(Color::WHITE),
+        ))
+        .with_child((
+            TextSpan::new(player.data_version.to_string()),
+            TextFont::from_font_size(14.0),
+            TextColor(Color::WHITE),
+	)).id();
+
+    let dimension_text = commands
+        .spawn((
+            Text::new("Dimension: "),
+            TextFont::from_font_size(14.0),
+            TextColor(Color::WHITE),
+        ))
+        .with_child((
+            TextSpan::new(player.dimension.clone()),
+            TextFont::from_font_size(14.0),
+            TextColor(Color::WHITE),
+	)).id();
+
+    let score_text = commands
+        .spawn((
+            Text::new("Score: "),
+            TextFont::from_font_size(14.0),
+            TextColor(Color::WHITE),
+        ))
+         .with_child((
+            TextSpan::new(player.score.to_string()),
+            TextFont::from_font_size(14.0),
+            TextColor(Color::WHITE),
+	)).id();
+
+    let pause_right_corner_root = commands
+        .spawn(Node {
+	    display: Display::Flex,
+	    position_type: PositionType::Absolute,
+	    right: Val::Percent(1.),
+	    bottom: Val::Percent(1.),
+            flex_direction: FlexDirection::Column,
+            justify_content: JustifyContent::SpaceAround,
+            ..default()
+        })
+        .id();
+
+    let about_text = commands
+        .spawn((
+            Text::new(consts::about!().to_string()),
+            TextFont::from_font_size(14.0),
+            TextColor(Color::WHITE),
+	)).id();
+    
     let pause_gui_root = commands
         .spawn(Node {
             display: Display::Flex,
@@ -62,7 +134,9 @@ pub fn setup_pause_menu(mut commands: Commands, gui_state: Res<State<GUIState>>)
         ))
         .id();
 
-    commands.entity(pause_menu).add_children(&[pause_gui_root]);
+    commands.entity(pause_menu).add_children(&[pause_gui_root, pause_left_corner_root, pause_right_corner_root]);
+    commands.entity(pause_left_corner_root).add_children(&[score_text, dimension_text, data_version_text]);
+    commands.entity(pause_right_corner_root).add_children(&[about_text]);
     commands.entity(pause_gui_root).add_children(&[pause_text]);
 
     commands.entity(pause_gui_root).with_children(|wrapper| {
