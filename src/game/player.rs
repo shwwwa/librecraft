@@ -96,7 +96,7 @@ impl Default for Player {
 
 pub fn setup_player_data(mut player: ResMut<Player>) {
     match read_player_data("./assets/playerdata/player.dat", &mut player) {
-        Ok(()) => info!(""),
+        Ok(()) => {}
         Err(e) => error!("Couldn't retrieve player data: {}", e),
     }
 }
