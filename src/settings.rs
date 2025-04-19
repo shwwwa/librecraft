@@ -1,4 +1,5 @@
-use bevy::window::{PrimaryWindow, WindowResolution};
+use bevy::window::{PrimaryWindow, WindowResized, WindowResolution};
+use bevy::winit::WinitWindows;
 use bevy::{prelude::*, window::WindowMode};
 
 use serde::{Deserialize, Serialize};
@@ -81,16 +82,44 @@ pub fn change_fullscreen(
 }
 
 pub fn save_window_position(
+    windows: NonSend<WinitWindows>,
     mut settings: ResMut<Settings>,
     mut settings_writer: EventWriter<SettingsUpdated>,
     mut position_reader: EventReader<WindowMoved>,
 ) {
     for ev in position_reader.read() {
+	match windows.get_window(ev.window) {
+	    Some(window_wrapper) => {
+		if settings.maximized != window_wrapper.is_maximized(){
+		    settings.maximized = window_wrapper.is_maximized();
+		    info!("Window was maximized/minimized.");
+		}
+	    },
+	    None => info!("Couldn't intercept maximized method.")
+	}
+	
 	settings.position_x = ev.position.x;
 	settings.position_y = ev.position.y;
-
-	// maybe I should implement event scheduling to save on too many events?
+	
+	// produces a lot of events when moving, but so far works
 	info!("Window changed position: {}x{}px", settings.position_x, settings.position_y);
+
+	settings_writer.send(SettingsUpdated {
+            settings: *settings,
+	});
+    }
+}
+
+pub fn save_window_size(
+    mut settings: ResMut<Settings>,
+    mut settings_writer: EventWriter<SettingsUpdated>,
+    mut size_reader: EventReader<WindowResized>,
+) {
+    for ev in size_reader.read() {
+	settings.size_x = ev.width;
+	settings.size_y = ev.height;
+	
+	info!("Window resized: {}x{}px", settings.size_x, settings.size_y);
 	
 	settings_writer.send(SettingsUpdated {
             settings: *settings,

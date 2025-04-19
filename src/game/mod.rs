@@ -61,6 +61,7 @@ impl<S: States> Plugin for GamePlugin<S> {
                     settings::change_fullscreen,
                     settings::update_settings,
 		    settings::save_window_position,
+		    settings::save_window_size,
                     screenshot,
                     save_screenshot,
                 )
