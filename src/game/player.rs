@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use flate2::read::GzDecoder;
 use serde::{Deserialize, Serialize};
-use valence_nbt::serde::CompoundSerializer;
+//use valence_nbt::serde::CompoundSerializer;
 use std::error::Error;
 use std::io::prelude::*;
 use valence_nbt::from_binary;
@@ -77,7 +77,7 @@ impl Default for Player {
         Self {
             data_version: 2975,
             absorption_amount: 0.,
-            dimension: "minecraft:unknown".to_string(),
+            dimension: "minecraft:air".to_string(),
             health: 20.,
             inventory: vec![Slot::default()],
             invulnerable: 0,
@@ -116,6 +116,8 @@ pub fn read_player_data(file: &str, player: &mut Player) -> Result<(), Box<dyn E
 
     info!("{:#?}", player);
 
+    //let compound_2 = player.serialize(CompoundSerializer).unwrap();
+    //info!("{:#?}", compound_2);
     Ok(())
 }
 
