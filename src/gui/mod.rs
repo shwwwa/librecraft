@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, PrimaryWindow, WindowFocused, WindowResized};
 
 use crate::consts::{MIN_HEIGHT, MIN_WIDTH};
-use crate::settings::Settings;
+use crate::settings::{Settings, SettingsUpdated};
 
 /** All that includes debug GUI */
 pub mod debug;
@@ -40,6 +40,7 @@ pub enum GUIState {
     Typing,
 }
 
+/** An utility function that converts GUIScale to f32. */
 pub fn gui_scale_to_float(gui_scale: GUIScale) -> f32 {
     match gui_scale {
         GUIScale::Auto(x) | GUIScale::Scale(x) => x as f32,
@@ -47,7 +48,8 @@ pub fn gui_scale_to_float(gui_scale: GUIScale) -> f32 {
     }
 }
 
-pub fn gui_scale_was_changed(
+/** An utility function that fires [`GUIScaleChanged`] event */
+pub fn gui_scale_changed(
     gui_scale: &ResMut<GUIScale>,
     gui_scale_events: &mut ResMut<Events<GUIScaleChanged>>,
 ) {
@@ -172,36 +174,49 @@ pub fn update_gui_scale(
                 - 1,
         );
 
-        gui_scale_was_changed(&gui_scale, &mut gui_scale_events);
+        gui_scale_changed(&gui_scale, &mut gui_scale_events);
     }
 }
 
-/** System that handles gui scale change by request. */
+/// System that handles gui scale change by request.
+/// Because it's manual also saves it in settings.toml.
 pub fn change_gui_scale(
     keys: Res<ButtonInput<KeyCode>>,
     mut gui_scale: ResMut<GUIScale>,
     mut gui_scale_events: ResMut<Events<GUIScaleChanged>>,
+    mut settings: ResMut<Settings>,
+    mut settings_writer: EventWriter<SettingsUpdated>,
 ) {
+    let mut scale_changed : bool = false;
     if let GUIScale::Scale(scale) = *gui_scale {
         if keys.just_pressed(KeyCode::BracketLeft) && scale > 1 {
             *gui_scale = GUIScale::Scale(scale - 1);
-            gui_scale_was_changed(&gui_scale, &mut gui_scale_events);
+            scale_changed = true;
         }
 
         if keys.just_pressed(KeyCode::BracketRight) && scale < 5 {
             *gui_scale = GUIScale::Scale(scale + 1);
-            gui_scale_was_changed(&gui_scale, &mut gui_scale_events);
+            scale_changed = true;
         }
 
         if keys.just_pressed(KeyCode::Backslash) {
             *gui_scale = GUIScale::Auto(0);
-            gui_scale_was_changed(&gui_scale, &mut gui_scale_events);
+            scale_changed = true;
         }
     } else if keys.just_pressed(KeyCode::BracketLeft)
         || keys.just_pressed(KeyCode::BracketRight)
         || keys.just_pressed(KeyCode::Backslash)
     {
         *gui_scale = GUIScale::Scale(1);
-        gui_scale_was_changed(&gui_scale, &mut gui_scale_events);
+	scale_changed = true;
+    }
+
+    if scale_changed {
+	gui_scale_changed(&gui_scale, &mut gui_scale_events);
+
+	settings.gui_scale = gui_scale_to_float(*gui_scale);
+	settings_writer.send(SettingsUpdated {
+            settings: *settings,
+	});
     }
 }
