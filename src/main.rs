@@ -45,8 +45,14 @@ pub mod settings;
 /** Adds splash screen to app (independent). */
 pub mod splash;
 
+#[cfg(not(debug_assertions))]
+use dirs::config_dir;
+
 #[cfg(debug_assertions)]
 use consts::DEBUG_SETTINGS_PATH;
+#[cfg(debug_assertions)]
+use std::str::FromStr;
+
 use consts::{FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH, TITLE, VERSION};
 
 use game::GamePlugin;
@@ -54,7 +60,6 @@ use settings::SettingsPath;
 use splash::SplashPlugin;
 
 use std::path::PathBuf;
-use std::str::FromStr;
 
 /** Necessary plugins, responsible for generic app functions like windowing or asset packaging (prestartup). */
 struct NecessaryPlugins;
@@ -109,12 +114,14 @@ pub enum GameState {
 pub fn main() {
     let mut app = App::new();
 
-    /* Panic if we don't have a cwd handle */
+    /* Panic if no handle to cwd in debug mode. */
     #[cfg(debug_assertions)]
     let mut settings_path: PathBuf = PathBuf::from_str(DEBUG_SETTINGS_PATH).unwrap();
     /* Panic if no handle to config dir in release mode.*/
     #[cfg(not(debug_assertions))]
-    let mut settings_path: PathBuf = config_dir().unwrap().push(TITLE);
+    let mut settings_path: PathBuf = config_dir().unwrap();
+    #[cfg(not(debug_assertions))]
+    settings_path.push(TITLE);
 
     settings_path.push("settings");
     settings_path.set_extension("toml");
