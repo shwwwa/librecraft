@@ -1,7 +1,7 @@
 use bevy::window::PrimaryWindow;
 use bevy::{prelude::*, window::WindowMode};
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use toml::from_str;
 
 use crate::gui::GUIScale;
@@ -37,6 +37,11 @@ pub struct SettingsPath {
     pub save_settings: bool,
 }
 
+#[derive(Event, Debug)]
+pub struct SettingsUpdated {
+    pub settings: Settings,
+}
+
 pub fn is_mute_on_lost_focus(settings: Res<Settings>) -> bool {
     settings.mute_on_lost_focus
 }
@@ -44,6 +49,7 @@ pub fn is_mute_on_lost_focus(settings: Res<Settings>) -> bool {
 pub fn change_fullscreen(
     keys: Res<ButtonInput<KeyCode>>,
     mut settings: ResMut<Settings>,
+    mut settings_writer: EventWriter<SettingsUpdated>,
     mut query_window: Query<&mut Window, With<PrimaryWindow>>,
 ) {
     if keys.just_pressed(KeyCode::F11) {
@@ -54,6 +60,8 @@ pub fn change_fullscreen(
         } else {
             query_window.single_mut().mode = WindowMode::Windowed;
         }
+
+        settings_writer.send(SettingsUpdated { settings: *settings });
     }
 }
 
@@ -65,33 +73,32 @@ pub fn setup_settings(
 ) {
     match read_settings((*settings_path.path).to_path_buf(), &mut settings) {
         Ok(()) => {
-	    info!("{:?}", *settings);
-	    settings_path.save_settings = true;
-	}
+            info!("{:?}", *settings);
+            settings_path.save_settings = true;
+        }
         Err(e) => {
-	    let path: &str = settings_path.path.to_str().unwrap();
-	    #[cfg(debug_assertions)]
-	    let debug : bool = true;
-	    #[cfg(not(debug_assertions))]
-	    let debug : bool = false;
-	    
-	    warn!("Couldn't retrieve settings from {}: {}.", path, e);
-	    if debug {
-		warn!("Debug mode enabled, settings file is not created, fallback values in use.");
-	    }
-	    else {
-		warn!("Creating default settings file...");
-		match write_settings((*settings_path.path).to_path_buf(), &mut settings) {
-		    Ok(()) => {
-			info!("Default settings file was created.");
-			settings_path.save_settings = true;
-		    }
-		    Err(e) => {
-			warn!("Default settings file can't be created: {}", e);
-		    }
-		}
-	    }
-	}
+            let path: &str = settings_path.path.to_str().unwrap();
+            #[cfg(debug_assertions)]
+            let debug: bool = true;
+            #[cfg(not(debug_assertions))]
+            let debug: bool = false;
+
+            warn!("Couldn't retrieve settings from {}: {}.", path, e);
+            if debug {
+                warn!("Debug mode enabled, settings file is not created, fallback values in use.");
+            } else {
+                warn!("Creating default settings file...");
+                match write_settings((*settings_path.path).to_path_buf(), &settings) {
+                    Ok(()) => {
+                        info!("Default settings file was created.");
+                        settings_path.save_settings = true;
+                    }
+                    Err(e) => {
+                        warn!("Default settings file can't be created: {}", e);
+                    }
+                }
+            }
+        }
     }
 
     let gui_scale = f32::floor(settings.gui_scale);
@@ -110,11 +117,25 @@ pub fn setup_settings(
     }
 }
 
-pub fn write_settings(file_path: PathBuf, settings: &mut Settings) -> Result<(), Box<dyn Error>> {
+pub fn update_settings(
+    settings_path: ResMut<SettingsPath>,
+    mut settings_reader: EventReader<SettingsUpdated>,
+) {
+    if !settings_path.save_settings { return; }
+    for ev in settings_reader.read() {
+	match write_settings(
+	    (*settings_path.path).to_path_buf(), &ev.settings) {
+	    Ok(()) => debug!("Settings file was modified."),
+	    Err(e) => warn!("Couldn't update settings file: {}", e)
+	}
+    }
+}
+
+pub fn write_settings(file_path: PathBuf, settings: &Settings) -> Result<(), Box<dyn Error>> {
     let settings_toml = toml::to_string(*&settings)?;
 
     std::fs::write(file_path, settings_toml)?;
-    
+
     Ok(())
 }
 
@@ -122,7 +143,7 @@ pub fn read_settings(file_path: PathBuf, settings: &mut Settings) -> Result<(), 
     debug!("Path to settings: {:?}", std::fs::canonicalize(&file_path));
 
     let settings_str = std::fs::read_to_string(file_path)?;
-    
+
     *settings = from_str(&settings_str)?;
 
     Ok(())

@@ -25,7 +25,8 @@ impl<S: States> Plugin for GamePlugin<S> {
             .init_resource::<player::Player>()
             .add_event::<gui::GUIScaleChanged>()
             .add_event::<hud::HotbarSelectionChanged>()
-            .add_systems(OnEnter(self.state.clone()), (settings::setup_settings,))
+            .add_event::<settings::SettingsUpdated>()
+            .add_systems(OnEnter(self.state.clone()), settings::setup_settings)
             .add_systems(
                 OnEnter(self.state.clone()),
                 (
@@ -58,6 +59,7 @@ impl<S: States> Plugin for GamePlugin<S> {
                     debug::toggle_debug_hud,
                     debug::limit_fps,
                     settings::change_fullscreen,
+		    settings::update_settings,
                     screenshot,
                     save_screenshot,
                 )
@@ -99,7 +101,7 @@ fn screenshot(mut commands: Commands, input: Res<ButtonInput<KeyCode>>, mut coun
     }
 }
 
-/** Save screenshot */
+/** Adds an ability to save screenshot to file. */
 fn save_screenshot(
     mut commands: Commands,
     screenshot_saving: Query<Entity, With<Capturing>>,
