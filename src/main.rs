@@ -136,6 +136,7 @@ pub fn main() {
         )
         .insert_resource(SettingsPath {
             path: settings_path,
+	    save_settings: false,
         })
         .insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
         .init_state::<GameState>()

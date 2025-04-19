@@ -30,10 +30,11 @@ impl Default for Settings {
     }
 }
 
-/** Contains only 1 field: path to settings file. */
+/** Contains only 2 fields: path to settings file and ability to save changes. */
 #[derive(Resource)]
 pub struct SettingsPath {
     pub path: PathBuf,
+    pub save_settings: bool,
 }
 
 pub fn is_mute_on_lost_focus(settings: Res<Settings>) -> bool {
@@ -59,11 +60,14 @@ pub fn change_fullscreen(
 pub fn setup_settings(
     mut commands: Commands,
     mut settings: ResMut<Settings>,
-    settings_path: Res<SettingsPath>,
+    mut settings_path: ResMut<SettingsPath>,
     mut query_window: Query<&mut Window, With<PrimaryWindow>>,
 ) {
     match read_settings((*settings_path.path).to_path_buf(), &mut settings) {
-        Ok(()) => info!("{:?}", *settings),
+        Ok(()) => {
+	    info!("{:?}", *settings);
+	    settings_path.save_settings = true;
+	}
         Err(e) => {
 	    let path: &str = settings_path.path.to_str().unwrap();
 	    #[cfg(debug_assertions)]
@@ -78,7 +82,10 @@ pub fn setup_settings(
 	    else {
 		warn!("Creating default settings file...");
 		match write_settings((*settings_path.path).to_path_buf(), &mut settings) {
-		    Ok(()) => info!("Default settings file was created."),
+		    Ok(()) => {
+			info!("Default settings file was created.");
+			settings_path.save_settings = true;
+		    }
 		    Err(e) => {
 			warn!("Default settings file can't be created: {}", e);
 		    }
