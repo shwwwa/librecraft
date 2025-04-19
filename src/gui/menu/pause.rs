@@ -1,6 +1,6 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, ui::FocusPolicy};
 
-use crate::gui::GUIState;
+use crate::{gui::GUIState, GameState};
 
 /** Marker to find pause menu background entity. */
 #[derive(Component)]
@@ -9,6 +9,7 @@ pub struct PauseMenu;
 #[derive(Component)]
 pub enum PauseButtonAction {
     Resume,
+    Options,
     Exit,
 }
 
@@ -18,6 +19,9 @@ pub fn setup_pause_menu(mut commands: Commands) {
         .spawn((
             PauseMenu,
             Name::new("PauseMenu"),
+	    Visibility::Hidden,
+	    FocusPolicy::Block,
+	    StateScoped(GameState::InGame),
             (
                 BackgroundColor(Color::BLACK.with_alpha(0.6)),
                 GlobalZIndex(5),
@@ -59,6 +63,7 @@ pub fn setup_pause_menu(mut commands: Commands) {
     commands.entity(pause_gui_root).with_children(|wrapper| {
         for (msg, action) in [
             ("Resume", PauseButtonAction::Resume),
+	    ("Options", PauseButtonAction::Options),
             ("Exit", PauseButtonAction::Exit),
         ] {
             wrapper
@@ -133,6 +138,9 @@ pub fn render_pause_menu(
 
                     info!("Resuming game.");
                 }
+		PauseButtonAction::Options => {
+		    info!("todo!(options)");
+		}
                 PauseButtonAction::Exit => {
                     exit.send(AppExit::Success);
                 }

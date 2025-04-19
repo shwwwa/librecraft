@@ -40,7 +40,7 @@ pub enum GUIState {
     Typing,
 }
 
-/** An utility function that converts GUIScale to f32. */
+/** An utility function that converts [`GUIScale`] to [`f32`]. */
 pub fn gui_scale_to_float(gui_scale: GUIScale) -> f32 {
     match gui_scale {
         GUIScale::Auto(x) | GUIScale::Scale(x) => x as f32,
