@@ -1,28 +1,16 @@
 use bevy::diagnostic::DiagnosticsStore;
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
+use bevy::window::Monitor;
+use bevy::window::PrimaryMonitor;
 
 // Marker to find fps text entity
 #[derive(Component)]
 pub struct FpsText;
 
-pub fn limit_fps(
-    mut settings: ResMut<bevy_framepace::FramepaceSettings>,
-    input: Res<ButtonInput<KeyCode>>,
-) {
-    if input.just_pressed(KeyCode::Space) {
-        use bevy_framepace::Limiter;
-
-        settings.limiter = match settings.limiter {
-            Limiter::Auto => Limiter::Off,
-            Limiter::Off => Limiter::from_framerate(30.0),
-            Limiter::Manual(_) => Limiter::Auto,
-        }
-    }
-}
-
 pub fn update_fps_text(
     diagnostics: Res<DiagnosticsStore>,
+    query_monitor: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>,
     mut query: Query<(&mut TextSpan, &mut TextColor), With<FpsText>>,
 ) {
     for (mut span, mut color) in query.iter_mut() {
@@ -32,19 +20,17 @@ pub fn update_fps_text(
             .and_then(|fps| fps.smoothed())
         {
             **span = format!("{value:>3.0}");
-
-            // Adjust text color based on FPS value
-            color.0 = if value >= 120.0 {
-                // Above 120 FPS, use green color
+	    
+	    let monitor = query_monitor.single().1;
+	    let hz : f64 = (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
+            // Adjust text color based on FPS value.
+            color.0 = if value >= hz {
                 Color::srgb(0.0, 1.0, 0.0)
-            } else if value >= 60.0 {
-                // Between 60-120 FPS, gradually transition from yellow to green
-                Color::srgb((1.0 - (value - 60.0) / (120.0 - 60.0)) as f32, 1.0, 0.0)
-            } else if value >= 30.0 {
-                // Between 30-60 FPS, gradually transition from red to yellow
-                Color::srgb(1.0, ((value - 30.0) / (60.0 - 30.0)) as f32, 0.0)
+            } else if value >= hz / 2. {
+                Color::srgb((1.0 - (value - hz / 2.) / (hz / 2.)) as f32, 1.0, 0.0)
+            } else if value >= hz / 4. {
+                Color::srgb(1.0, ((value - hz / 4.) / (hz / 4.)) as f32, 0.0)
             } else {
-                // Below 30 FPS, use red color
                 Color::srgb(1.0, 0.0, 0.0)
             };
         } else {

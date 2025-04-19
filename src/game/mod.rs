@@ -60,7 +60,6 @@ impl<S: States> Plugin for GamePlugin<S> {
 		    gui::update_gui_scale,
                     gui::change_gui_scale,
                     gui::handle_mouse,
-		    debug::limit_fps,
 		    settings::change_fullscreen,
                     settings::update_settings,
 		    settings::save_window_position,

@@ -14,7 +14,6 @@ pub fn update_display_text(
     mut query: Query<(&mut TextSpan, &mut TextColor), With<DisplayText>>,
     mut resize_reader: EventReader<WindowResized>,
 ) {
-    // TODO: color change onchange()
     for (mut span, _) in query.iter_mut() {
         for e in resize_reader.read() {
             // When resolution is being changed

@@ -5,6 +5,7 @@
 #![forbid(unsafe_code)]
 
 use bevy::prelude::*;
+use bevy::window::{Monitor, PrimaryMonitor};
 use bevy::{
     app::PluginGroupBuilder,
     diagnostic::{FrameTimeDiagnosticsPlugin, SystemInformationDiagnosticsPlugin},
@@ -52,6 +53,7 @@ use dirs::config_dir;
 use consts::DEBUG_SETTINGS_PATH;
 #[cfg(debug_assertions)]
 use std::str::FromStr;
+use std::time::Duration;
 
 use consts::{FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH, TITLE, VERSION};
 
@@ -128,13 +130,13 @@ pub fn main() {
     settings_path.set_extension("toml");
 
     app.add_plugins(NecessaryPlugins)
-        // todo(bevy 0.16.0): replace it with nec plug defs
-        .add_systems(
-            PreStartup,
-            |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
+	.add_systems(
+	    PreStartup,
+	    |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
                 window.window_icon = Some(assets.load("icon/icon512.png"));
-            },
+	    },
         )
+	.add_systems(Update, limit_fps)
         .insert_resource(SettingsPath {
             path: settings_path,
             save_settings: false,
@@ -164,4 +166,33 @@ fn setup_camera(mut commands: Commands) {
         },
         Msaa::Off,
     ));
+}
+
+/** Limits fps ["refresh rate", "off", "30 fps"] */
+fn limit_fps(
+    mut settings: ResMut<bevy_framepace::FramepaceSettings>,
+    query_monitor: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>,
+    input: Res<ButtonInput<KeyCode>>,
+) {
+    if input.just_pressed(KeyCode::Space) {
+        use bevy_framepace::Limiter;
+	let monitor = query_monitor.single().1;
+	let hz : f64 = (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
+	
+        settings.limiter = match settings.limiter {
+	    Limiter::Auto => Limiter::Off,
+            Limiter::Off => Limiter::from_framerate(30.0),
+            Limiter::Manual(fps) => {
+		// Attempt to fix 180 fps bug. Doesnt work.
+		if fps != Duration::from_secs_f64(1.0 / hz){
+		    Limiter::from_framerate(hz)
+		}
+		else {
+		    Limiter::Off
+		}
+	    }
+        };
+
+	info!("{}",settings.limiter);
+    }
 }
