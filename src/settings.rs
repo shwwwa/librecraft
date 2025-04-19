@@ -50,7 +50,7 @@ pub fn change_fullscreen(
 
         if settings.fullscreen {
             query_window.single_mut().mode = WindowMode::Fullscreen(MonitorSelection::Current);
-	} else {
+        } else {
             query_window.single_mut().mode = WindowMode::Windowed;
         }
     }

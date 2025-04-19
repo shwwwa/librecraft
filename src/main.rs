@@ -17,7 +17,7 @@ use bevy_framepace::FramepacePlugin;
 use bevy_window_utils::{WindowUtils, WindowUtilsPlugin};
 
 /** Librecraft's main hard-coded constants. */
-pub mod consts {    
+pub mod consts {
     /** Fixed time clock - leave it at 50 hz. */
     pub const FIXED_TIME_CLOCK: f64 = 50.;
     /** Minecraft protocol version that we are trying to support. */
@@ -45,10 +45,9 @@ pub mod settings;
 /** Adds splash screen to app (independent). */
 pub mod splash;
 
-
-use consts::{FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH, TITLE, VERSION};
 #[cfg(debug_assertions)]
 use consts::DEBUG_SETTINGS_PATH;
+use consts::{FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH, TITLE, VERSION};
 
 use game::GamePlugin;
 use settings::SettingsPath;
@@ -128,7 +127,9 @@ pub fn main() {
                 window.window_icon = Some(assets.load("icon/icon512.png"));
             },
         )
-        .insert_resource(SettingsPath { path: settings_path })
+        .insert_resource(SettingsPath {
+            path: settings_path,
+        })
         .insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
         .init_state::<GameState>()
         .enable_state_scoped_entities::<GameState>()

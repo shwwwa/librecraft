@@ -25,24 +25,20 @@ impl<S: States> Plugin for GamePlugin<S> {
             .init_resource::<player::Player>()
             .add_event::<gui::GUIScaleChanged>()
             .add_event::<hud::HotbarSelectionChanged>()
+            .add_systems(OnEnter(self.state.clone()), (settings::setup_settings,))
             .add_systems(
                 OnEnter(self.state.clone()),
                 (
-                    settings::setup_settings,
-                ),
-            )
-            .add_systems(
-                OnEnter(self.state.clone()),
-                (
-		    /* needs to be updated once in case gui scale is 0 */
-		    gui::setup_gui_scale,
-		    debug::setup_debug_hud,
+                    /* needs to be updated once in case gui scale is 0 */
+                    gui::setup_gui_scale,
+                    debug::setup_debug_hud,
                     menu::setup_pause_menu,
                     hud::setup_hotbar,
                     hud::setup_crosshair,
-		    player::setup_player_data,
+                    player::setup_player_data,
                     music::setup_soundtrack,
-                ).after(settings::setup_settings),
+                )
+                    .after(settings::setup_settings),
             )
             .add_systems(
                 FixedUpdate,

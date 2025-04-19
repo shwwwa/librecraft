@@ -115,12 +115,12 @@ pub fn handle_mouse(
 pub fn setup_gui_scale(
     gui_scale: ResMut<GUIScale>,
     mut gui_scale_writer: EventWriter<GUIScaleChanged>,
-){
+) {
     if let GUIScale::Auto(scale) = *gui_scale {
         if scale == 0 {
             gui_scale_writer.send(GUIScaleChanged {
-		gui_scale: *gui_scale,
-	    });
+                gui_scale: *gui_scale,
+            });
         }
     }
 }
