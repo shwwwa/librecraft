@@ -57,7 +57,7 @@ pub struct Player {
     pub inventory: Vec<Slot>,
     pub invulnerable: i8,
     pub score: i32,
-    pub selected_item_slot: i32,
+    pub selected_item_slot: u32,
     pub xp_level: i32,
     pub xp_total: i32,
     #[serde(rename = "abilities")]
@@ -96,7 +96,7 @@ impl Default for Player {
 
 pub fn setup_player_data(mut player: ResMut<Player>) {
     match read_player_data("./assets/playerdata/player.dat", &mut player) {
-        Ok(()) => {}
+        Ok(()) => info!("Loaded player data: {:#?}", player),
         Err(e) => error!("Couldn't retrieve player data: {}", e),
     }
 }
@@ -113,8 +113,6 @@ pub fn read_player_data(file: &str, player: &mut Player) -> Result<(), Box<dyn E
 
     let (compound, _) = from_binary::<String>(&mut nbt_binary_data.as_slice()).unwrap();
     *player = Player::deserialize(compound)?;
-
-    info!("{:#?}", player);
 
     //let compound_2 = player.serialize(CompoundSerializer).unwrap();
     //info!("{:#?}", compound_2);

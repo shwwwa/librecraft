@@ -21,6 +21,9 @@ pub struct GamePlugin<S: States> {
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 struct GameplaySet;
 
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+struct DataSet;
+
 impl<S: States> Plugin for GamePlugin<S> {
     fn build(&self, app: &mut App) {
         app.init_state::<gui::GUIState>()
@@ -32,7 +35,7 @@ impl<S: States> Plugin for GamePlugin<S> {
             .add_event::<gui::GUIScaleChanged>()
             .add_event::<hud::HotbarSelectionChanged>()
             .add_event::<settings::SettingsUpdated>()
-            .add_systems(OnEnter(self.state.clone()), settings::setup_settings)
+            .add_systems(OnEnter(self.state.clone()), (settings::setup_settings, player::setup_player_data).in_set(DataSet))
             .add_systems(
                 OnEnter(self.state.clone()),
                 (
@@ -40,10 +43,9 @@ impl<S: States> Plugin for GamePlugin<S> {
                     menu::setup_pause_menu,
                     hud::setup_hotbar,
                     hud::setup_crosshair,
-                    player::setup_player_data,
                     music::setup_soundtrack,
                 )
-                    .after(settings::setup_settings),
+                    .after(DataSet),
             )
             .add_systems(
                 FixedUpdate,

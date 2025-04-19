@@ -1,9 +1,9 @@
 use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
 
-use crate::gui::{GUIScale, GUIScaleChanged, gui_scale_to_float};
+use crate::{game::player::Player, gui::{gui_scale_to_float, GUIScale, GUIScaleChanged}};
 
-pub const HOTBAR_START_SELECTION: u32 = 0;
+/** Maximum amount of hotbar slots. */
 pub const MAX_HOTBAR_SLOTS: u32 = 9;
 pub const HOTBAR_WIDTH: f32 = 182.;
 pub const HOTBAR_HEIGHT: f32 = 22.;
@@ -26,17 +26,17 @@ pub struct HotbarSelectionChanged {
 /// Hotbar system.
 /// Requires a running camera.
 pub fn setup_hotbar(
+    player: Res<Player>,
     mut hotbar_selection_writer: EventWriter<HotbarSelectionChanged>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     gui_scale: Res<GUIScale>,
 ) {
     let scale: f32 = gui_scale_to_float(*gui_scale);
-
     commands
         .spawn((
             Hotbar {
-                selected: HOTBAR_START_SELECTION,
+                selected: player.selected_item_slot,
             },
             Node {
                 display: Display::Flex,
@@ -73,7 +73,7 @@ pub fn setup_hotbar(
         ));
 
     hotbar_selection_writer.send(HotbarSelectionChanged {
-        selected: HOTBAR_START_SELECTION,
+        selected: player.selected_item_slot,
     });
 }
 
