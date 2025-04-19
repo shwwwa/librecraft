@@ -61,7 +61,9 @@ pub fn change_fullscreen(
             query_window.single_mut().mode = WindowMode::Windowed;
         }
 
-        settings_writer.send(SettingsUpdated { settings: *settings });
+        settings_writer.send(SettingsUpdated {
+            settings: *settings,
+        });
     }
 }
 
@@ -121,13 +123,14 @@ pub fn update_settings(
     settings_path: ResMut<SettingsPath>,
     mut settings_reader: EventReader<SettingsUpdated>,
 ) {
-    if !settings_path.save_settings { return; }
+    if !settings_path.save_settings {
+        return;
+    }
     for ev in settings_reader.read() {
-	match write_settings(
-	    (*settings_path.path).to_path_buf(), &ev.settings) {
-	    Ok(()) => debug!("Settings file was modified."),
-	    Err(e) => warn!("Couldn't update settings file: {}", e)
-	}
+        match write_settings((*settings_path.path).to_path_buf(), &ev.settings) {
+            Ok(()) => debug!("Settings file was modified."),
+            Err(e) => warn!("Couldn't update settings file: {}", e),
+        }
     }
 }
 

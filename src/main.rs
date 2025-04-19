@@ -81,6 +81,7 @@ impl PluginGroup for NecessaryPlugins {
                 DefaultPlugins
                     .set(WindowPlugin {
                         primary_window: Some(Window {
+                            position: WindowPosition::Centered(MonitorSelection::Primary),
                             resize_constraints: WindowResizeConstraints {
                                 min_width: MIN_WIDTH,
                                 min_height: MIN_HEIGHT,

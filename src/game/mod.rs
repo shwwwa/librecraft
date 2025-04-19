@@ -59,7 +59,7 @@ impl<S: States> Plugin for GamePlugin<S> {
                     debug::toggle_debug_hud,
                     debug::limit_fps,
                     settings::change_fullscreen,
-		    settings::update_settings,
+                    settings::update_settings,
                     screenshot,
                     save_screenshot,
                 )
