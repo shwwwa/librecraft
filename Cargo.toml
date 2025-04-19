@@ -1,6 +1,6 @@
 [package]
 name = "librecraft"
-version = "0.1.0"
+version = "0.2.0-rc.1"
 edition = "2024"
 description = "An open-source implementation of Minecraft client."
 
