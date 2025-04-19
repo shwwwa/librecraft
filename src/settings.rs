@@ -4,8 +4,8 @@ use bevy::{prelude::*, window::WindowMode};
 use serde::Deserialize;
 use toml::from_str;
 
-use std::error::Error;
 use crate::gui::GUIScale;
+use std::error::Error;
 
 #[allow(dead_code)]
 #[derive(Deserialize, Clone, Copy, Resource, Debug)]

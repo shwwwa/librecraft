@@ -32,14 +32,12 @@ pub mod consts {
     pub const MIN_HEIGHT: f32 = 240.;
 }
 
-/** All resources that belong to game's logic. */
+/** Game's logic resources. */
 pub mod game;
-/** All that belongs to GUI from debug info to hud. (except splash)*/
+/** All that belongs to GUI from debug info to hud. (cross-state)*/
 pub mod gui;
-/** Responsible for music. (then audio->music, audio->sound) */
+/** Responsible for audio. (then audio->music, audio->sound) */
 pub mod music;
-/** Accesses player information. (getting transferred to game mod) */
-pub mod player;
 /** Reads and stores user owned settings. */
 pub mod settings;
 /** Adds splash screen to app (independent). */
@@ -47,8 +45,8 @@ pub mod splash;
 
 use consts::{FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH, TITLE, VERSION};
 use game::GamePlugin;
+use game::player::Player;
 use gui::{GUIMode, GUIModeChanged, GUIScaleChanged};
-use player::Player;
 use settings::Settings;
 use splash::SplashPlugin;
 

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, PrimaryWindow, WindowFocused, WindowResized};
 
-use crate::consts::{MIN_WIDTH, MIN_HEIGHT};
+use crate::consts::{MIN_HEIGHT, MIN_WIDTH};
 use crate::settings::Settings;
 
 /** All that includes debug GUI */

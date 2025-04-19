@@ -5,7 +5,7 @@ use bevy::window::{Monitor, PrimaryMonitor};
 
 use wgpu_types::DeviceType;
 
-use super::{FpsText, FocusText, DisplayText};
+use super::{DisplayText, FocusText, FpsText};
 
 /** Marker to find debug's hud box entity. */
 #[derive(Component)]
