@@ -60,6 +60,7 @@ impl<S: States> Plugin for GamePlugin<S> {
                     debug::limit_fps,
                     settings::change_fullscreen,
                     settings::update_settings,
+		    settings::save_window_position,
                     screenshot,
                     save_screenshot,
                 )

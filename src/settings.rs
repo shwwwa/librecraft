@@ -1,4 +1,4 @@
-use bevy::window::PrimaryWindow;
+use bevy::window::{PrimaryWindow, WindowResolution};
 use bevy::{prelude::*, window::WindowMode};
 
 use serde::{Deserialize, Serialize};
@@ -8,12 +8,18 @@ use crate::gui::GUIScale;
 use std::error::Error;
 use std::path::PathBuf;
 
+/** -1 means default values on startup (centered) */
 #[allow(dead_code)]
 #[derive(Deserialize, Serialize, Clone, Copy, Resource, Debug)]
 pub struct Settings {
+    pub fullscreen: bool,
+    pub position_x: i32,
+    pub position_y: i32,
+    pub size_x: f32,
+    pub size_y: f32,
+    pub maximized: bool,
     pub seed: u64,
     pub gui_scale: f32,
-    pub fullscreen: bool,
     pub pause_on_lost_focus: bool,
     pub mute_on_lost_focus: bool,
 }
@@ -21,11 +27,16 @@ pub struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            seed: 0,
-            gui_scale: 0.,
             fullscreen: false,
             pause_on_lost_focus: true,
             mute_on_lost_focus: true,
+	    position_x: -1,
+	    position_y: -1,
+	    size_x: -1.,
+	    size_y: -1.,
+	    maximized: false,
+	    seed: 0,
+	    gui_scale: 0.,
         }
     }
 }
@@ -61,9 +72,29 @@ pub fn change_fullscreen(
             query_window.single_mut().mode = WindowMode::Windowed;
         }
 
+	debug!("Fullscreen mode: {}", settings.fullscreen);
+	
         settings_writer.send(SettingsUpdated {
             settings: *settings,
         });
+    }
+}
+
+pub fn save_window_position(
+    mut settings: ResMut<Settings>,
+    mut settings_writer: EventWriter<SettingsUpdated>,
+    mut position_reader: EventReader<WindowMoved>,
+) {
+    for ev in position_reader.read() {
+	settings.position_x = ev.position.x;
+	settings.position_y = ev.position.y;
+
+	// maybe I should implement event scheduling to save on too many events?
+	info!("Window changed position: {}x{}px", settings.position_x, settings.position_y);
+	
+	settings_writer.send(SettingsUpdated {
+            settings: *settings,
+	});
     }
 }
 
@@ -104,7 +135,7 @@ pub fn setup_settings(
     }
 
     let gui_scale = f32::floor(settings.gui_scale);
-
+    
     // Too small/negative values.
     if settings.gui_scale < 0.5 {
         commands.insert_resource(GUIScale::Auto(0));
@@ -114,8 +145,22 @@ pub fn setup_settings(
         commands.insert_resource(GUIScale::Custom(settings.gui_scale));
     }
 
+    let mut window = query_window.single_mut();
+	
+    if settings.position_x > 0 && settings.position_y > 0 {
+	window.position = WindowPosition::At(IVec2::new(settings.position_x, settings.position_y));
+    }
+
+    if settings.size_x > 0. && settings.size_y > 0. {
+	window.resolution = WindowResolution::new(settings.size_x, settings.size_y);
+    }
+    
+    if settings.maximized {
+	window.set_maximized(true);
+    }
+    
     if settings.fullscreen {
-        query_window.single_mut().mode = WindowMode::Fullscreen(MonitorSelection::Current);
+        window.mode = WindowMode::Fullscreen(MonitorSelection::Current);
     }
 }
 
