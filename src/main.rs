@@ -29,29 +29,66 @@ pub mod consts {
     pub const DEBUG_SETTINGS_PATH: &str = "./";
     /** Title of the main program. */
     macro_rules! title {
-	() => (env!("CARGO_PKG_NAME"))
+        () => {
+            env!("CARGO_PKG_NAME")
+        };
     }
     /** Version of the main program. */
     macro_rules! version {
-	() => ( env!("CARGO_PKG_VERSION") )
+        () => {
+            env!("CARGO_PKG_VERSION")
+        };
     }
     /** Version string. */
     macro_rules! version_string {
-	() => ( concat!(crate::consts::title!(), " v.", crate::consts::version!()) )
+        () => {
+            concat!(crate::consts::title!(), " v.", crate::consts::version!())
+        };
     }
     /** About (developer and version string) */
+    #[allow(unused_macros)]
     macro_rules! about {
-	() => ( concat!(crate::consts::version_string!(), " | made by caffidev") )
+        () => {
+            concat!(crate::consts::version_string!(), " | made by caffidev")
+        };
     }
+    pub(crate) use about;
     pub(crate) use title;
     pub(crate) use version;
     pub(crate) use version_string;
-    pub(crate) use about;
-    
+
     /** Librecraft's minimum resolution width. */
     pub const MIN_WIDTH: f32 = 320.;
     /** Librecraft's minimum resolution height. */
     pub const MIN_HEIGHT: f32 = 240.;
+}
+
+/** Path to all assets of the librecraft. */
+pub mod assets {
+    /** todo: have an ability to use minecraft's font as custom font to have some identity */
+    pub const FONT_PATH: &str = "fonts/MinecraftRegular.otf";
+
+    pub const ICON_PATH: &str = "icon/icon512.png";
+    pub const SPLASH_PATH: &str = "icon/logo-highres.png";
+
+    pub const CALM1_PATH: &str = "music/calm1.ogg";
+    pub const CALM2_PATH: &str = "music/calm2.ogg";
+    pub const CALM3_PATH: &str = "music/calm3.ogg";
+
+    pub const HAL1_PATH: &str = "music/hal1.ogg";
+    pub const HAL2_PATH: &str = "music/hal2.ogg";
+    pub const HAL3_PATH: &str = "music/hal3.ogg";
+    pub const HAL4_PATH: &str = "music/hal4.ogg";
+
+    pub const NUANCE1_PATH: &str = "music/nuance1.ogg";
+    pub const NUANCE2_PATH: &str = "music/nuance2.ogg";
+
+    pub const PIANO1_PATH: &str = "music/piano1.ogg";
+    pub const PIANO2_PATH: &str = "music/piano2.ogg";
+    pub const PIANO3_PATH: &str = "music/piano3.ogg";
+
+    pub const HOTBAR_PATH: &str = "hotbar.png";
+    pub const HOTBAR_SELECTION_PATH: &str = "hotbar_selection.png";
 }
 
 /** Game's logic resources. */
@@ -152,7 +189,7 @@ pub fn main() {
         .add_systems(
             PreStartup,
             |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
-                window.window_icon = Some(assets.load("icon/icon512.png"));
+                window.window_icon = Some(assets.load(assets::FONT_PATH));
             },
         )
         .add_systems(Update, limit_fps)

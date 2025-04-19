@@ -77,7 +77,7 @@ impl Default for Player {
         Self {
             data_version: 2975,
             absorption_amount: 0.,
-            dimension: "minecraft:air".to_string(),
+            dimension: "minecraft:unknown".to_string(),
             health: 20.,
             inventory: vec![Slot::default()],
             invulnerable: 0,

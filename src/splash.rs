@@ -1,4 +1,5 @@
 use crate::GameState;
+use crate::assets;
 use bevy::prelude::*;
 
 //todo: when startup time will be bad, start loading resources in SplashPlugin
@@ -36,7 +37,7 @@ impl<S: States> Plugin for SplashPlugin<S> {
 
 /** Setups splash screen. */
 fn setup_splash(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let icon = asset_server.load("icon/logo-highres.png");
+    let icon = asset_server.load(assets::SPLASH_PATH);
 
     commands
         .spawn((

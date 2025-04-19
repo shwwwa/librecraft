@@ -2,6 +2,7 @@ use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
 
 use crate::{
+    assets::{HOTBAR_PATH, HOTBAR_SELECTION_PATH},
     game::player::Player,
     gui::{GUIScale, GUIScaleChanged, gui_scale_to_float},
 };
@@ -53,7 +54,7 @@ pub fn setup_hotbar(
                 ..default()
             },
             ImageNode {
-                image: asset_server.load("hotbar.png"),
+                image: asset_server.load(HOTBAR_PATH),
                 ..default()
             },
             GlobalZIndex(1),
@@ -61,7 +62,7 @@ pub fn setup_hotbar(
         .with_child((
             HotbarSelection,
             ImageNode {
-                image: asset_server.load("hotbar_selection.png"),
+                image: asset_server.load(HOTBAR_SELECTION_PATH),
                 ..default()
             },
             Node {

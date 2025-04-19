@@ -2,6 +2,8 @@ use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, WindowFocused};
 use rand::prelude::*;
 
+use crate::assets;
+
 /** Used to get references for all music in-game e.g. to mute it. */
 #[derive(Component)]
 pub struct Music;
@@ -34,21 +36,21 @@ pub fn setup_soundtrack(asset_server: Res<AssetServer>, mut commands: Commands) 
         TimerMode::Repeating,
     )));
 
-    let calm1 = asset_server.load::<AudioSource>("music/calm1.ogg");
-    let calm2 = asset_server.load::<AudioSource>("music/calm2.ogg");
-    let calm3 = asset_server.load::<AudioSource>("music/calm3.ogg");
+    let calm1 = asset_server.load::<AudioSource>(assets::CALM1_PATH);
+    let calm2 = asset_server.load::<AudioSource>(assets::CALM2_PATH);
+    let calm3 = asset_server.load::<AudioSource>(assets::CALM3_PATH);
 
-    let hal1 = asset_server.load::<AudioSource>("music/hal1.ogg");
-    let hal2 = asset_server.load::<AudioSource>("music/hal2.ogg");
-    let hal3 = asset_server.load::<AudioSource>("music/hal3.ogg");
-    let hal4 = asset_server.load::<AudioSource>("music/hal4.ogg");
+    let hal1 = asset_server.load::<AudioSource>(assets::HAL1_PATH);
+    let hal2 = asset_server.load::<AudioSource>(assets::HAL2_PATH);
+    let hal3 = asset_server.load::<AudioSource>(assets::HAL3_PATH);
+    let hal4 = asset_server.load::<AudioSource>(assets::HAL4_PATH);
 
-    let nuance1 = asset_server.load::<AudioSource>("music/nuance1.ogg");
-    let nuance2 = asset_server.load::<AudioSource>("music/nuance2.ogg");
+    let nuance1 = asset_server.load::<AudioSource>(assets::NUANCE1_PATH);
+    let nuance2 = asset_server.load::<AudioSource>(assets::NUANCE2_PATH);
 
-    let piano1 = asset_server.load::<AudioSource>("music/piano1.ogg");
-    let piano2 = asset_server.load::<AudioSource>("music/piano2.ogg");
-    let piano3 = asset_server.load::<AudioSource>("music/piano3.ogg");
+    let piano1 = asset_server.load::<AudioSource>(assets::PIANO1_PATH);
+    let piano2 = asset_server.load::<AudioSource>(assets::PIANO2_PATH);
+    let piano3 = asset_server.load::<AudioSource>(assets::PIANO3_PATH);
 
     let track_list = vec![
         calm1, calm2, calm3, hal1, hal2, hal3, hal4, nuance1, nuance2, piano1, piano2, piano3,

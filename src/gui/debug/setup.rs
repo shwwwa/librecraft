@@ -6,6 +6,7 @@ use bevy::window::{Monitor, PrimaryMonitor};
 use wgpu_types::DeviceType;
 
 use super::{DisplayText, FocusText, FpsText};
+use crate::assets::FONT_PATH;
 
 /** Marker to find debug's hud box entity. */
 #[derive(Component)]
@@ -14,11 +15,18 @@ pub struct DebugHudRoot;
 /** Setups debug hud in the left-up corner of the screen. */
 pub fn setup_debug_hud(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     system: Res<SystemInfo>,
     adapter: Res<RenderAdapterInfo>,
     query_monitor: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>,
     query_window: Query<&Window>,
 ) {
+    let text_font = TextFont {
+        font: asset_server.load(FONT_PATH),
+        font_size: 16.,
+        ..default()
+    };
+
     let hud_root = commands
         .spawn((
             DebugHudRoot,
@@ -43,20 +51,20 @@ pub fn setup_debug_hud(
     let fps_text = commands
         .spawn((
             Text::new("FPS: "),
-            TextFont::from_font_size(16.0),
+            text_font.clone(),
             TextColor(Color::WHITE),
         ))
         .with_child((
             FpsText,
             TextSpan::new("N/A"),
-            TextFont::from_font_size(16.0),
+            text_font.clone(),
             TextColor(Color::WHITE),
         ))
         .id();
 
     let mut monitor_text = commands.spawn((
         Text::new("Monitor: "),
-        TextFont::from_font_size(16.0),
+        text_font.clone(),
         TextColor(Color::WHITE),
     ));
 
@@ -76,7 +84,7 @@ pub fn setup_debug_hud(
         ));
         monitor_text.with_child((
             TextSpan::new(monitor_info),
-            TextFont::from_font_size(16.0),
+            text_font.clone(),
             TextColor(Color::WHITE),
         ));
     }
@@ -85,7 +93,7 @@ pub fn setup_debug_hud(
 
     let mut display_text = commands.spawn((
         Text::new("Display: "),
-        TextFont::from_font_size(16.0),
+        text_font.clone(),
         TextColor(Color::WHITE),
     ));
 
@@ -100,20 +108,20 @@ pub fn setup_debug_hud(
         .with_child((
             DisplayText,
             TextSpan::new(display_info),
-            TextFont::from_font_size(16.0),
+            text_font.clone(),
             TextColor(Color::WHITE),
         ))
         .with_child((
             FocusText,
             TextSpan::new("".to_string()),
-            TextFont::from_font_size(16.0),
+            text_font.clone(),
             TextColor(Color::WHITE),
         ));
     let display_info_text = display_text.id();
 
     let mut system_text = commands.spawn((
         Text::new("System: "),
-        TextFont::from_font_size(16.0),
+        text_font.clone(),
         TextColor(Color::WHITE),
     ));
 
@@ -124,7 +132,7 @@ pub fn setup_debug_hud(
 
     system_text.with_child((
         TextSpan::new(system_info),
-        TextFont::from_font_size(16.0),
+        text_font.clone(),
         TextColor(Color::WHITE),
     ));
 
@@ -132,7 +140,7 @@ pub fn setup_debug_hud(
 
     let mut adapter_text = commands.spawn((
         Text::new("Adapter: "),
-        TextFont::from_font_size(16.0),
+        text_font.clone(),
         TextColor(Color::WHITE),
     ));
 
@@ -150,7 +158,7 @@ pub fn setup_debug_hud(
 
     adapter_text.with_child((
         TextSpan::new(adapter_info),
-        TextFont::from_font_size(16.0),
+        text_font.clone(),
         TextColor(Color::WHITE),
     ));
 
