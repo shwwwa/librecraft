@@ -9,10 +9,11 @@ use crate::gui::GUIScale;
 use std::error::Error;
 use std::path::PathBuf;
 
-/** -1 means default values on startup (centered) */
+/** -1 for default values on startup (pos - centered). */
 #[allow(dead_code)]
-#[derive(Deserialize, Serialize, Clone, Copy, Resource, Debug)]
+#[derive(Deserialize, Serialize, Clone, Resource, Debug)]
 pub struct Settings {
+    pub player_name: String,
     pub fullscreen: bool,
     pub position_x: i32,
     pub position_y: i32,
@@ -23,14 +24,18 @@ pub struct Settings {
     pub gui_scale: f32,
     pub pause_on_lost_focus: bool,
     pub mute_on_lost_focus: bool,
+    /** Controversional change: replace fonts to be minecraft-like. */
+    pub replace_fonts: bool,
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Self {
+            player_name: "unknown".to_string(),
             fullscreen: false,
             pause_on_lost_focus: true,
             mute_on_lost_focus: true,
+            replace_fonts: true,
             position_x: -1,
             position_y: -1,
             size_x: -1.,
@@ -76,7 +81,7 @@ pub fn change_fullscreen(
         debug!("Fullscreen mode: {}", settings.fullscreen);
 
         settings_writer.send(SettingsUpdated {
-            settings: *settings,
+            settings: settings.clone(),
         });
     }
 }
@@ -108,7 +113,7 @@ pub fn save_window_position(
         );
 
         settings_writer.send(SettingsUpdated {
-            settings: *settings,
+            settings: settings.clone(),
         });
     }
 }
@@ -125,7 +130,7 @@ pub fn save_window_size(
         debug!("Window resized: {}x{}px", settings.size_x, settings.size_y);
 
         settings_writer.send(SettingsUpdated {
-            settings: *settings,
+            settings: settings.clone(),
         });
     }
 }

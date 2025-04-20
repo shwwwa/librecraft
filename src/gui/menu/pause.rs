@@ -1,5 +1,6 @@
 use bevy::{prelude::*, ui::FocusPolicy};
 
+use crate::settings::Settings;
 use crate::{GameState, game::player::Player, gui::GUIState};
 use crate::{assets::FONT_PATH, consts};
 
@@ -20,6 +21,7 @@ pub fn setup_pause_menu(
     asset_server: Res<AssetServer>,
     gui_state: Res<State<GUIState>>,
     player: Res<Player>,
+    settings: Res<Settings>,
 ) {
     let text_font_16 = TextFont {
         font: asset_server.load(FONT_PATH),
@@ -94,7 +96,11 @@ pub fn setup_pause_menu(
         .id();
 
     let score_text = commands
-        .spawn((Text::new("Score: "), text_font_14.clone(), TextColor(Color::WHITE)))
+        .spawn((
+            Text::new("Score: "),
+            text_font_14.clone(),
+            TextColor(Color::WHITE),
+        ))
         .with_child((
             TextSpan::new(player.score.to_string()),
             text_font_14.clone(),
@@ -117,6 +123,25 @@ pub fn setup_pause_menu(
     let about_text = commands
         .spawn((
             Text::new(consts::about!().to_string()),
+            text_font_14.clone(),
+            TextColor(Color::WHITE),
+        ))
+        .id();
+
+    let pause_player_name_root = commands
+        .spawn(Node {
+            display: Display::Flex,
+            position_type: PositionType::Absolute,
+            top: Val::Percent(1.),
+            flex_direction: FlexDirection::Column,
+            justify_content: JustifyContent::SpaceAround,
+            ..default()
+        })
+        .id();
+
+    let player_name_text = commands
+        .spawn((
+            Text::new(settings.player_name.clone()),
             text_font_14.clone(),
             TextColor(Color::WHITE),
         ))
@@ -146,17 +171,24 @@ pub fn setup_pause_menu(
         pause_gui_root,
         pause_left_corner_root,
         pause_right_corner_root,
+        pause_player_name_root,
     ]);
+
     commands.entity(pause_left_corner_root).add_children(&[
         score_text,
         dimension_text,
         data_version_text,
     ]);
+
     commands
         .entity(pause_right_corner_root)
         .add_children(&[about_text]);
-    commands.entity(pause_gui_root).add_children(&[pause_text]);
 
+    commands
+        .entity(pause_player_name_root)
+        .add_children(&[player_name_text]);
+
+    commands.entity(pause_gui_root).add_children(&[pause_text]);
     commands.entity(pause_gui_root).with_children(|wrapper| {
         for (msg, action) in [
             ("Resume", PauseButtonAction::Resume),
@@ -185,7 +217,7 @@ pub fn setup_pause_menu(
                 .with_children(|button| {
                     button.spawn((
                         Text::new(msg),
-			text_font_16.clone(),
+                        text_font_16.clone(),
                         TextColor(Color::WHITE),
                     ));
                 });

@@ -216,7 +216,7 @@ pub fn change_gui_scale(
 
         settings.gui_scale = gui_scale_to_float(*gui_scale);
         settings_writer.send(SettingsUpdated {
-            settings: *settings,
+            settings: settings.clone(),
         });
     }
 }

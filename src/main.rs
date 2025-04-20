@@ -180,7 +180,7 @@ pub fn main() {
     #[cfg(not(debug_assertions))]
     let mut settings_path: PathBuf = config_dir().unwrap();
     #[cfg(not(debug_assertions))]
-    settings_path.push(TITLE);
+    settings_path.push(consts::title!());
 
     settings_path.push("settings");
     settings_path.set_extension("toml");
