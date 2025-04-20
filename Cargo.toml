@@ -67,7 +67,7 @@ features = [
 	 "bevy_window",
 	 "bevy_winit",
 #	 "custom_cursor",
-	 "default_font", # default fallback font
+#	 "default_font", # default fallback font
 	 "hdr",
 	 "ktx2",
 	 "multi_threaded",

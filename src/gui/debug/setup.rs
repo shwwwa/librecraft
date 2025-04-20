@@ -6,7 +6,7 @@ use bevy::window::{Monitor, PrimaryMonitor};
 use wgpu_types::DeviceType;
 
 use super::{DisplayText, FocusText, FpsText};
-use crate::assets::FONT_PATH;
+use crate::assets::{RuntimeAsset};
 
 /** Marker to find debug's hud box entity. */
 #[derive(Component)]
@@ -16,13 +16,14 @@ pub struct DebugHudRoot;
 pub fn setup_debug_hud(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    runtime_asset: Res<RuntimeAsset>,
     system: Res<SystemInfo>,
     adapter: Res<RenderAdapterInfo>,
     query_monitor: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>,
     query_window: Query<&Window>,
 ) {
     let text_font = TextFont {
-        font: asset_server.load(FONT_PATH),
+        font: asset_server.load(runtime_asset.font_path.clone()),
         font_size: 16.,
         ..default()
     };

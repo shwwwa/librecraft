@@ -5,6 +5,7 @@ use bevy::{prelude::*, window::WindowMode};
 use serde::{Deserialize, Serialize};
 use toml::from_str;
 
+use crate::assets::{RuntimeAsset, MINECRAFT_FONT_PATH, FONT_PATH};
 use crate::gui::GUIScale;
 use std::error::Error;
 use std::path::PathBuf;
@@ -198,6 +199,17 @@ pub fn setup_settings(
 
     if settings.fullscreen {
         window.mode = WindowMode::Fullscreen(MonitorSelection::Current);
+    }
+
+    if settings.replace_fonts {
+	commands.insert_resource(RuntimeAsset {
+	    font_path: MINECRAFT_FONT_PATH.to_string(),
+	});
+    }
+    else {
+	commands.insert_resource(RuntimeAsset {
+	    font_path: FONT_PATH.to_string(),
+	});
     }
 }
 

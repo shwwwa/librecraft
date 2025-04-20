@@ -65,9 +65,17 @@ pub mod consts {
 
 /** Path to all assets of the librecraft. */
 pub mod assets {
+    use bevy::prelude::*;
+    
     /** todo: have an ability to use minecraft's font as custom font to have some identity */
-    pub const FONT_PATH: &str = "fonts/MinecraftRegular.otf";
+    #[derive(Debug, Clone, Resource)]
+    pub struct RuntimeAsset {
+	pub font_path: String,
+    }
 
+    pub const FONT_PATH: &str = "fonts/FiraMonoRegular.ttf";
+    pub const MINECRAFT_FONT_PATH: &str = "fonts/MinecraftRegular.otf";
+    
     pub const ICON_PATH: &str = "icon/icon512.png";
     pub const SPLASH_PATH: &str = "icon/logo-highres.png";
 
@@ -184,12 +192,12 @@ pub fn main() {
 
     settings_path.push("settings");
     settings_path.set_extension("toml");
-
+    
     app.add_plugins(NecessaryPlugins)
         .add_systems(
             PreStartup,
             |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
-                window.window_icon = Some(assets.load(assets::FONT_PATH));
+                window.window_icon = Some(assets.load(assets::ICON_PATH));
             },
         )
         .add_systems(Update, limit_fps)

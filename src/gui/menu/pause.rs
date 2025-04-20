@@ -2,7 +2,7 @@ use bevy::{prelude::*, ui::FocusPolicy};
 
 use crate::settings::Settings;
 use crate::{GameState, game::player::Player, gui::GUIState};
-use crate::{assets::FONT_PATH, consts};
+use crate::{assets::RuntimeAsset, consts};
 
 /** Marker to find pause menu background entity. */
 #[derive(Component)]
@@ -19,12 +19,13 @@ pub enum PauseButtonAction {
 pub fn setup_pause_menu(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    runtime_asset: Res<RuntimeAsset>,
     gui_state: Res<State<GUIState>>,
     player: Res<Player>,
     settings: Res<Settings>,
 ) {
     let text_font_16 = TextFont {
-        font: asset_server.load(FONT_PATH),
+	font: asset_server.load(runtime_asset.font_path.clone()),
         font_size: 16.,
         ..default()
     };
