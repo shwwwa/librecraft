@@ -244,14 +244,14 @@ fn setup_camera(mut commands: Commands) {
 /** Limits fps ["refresh rate", "off", "30 fps"] */
 fn limit_fps(
     mut settings: ResMut<bevy_framepace::FramepaceSettings>,
-    monitor_q: Query<(&Monitor, Has<PrimaryMonitor>)>,
+    monitor_q: Query<&Monitor, With<PrimaryMonitor>>,
     input: Res<ButtonInput<KeyCode>>,
 ) {
     if input.just_pressed(KeyCode::Space) {
         use bevy_framepace::Limiter;
 	let hz: f64;
 	match monitor_q.single() {
-	    Ok((monitor, _)) => {
+	    Ok(monitor) => {
 		hz = (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
 	    },
 	    Err(_) => {

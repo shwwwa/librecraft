@@ -10,7 +10,7 @@ pub struct FpsText;
 
 pub fn update_fps_text(
     diagnostics: Res<DiagnosticsStore>,
-    monitor_q: Query<(&Monitor, Has<PrimaryMonitor>)>,
+    monitor_q: Query<&Monitor, With<PrimaryMonitor>>,
     mut fps_q: Query<(&mut TextSpan, &mut TextColor), With<FpsText>>,
 ) {
     for (mut span, mut color) in fps_q.iter_mut() {
@@ -23,7 +23,7 @@ pub fn update_fps_text(
 
 	    let mut hz: f64 = 60.;
 	    match monitor_q.single() {
-		Ok((monitor, _)) => {
+		Ok(monitor) => {
 		    hz = (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
 		}
 		Err(_) => warn!("Couldn't get monitor refresh rate") 
