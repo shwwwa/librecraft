@@ -80,8 +80,8 @@ bevy_framepace = { version = "0.19.0", default-features = false }
 log = { version = "0.4.26", default-features = false, features = ["max_level_debug", "release_max_level_warn"] }
 # Bevy's anyhow. (all)
 anyhow = "1.0.97"
-# Bevy's rand. (all)
-rand = "0.8.0"
+# wip (music)
+rand = "0.8.5"
 # Bevy's wgpu types. (debug)
 wgpu-types = "24.0.0"
 # Deserialization and serialization support. (settings, player)

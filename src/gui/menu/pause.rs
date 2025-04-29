@@ -229,41 +229,44 @@ pub fn setup_pause_menu(
 /** Renders pause menu on request */
 pub fn render_pause_menu(
     keys: Res<ButtonInput<KeyCode>>,
-    mut button: Query<(&PauseButtonAction, &mut BorderColor, &Interaction)>,
-    mut visibility: Query<&mut Visibility, With<PauseMenu>>,
+    mut button_q: Query<(&PauseButtonAction, &mut BorderColor, &Interaction)>,
+    mut visibility_q: Query<&mut Visibility, With<PauseMenu>>,
     gui_state: Res<State<GUIState>>,
     mut gui_state_reader: EventReader<StateTransitionEvent<GUIState>>,
     mut next_gui_state: ResMut<NextState<GUIState>>,
     mut exit: EventWriter<AppExit>,
 ) {
-    let mut vis = visibility.single_mut();
+    match visibility_q.single_mut() {
+	Ok(mut vis) => {
+	    for ev in gui_state_reader.read() {
+		if GUIState::Closed == ev.entered.unwrap() {
+		    *vis = Visibility::Hidden;
+		} else {
+		    *vis = Visibility::Visible;
+		}
+	    }
 
-    for ev in gui_state_reader.read() {
-        if GUIState::Closed == ev.entered.unwrap() {
-            *vis = Visibility::Hidden;
-        } else {
-            *vis = Visibility::Visible;
-        }
+	    if keys.just_pressed(KeyCode::Escape) {
+		let is_closed: bool = *gui_state.get() == GUIState::Closed;
+
+		if is_closed {
+		    next_gui_state.set(GUIState::Opened);
+		} else {
+		    next_gui_state.set(GUIState::Closed);
+		}
+
+		let state = if is_closed { "opened" } else { "closed" };
+		info!("Pause menu was {} (via key).", state);
+	    }
+
+	    if *vis != Visibility::Visible {
+		return;
+	    }
+	},
+	Err(_) => warn_once!("Can't get visibility from pause menu.")
     }
 
-    if keys.just_pressed(KeyCode::Escape) {
-        let is_closed: bool = *gui_state.get() == GUIState::Closed;
-
-        if is_closed {
-            next_gui_state.set(GUIState::Opened);
-        } else {
-            next_gui_state.set(GUIState::Closed);
-        }
-
-        let state = if is_closed { "opened" } else { "closed" };
-        info!("Pause menu was {} (via key).", state);
-    }
-
-    if *vis != Visibility::Visible {
-        return;
-    }
-
-    for (action, mut bcolor, interaction) in button.iter_mut() {
+    for (action, mut b_color, interaction) in button_q.iter_mut() {
         match *interaction {
             Interaction::Pressed => match *action {
                 PauseButtonAction::Resume => {
@@ -274,14 +277,14 @@ pub fn render_pause_menu(
                     info!("todo!(options)");
                 }
                 PauseButtonAction::Exit => {
-                    exit.send(AppExit::Success);
+                    exit.write(AppExit::Success);
                 }
             },
             Interaction::Hovered => {
-                bcolor.0 = Color::WHITE;
+                b_color.0 = Color::WHITE;
             }
             Interaction::None => {
-                bcolor.0 = Color::BLACK;
+                b_color.0 = Color::BLACK;
             }
         }
     }

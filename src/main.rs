@@ -1,7 +1,7 @@
 #![allow(clippy::default_constructed_unit_structs)]
 // Warns of some basic pitfalls, but basically too pedantic.
 // #![warn(clippy::pedantic)]
-
+#![feature(stmt_expr_attributes)]
 // Tells windows not to show console window on release.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 // Unsafe code violates one of design goals and used only in crates.
@@ -161,8 +161,8 @@ impl PluginGroup for NecessaryPlugins {
                     })
                     .set(ImagePlugin::default_nearest()),
             )
-            .add(WindowUtilsPlugin)
-            .add(FrameTimeDiagnosticsPlugin)
+            .add(WindowUtilsPlugin::default())
+            .add(FrameTimeDiagnosticsPlugin::default())
             .add(SystemInformationDiagnosticsPlugin)
             .add(FramepacePlugin)
     }
@@ -183,10 +183,15 @@ pub fn main() {
     
     /* Panic if no handle to cwd in debug mode. */
     #[cfg(debug_assertions)]
-    settings_path = PathBuf::from_str(DEBUG_SETTINGS_PATH).unwrap();
+    {
+	settings_path = PathBuf::from_str(DEBUG_SETTINGS_PATH).unwrap();
+    }
+    
     /* Panic if no handle to config dir in release mode.*/
     #[cfg(not(debug_assertions))]
-    settings_path = config_dir().unwrap().push(consts::title!());
+    {
+	settings_path = config_dir().unwrap().push(consts::title!());
+    }
     
     settings_path.push("settings");
     settings_path.set_extension("toml");

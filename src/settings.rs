@@ -1,5 +1,4 @@
 use bevy::window::{PrimaryWindow, WindowResized, WindowResolution};
-use bevy::winit::WinitWindows;
 use bevy::{prelude::*, window::WindowMode};
 
 use bevy_window_utils::WindowUtils;

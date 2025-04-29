@@ -54,7 +54,7 @@ pub fn gui_scale_changed(
     gui_scale_events: &mut ResMut<Events<GUIScaleChanged>>,
 ) {
     info!("GUI scale was changed: {:?}", *gui_scale);
-    gui_scale_events.write(GUIScaleChanged {
+    gui_scale_events.send(GUIScaleChanged {
         gui_scale: **gui_scale,
     });
 }
@@ -175,19 +175,18 @@ pub fn update_gui_scale(
     if scale_change {
 	match window_q.single() {
 	    Ok(window) => {
-		let resolution = window_q.single();
 		// Basically gets best scale for window. We are appending +1 to make sure result of f32::ceil() is always >= 2.
 		*gui_scale = GUIScale::Auto(
 		    (f32::ceil(f32::min(
-			(resolution.width() + 1.) / MIN_WIDTH,
-			(resolution.height() + 1.) / MIN_HEIGHT,
+			(window.width() + 1.) / MIN_WIDTH,
+			(window.height() + 1.) / MIN_HEIGHT,
 		    )) as u8)
 			- 1,
 		);
 		
 		gui_scale_changed(&gui_scale, &mut gui_scale_events);
 	    },
-	    Err(_) => warn_once("Can't access primary window. GUIScale cannot be updated.")
+	    Err(_) => warn_once!("Can't access primary window. GUIScale cannot be updated.")
 	}
     }
 }

@@ -31,7 +31,7 @@ pub struct HotbarSelectionChanged {
 /// Requires a running camera.
 pub fn setup_hotbar(
     player: Res<Player>,
-    mut hotbar_selection_writer: EventWriter<HotbarSelectionChanged>,
+    mut hotbar_sel_writer: EventWriter<HotbarSelectionChanged>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     gui_scale: Res<GUIScale>,
@@ -76,17 +76,17 @@ pub fn setup_hotbar(
             GlobalZIndex(1),
         ));
 
-    hotbar_selection_writer.send(HotbarSelectionChanged {
+    hotbar_sel_writer.write(HotbarSelectionChanged {
         selected: player.selected_item_slot,
     });
 }
 
 pub fn update_hotbar(
     mut gui_scale_reader: EventReader<GUIScaleChanged>,
-    mut query: Query<&mut Node, With<Hotbar>>,
+    mut hotbar_q: Query<&mut Node, With<Hotbar>>,
 ) {
     for event in gui_scale_reader.read() {
-        for mut node in query.iter_mut() {
+        for mut node in hotbar_q.iter_mut() {
             let scale: f32 = gui_scale_to_float(event.gui_scale);
             node.width = Val::Px(HOTBAR_WIDTH * scale);
             node.height = Val::Px(HOTBAR_HEIGHT * scale);
@@ -96,11 +96,11 @@ pub fn update_hotbar(
 
 pub fn update_hotbar_selection(
     keys: Res<ButtonInput<KeyCode>>,
-    mut query: Query<&mut Hotbar, With<Hotbar>>,
+    mut hotbar_q: Query<&mut Hotbar, With<Hotbar>>,
     mut evr_scroll: EventReader<MouseWheel>,
-    mut hotbar_selection_writer: EventWriter<HotbarSelectionChanged>,
+    mut hotbar_sel_writer: EventWriter<HotbarSelectionChanged>,
 ) {
-    for mut hotbar in query.iter_mut() {
+    for mut hotbar in hotbar_q.iter_mut() {
         if keys.any_pressed([
             KeyCode::Digit1,
             KeyCode::Digit2,
@@ -140,7 +140,7 @@ pub fn update_hotbar_selection(
                 hotbar.selected = 8;
             }
 
-            hotbar_selection_writer.send(HotbarSelectionChanged {
+            hotbar_sel_writer.write(HotbarSelectionChanged {
                 selected: hotbar.selected,
             });
         }
@@ -159,7 +159,7 @@ pub fn update_hotbar_selection(
                 }
             }
 
-            hotbar_selection_writer.send(HotbarSelectionChanged {
+            hotbar_sel_writer.write(HotbarSelectionChanged {
                 selected: hotbar.selected,
             });
         }
@@ -168,18 +168,18 @@ pub fn update_hotbar_selection(
 
 pub fn update_hotbar_selector(
     mut gui_scale_reader: EventReader<GUIScaleChanged>,
-    mut hotbar_selection_reader: EventReader<HotbarSelectionChanged>,
-    mut query_selection: Query<&mut Node, With<HotbarSelection>>,
+    mut hotbar_sel_reader: EventReader<HotbarSelectionChanged>,
+    mut selection_q: Query<&mut Node, With<HotbarSelection>>,
 ) {
-    for event in hotbar_selection_reader.read() {
-        for mut node in query_selection.iter_mut() {
+    for event in hotbar_sel_reader.read() {
+        for mut node in selection_q.iter_mut() {
             // todo: proper placing (not formula one)
             node.margin.left =
                 Val::Percent(((event.selected) as f32) * (100. / ((MAX_HOTBAR_SLOTS) as f32)))
         }
     }
     for event in gui_scale_reader.read() {
-        for mut node in query_selection.iter_mut() {
+        for mut node in selection_q.iter_mut() {
             let scale: f32 = gui_scale_to_float(event.gui_scale);
             node.width = Val::Px(HOTBAR_SELECTION_WIDTH * scale);
             node.height = Val::Px(HOTBAR_SELECTION_HEIGHT * scale);

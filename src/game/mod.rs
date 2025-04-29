@@ -125,15 +125,15 @@ fn screenshot(mut commands: Commands, input: Res<ButtonInput<KeyCode>>, mut coun
 /** Adds an ability to save screenshot to file. */
 fn save_screenshot(
     mut commands: Commands,
-    screenshot_saving: Query<Entity, With<Capturing>>,
-    query_window: Query<Entity, With<Window>>,
+    capturing_q: Query<Entity, With<Capturing>>,
+    window_q: Query<Entity, With<Window>>,
 ) {
-    let Ok(window) = query_window.get_single() else {
-        warn!("Couldn't save screenshot.");
+    let Ok(window) = window_q.single() else {
+        warn!("Cannot save screenshot.");
         return;
     };
 
-    match screenshot_saving.iter().count() {
+    match capturing_q.iter().count() {
         0 => {
             commands.entity(window).remove::<CursorIcon>();
         }
