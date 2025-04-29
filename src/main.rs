@@ -22,85 +22,9 @@ use bevy_framepace::FramepacePlugin;
 use bevy_window_utils::{WindowUtils, WindowUtilsPlugin};
 
 /** Librecraft's main hard-coded constants. */
-pub mod consts {
-    /** Fixed time clock - leave it at 50 hz. */
-    pub const FIXED_TIME_CLOCK: f64 = 50.;
-    /** Minecraft protocol version that we are trying to support. */
-    pub const PROTOCOL_VERSION: u32 = 758;
-    /** Path to the settings file when on debug. */
-    pub const DEBUG_SETTINGS_PATH: &str = "./";
-    /** Title of the main program. */
-    macro_rules! title {
-        () => {
-            env!("CARGO_PKG_NAME")
-        };
-    }
-    /** Version of the main program. */
-    macro_rules! version {
-        () => {
-            env!("CARGO_PKG_VERSION")
-        };
-    }
-    /** Version string. */
-    macro_rules! version_string {
-        () => {
-            concat!(crate::consts::title!(), " v.", crate::consts::version!())
-        };
-    }
-    /** About (developer and version string) */
-    #[allow(unused_macros)]
-    macro_rules! about {
-        () => {
-            concat!(crate::consts::version_string!(), " | by caffidev")
-        };
-    }
-    pub(crate) use about;
-    pub(crate) use title;
-    pub(crate) use version;
-    pub(crate) use version_string;
-
-    /** Librecraft's minimum resolution width. */
-    pub const MIN_WIDTH: f32 = 320.;
-    /** Librecraft's minimum resolution height. */
-    pub const MIN_HEIGHT: f32 = 240.;
-}
-
+pub mod consts;
 /** Path to all assets of the librecraft. */
-pub mod assets {
-    use bevy::prelude::*;
-    
-    /** todo: have an ability to use minecraft's font as custom font to have some identity */
-    #[derive(Debug, Clone, Resource)]
-    pub struct RuntimeAsset {
-	pub font_path: String,
-    }
-
-    pub const FONT_PATH: &str = "fonts/FiraMonoRegular.ttf";
-    pub const MINECRAFT_FONT_PATH: &str = "fonts/MinecraftRegular.otf";
-    
-    pub const ICON_PATH: &str = "icon/icon512.png";
-    pub const SPLASH_PATH: &str = "icon/logo-highres.png";
-
-    pub const CALM1_PATH: &str = "music/calm1.ogg";
-    pub const CALM2_PATH: &str = "music/calm2.ogg";
-    pub const CALM3_PATH: &str = "music/calm3.ogg";
-
-    pub const HAL1_PATH: &str = "music/hal1.ogg";
-    pub const HAL2_PATH: &str = "music/hal2.ogg";
-    pub const HAL3_PATH: &str = "music/hal3.ogg";
-    pub const HAL4_PATH: &str = "music/hal4.ogg";
-
-    pub const NUANCE1_PATH: &str = "music/nuance1.ogg";
-    pub const NUANCE2_PATH: &str = "music/nuance2.ogg";
-
-    pub const PIANO1_PATH: &str = "music/piano1.ogg";
-    pub const PIANO2_PATH: &str = "music/piano2.ogg";
-    pub const PIANO3_PATH: &str = "music/piano3.ogg";
-
-    pub const HOTBAR_PATH: &str = "hotbar.png";
-    pub const HOTBAR_SELECTION_PATH: &str = "hotbar_selection.png";
-}
-
+pub mod assets;
 /** Game's logic resources. */
 pub mod game;
 /** All that belongs to GUI from debug info to hud. (cross-state)*/
@@ -255,7 +179,7 @@ fn limit_fps(
 		hz = (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
 	    },
 	    Err(_) => {
-		warn!("No monitor was detected. Can't limit fps.");
+		warn_once!("No monitor was detected. Can't limit fps.");
 		return;
 	    }
 	}
