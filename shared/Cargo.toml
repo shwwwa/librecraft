@@ -1,0 +1,9 @@
+[package]
+name = "librecraft_shared"
+version = "0.2.1"
+edition = "2024"
+
+[dependencies]
+
+[lints]
+workspace = true

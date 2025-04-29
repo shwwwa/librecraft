@@ -1,0 +1,92 @@
+[package]
+name = "librecraft"
+version = "0.2.1"
+edition = "2024"
+description = "An open-source implementation of Minecraft client."
+
+[features]
+default = []
+hr = ["hot-reloading"]
+hot-reloading = ["bevy/file_watcher"]
+#embed-assets = ["dep:bevy_embedded_assets"]
+embed-assets = []
+fast-compile = ["bevy/dynamic_linking"]
+wasm = ["bevy/webgl2"]
+# on release, if default has dylib, call cargo build -r --no-default-features
+release = ["embed-assets"] 
+
+[dependencies.bevy]
+version = "0.16.0"
+default-features = false
+features = [
+#	 "android-game-activity", ;
+#	 "android_shared_stdcxx", ; needed for android support
+	 "animation",
+	 "bevy_animation",
+	 "bevy_asset",
+	 "bevy_audio",
+	 "bevy_color",
+	 "bevy_core_pipeline",
+	 "bevy_gilrs",
+	 "bevy_gizmos",
+	 "bevy_gltf",
+	 "bevy_mesh_picking_backend",
+#	 "bevy_pbr" ; needed for probe reflections
+	 "bevy_picking",
+	 "bevy_render",
+	 "bevy_scene",
+	 "bevy_sprite",
+	 "bevy_sprite_picking_backend",
+	 "bevy_state",
+	 "bevy_text",
+	 "bevy_ui",
+	 "bevy_ui_picking_backend",
+	 "bevy_window",
+	 "bevy_winit",
+#	 "custom_cursor",
+#	 "default_font", # default fallback font
+	 "hdr",
+	 "ktx2",
+	 "multi_threaded",
+	 "png",
+	 "smaa_luts",
+	 "sysinfo_plugin",
+	 "tonemapping_luts", # needed for camera2d/camera3d
+	 "vorbis",
+	 "x11",
+	 "zstd"
+]
+
+
+[dependencies]
+librecraft_shared = { path = "../shared" }
+
+# Adds support for maximized state and window icon. (scope = necessary)
+bevy_window_utils = { version = "0.16.0" }
+# Adds proper frame limiter. (necessary)
+bevy_framepace = { version = "0.19.0", default-features = false }
+# Adds support for embedded assets. Not updated to bevy 0.16. (necessary)
+# bevy_embedded_assets = { version = "0.12.0", optional = true }
+bevy_renet = { git = "https://github.com/lucaspoffo/renet.git" }
+# Bevy's identical log crate. (all)
+log = { version = "0.4.26", default-features = false, features = ["max_level_debug", "release_max_level_warn"] }
+# Bevy's anyhow. (all)
+anyhow = "1.0.97"
+# wip (music)
+rand = "0.8.5"
+# Bevy's wgpu types. (debug)
+wgpu-types = "24.0.0"
+# Deserialization and serialization support. (settings, player)
+serde = { version = "1.0.219", features = ["derive"] }
+# Minecraft nbt support.
+valence_nbt = { version = "0.8.0", features = ["binary", "serde"] }
+# Zip/gzip support. (bevy uses 1.0.22)
+flate2 = { version = "1.1.1"}
+# Toml support.
+toml = "0.8.20"
+# Crate to get dirs specific to each platform.
+dirs = "6.0.0"
+
+
+[lints]
+workspace = true

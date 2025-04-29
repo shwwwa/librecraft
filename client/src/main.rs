@@ -94,6 +94,7 @@ impl PluginGroup for NecessaryPlugins {
             .add(WindowUtilsPlugin::default())
             .add(FrameTimeDiagnosticsPlugin::default())
             .add(SystemInformationDiagnosticsPlugin)
+            .add(RenetClientPlugin)
             .add(FramepacePlugin)
     }
 }
