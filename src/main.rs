@@ -11,6 +11,7 @@ use bevy::prelude::*;
 use bevy::window::{Monitor, PrimaryMonitor};
 use bevy::{
     app::PluginGroupBuilder,
+    log::LogPlugin,
     diagnostic::{FrameTimeDiagnosticsPlugin, SystemInformationDiagnosticsPlugin},
     window::PresentMode,
 };
@@ -160,8 +161,9 @@ impl PluginGroup for NecessaryPlugins {
                         ..default()
                     })
                     .set(LogPlugin {
-			filter: "info,wgpu_core=warn,wgpu_hal=warn,librecraft=debug".into(),
+			filter: "warn,wgpu_core=warn,wgpu_hal=off,bevy_diagnostic=off,librecraft=debug".into(),
 			level: bevy::log::Level::DEBUG,
+			..default()
 		    })
                     .set(ImagePlugin::default_nearest()),
             )
@@ -262,7 +264,6 @@ fn limit_fps(
             Limiter::Auto => Limiter::Off,
             Limiter::Off => Limiter::from_framerate(30.0),
             Limiter::Manual(fps) => {
-                // Attempt to fix refresh rate issue. Has no effect.
                 if fps != Duration::from_secs_f64(1.0 / hz) {
                     Limiter::from_framerate(hz)
                 } else {
