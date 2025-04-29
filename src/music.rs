@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::audio::{Volume, PlaybackMode};
 use bevy::window::{PrimaryWindow, WindowFocused};
 use rand::prelude::*;
 
@@ -61,20 +62,20 @@ pub fn setup_soundtrack(asset_server: Res<AssetServer>, mut commands: Commands) 
 
 pub fn fade_in(
     mut commands: Commands,
-    mut audio_sink: Query<(&mut AudioSink, Entity), With<FadeIn>>,
-    window: Query<&Window, With<PrimaryWindow>>,
+    mut audio_sink_q: Query<(&mut AudioSink, Entity), With<FadeIn>>,
+    window_q: Query<&Window, With<PrimaryWindow>>,
     time: Res<Time>,
 ) {
-    for (audio, entity) in audio_sink.iter_mut() {
-        for pw in window.iter() {
-            if !pw.focused {
+    for (mut audio, entity) in audio_sink_q.iter_mut() {
+        for window in window_q.iter() {
+            if !window.focused {
                 commands.entity(entity).remove::<FadeIn>();
                 return;
             }
         }
-        audio.set_volume(audio.volume() + time.delta_secs() / FADE_TIME);
-        if audio.volume() >= 1.0 {
-            audio.set_volume(1.0);
+        audio.set_volume(Volume::Linear(audio.volume().to_linear() + time.delta_secs() / FADE_TIME));
+        if audio.volume() >= Volume::Linear(1.0) {
+            audio.set_volume(Volume::Linear(1.0));
             commands.entity(entity).remove::<FadeIn>();
         }
     }
@@ -82,12 +83,12 @@ pub fn fade_in(
 
 pub fn fade_out(
     mut commands: Commands,
-    mut audio_sink: Query<(&mut AudioSink, Entity), With<FadeOut>>,
+    mut audio_sink_q: Query<(&mut AudioSink, Entity), With<FadeOut>>,
     time: Res<Time>,
 ) {
-    for (audio, entity) in audio_sink.iter_mut() {
-        audio.set_volume(audio.volume() - time.delta_secs() / FADE_TIME);
-        if audio.volume() <= 0.0 {
+    for (mut audio, entity) in audio_sink_q.iter_mut() {
+        audio.set_volume(Volume::Linear(audio.volume().to_linear() - time.delta_secs() / FADE_TIME));
+        if audio.volume() <= Volume::Linear(0.0) {
             info!("deleting fade out tracks");
             commands.entity(entity).despawn_recursive();
         }
@@ -95,17 +96,17 @@ pub fn fade_out(
 }
 
 pub fn mute_music_on_focus(
-    mut audio_sink: Query<&mut AudioSink, With<Music>>,
+    mut audio_sink_q: Query<&mut AudioSink, With<Music>>,
     mut focus_reader: EventReader<WindowFocused>,
 ) {
     for evr in focus_reader.read() {
         if evr.focused {
-            for audio in audio_sink.iter_mut() {
-                audio.set_volume(1.);
+            for mut audio in audio_sink_q.iter_mut() {
+                audio.set_volume(Volume::Linear(1.0));
             }
         } else {
-            for audio in audio_sink.iter_mut() {
-                audio.set_volume(0.);
+            for mut audio in audio_sink_q.iter_mut() {
+                audio.set_volume(Volume::SILENT);
             }
         }
     }
@@ -115,13 +116,13 @@ pub fn change_track(
     mut commands: Commands,
     mut timer: ResMut<SoundtrackTimer>,
     soundtrack_player: Res<SoundtrackPlayer>,
-    soundtrack: Query<Entity, With<AudioSink>>,
+    soundtrack_q: Query<Entity, With<AudioSink>>,
     time: Res<Time>,
 ) {
     timer.0.tick(time.delta());
     if timer.0.just_finished() {
         // Fade out and despawn all currently running tracks
-        for track in soundtrack.iter() {
+        for track in soundtrack_q.iter() {
             commands.entity(track).insert(FadeOut);
         }
         // todo: tracks cannot repeat themselves
@@ -136,7 +137,7 @@ pub fn change_track(
             AudioPlayer(chosen_track),
             PlaybackSettings {
                 mode: bevy::audio::PlaybackMode::Loop,
-                volume: bevy::audio::Volume::ZERO,
+                volume: Volume::SILENT,
                 ..default()
             },
             FadeIn,

@@ -1,6 +1,7 @@
 #![allow(clippy::default_constructed_unit_structs)]
-// Can warn of some basic pitfalls, but basically too pedantic.
+// Warns of some basic pitfalls, but basically too pedantic.
 // #![warn(clippy::pedantic)]
+
 // Tells windows not to show console window on release.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 // Unsafe code violates one of design goals and used only in crates.
@@ -49,7 +50,7 @@ pub mod consts {
     #[allow(unused_macros)]
     macro_rules! about {
         () => {
-            concat!(crate::consts::version_string!(), " | made by caffidev")
+            concat!(crate::consts::version_string!(), " | by caffidev")
         };
     }
     pub(crate) use about;
@@ -113,19 +114,17 @@ pub mod splash;
 #[cfg(not(debug_assertions))]
 use dirs::config_dir;
 
-#[cfg(debug_assertions)]
-use consts::DEBUG_SETTINGS_PATH;
-#[cfg(debug_assertions)]
-use std::str::FromStr;
-use std::time::Duration;
-
-use consts::{FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH};
-
 use game::GamePlugin;
 use settings::SettingsPath;
 use splash::SplashPlugin;
+#[cfg(debug_assertions)]
+use consts::DEBUG_SETTINGS_PATH;
+use consts::{FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH};
 
 use std::path::PathBuf;
+use std::time::Duration;
+#[cfg(debug_assertions)]
+use std::str::FromStr;
 
 /** Necessary plugins, responsible for generic app functions like windowing or asset packaging (prestartup). */
 struct NecessaryPlugins;
@@ -135,7 +134,7 @@ impl PluginGroup for NecessaryPlugins {
         #[allow(unused_mut)]
         let mut builder = PluginGroupBuilder::start::<Self>();
 
-        // Warning: Must be loaded before DefaultPlugins.
+        // Warning: must be loaded before DefaultPlugins.
         #[cfg(feature = "embed-assets")]
         {
             builder = builder.add(EmbeddedAssetPlugin {
@@ -180,16 +179,15 @@ pub enum GameState {
 /** Main entry of the program. */
 pub fn main() {
     let mut app = App::new();
-
+    let mut settings_path: PathBuf;
+    
     /* Panic if no handle to cwd in debug mode. */
     #[cfg(debug_assertions)]
-    let mut settings_path: PathBuf = PathBuf::from_str(DEBUG_SETTINGS_PATH).unwrap();
+    settings_path = PathBuf::from_str(DEBUG_SETTINGS_PATH).unwrap();
     /* Panic if no handle to config dir in release mode.*/
     #[cfg(not(debug_assertions))]
-    let mut settings_path: PathBuf = config_dir().unwrap();
-    #[cfg(not(debug_assertions))]
-    settings_path.push(consts::title!());
-
+    settings_path = config_dir().unwrap().push(consts::title!());
+    
     settings_path.push("settings");
     settings_path.set_extension("toml");
     
@@ -235,19 +233,27 @@ fn setup_camera(mut commands: Commands) {
 /** Limits fps ["refresh rate", "off", "30 fps"] */
 fn limit_fps(
     mut settings: ResMut<bevy_framepace::FramepaceSettings>,
-    query_monitor: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>,
+    monitor_q: Query<(&Monitor, Has<PrimaryMonitor>)>,
     input: Res<ButtonInput<KeyCode>>,
 ) {
     if input.just_pressed(KeyCode::Space) {
         use bevy_framepace::Limiter;
-        let monitor = query_monitor.single().1;
-        let hz: f64 = (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
-
+	let hz: f64;
+	match monitor_q.single() {
+	    Ok((monitor, _)) => {
+		hz = (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
+	    },
+	    Err(_) => {
+		warn!("No monitor was detected. Can't limit fps.");
+		return;
+	    }
+	}
+	
         settings.limiter = match settings.limiter {
             Limiter::Auto => Limiter::Off,
             Limiter::Off => Limiter::from_framerate(30.0),
             Limiter::Manual(fps) => {
-                // Attempt to fix 180 fps bug. Has no effect.
+                // Attempt to fix refresh rate issue. Has no effect.
                 if fps != Duration::from_secs_f64(1.0 / hz) {
                     Limiter::from_framerate(hz)
                 } else {

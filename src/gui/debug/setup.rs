@@ -6,7 +6,7 @@ use bevy::window::{Monitor, PrimaryMonitor};
 use wgpu_types::DeviceType;
 
 use super::{DisplayText, FocusText, FpsText};
-use crate::assets::{RuntimeAsset};
+use crate::assets::RuntimeAsset;
 
 /** Marker to find debug's hud box entity. */
 #[derive(Component)]
@@ -19,8 +19,8 @@ pub fn setup_debug_hud(
     runtime_asset: Res<RuntimeAsset>,
     system: Res<SystemInfo>,
     adapter: Res<RenderAdapterInfo>,
-    query_monitor: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>,
-    query_window: Query<&Window>,
+    monitor_q: Query<(Entity, &Monitor, Has<PrimaryMonitor>)>,
+    window_q: Query<&Window>,
 ) {
     let text_font = TextFont {
         font: asset_server.load(runtime_asset.font_path.clone()),
@@ -69,7 +69,7 @@ pub fn setup_debug_hud(
         TextColor(Color::WHITE),
     ));
 
-    for (_, monitor, is_primary) in query_monitor.iter() {
+    for (_, monitor, is_primary) in monitor_q.iter() {
         let mut monitor_info = monitor
             .name
             .clone()
@@ -98,10 +98,18 @@ pub fn setup_debug_hud(
         TextColor(Color::WHITE),
     ));
 
-    let window = query_window.single();
-
-    let width = window.resolution.width();
-    let height = window.resolution.height();
+    let (width, height): (f32, f32);
+    match window_q.single() {
+	Ok(window) => {
+	    width = window.resolution.width();
+	    height = window.resolution.height();
+	},
+	Err(_) => {
+	    warn!("Can't get primary window. Window resolution is absent from debug hud.");
+	    width = 0.;
+	    height = 0.;
+	}
+    }
 
     let display_info = format!("{}x{}", width, height);
 
@@ -175,14 +183,18 @@ pub fn setup_debug_hud(
 }
 
 pub fn toggle_debug_hud(
-    mut q_hud_root: Query<&mut Visibility, With<DebugHudRoot>>,
+    mut hud_root_q: Query<&mut Visibility, With<DebugHudRoot>>,
     keys: Res<ButtonInput<KeyCode>>,
 ) {
     if keys.just_pressed(KeyCode::F3) {
-        let mut visibility = q_hud_root.single_mut();
-        *visibility = match *visibility {
-            Visibility::Hidden => Visibility::Visible,
-            _ => Visibility::Hidden,
-        }
+        match hud_root_q.single_mut() {
+	    Ok(mut vis) => {
+		*vis = match *vis {
+		    Visibility::Hidden => Visibility::Visible,
+		    _ => Visibility::Hidden,
+		}
+	    },
+	    Err(_) => error!("Cannot toggle debug hud: no access to visibility.")
+	}
     }
 }

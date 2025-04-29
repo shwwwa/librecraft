@@ -4,9 +4,10 @@ use bevy::prelude::*;
 
 //todo: when startup time will be bad, start loading resources in SplashPlugin
 
-pub const SPLASH_SECS: f32 = 2.0;
+/** How much splash screen takes time until switching. */
+const SPLASH_SECS: f32 = 2.0;
 
-/** Plugin that renders splash screen for [`SPLASH_SECS`]. Unnecessary for librecraft to work. */
+/** Plugin that renders splash screen for [`SPLASH_SECS`]. Dependent only on [`assets::SPLASH_PATH`] and [`GameState`]. */
 pub struct SplashPlugin<S: States> {
     pub state: S,
 }
@@ -20,7 +21,6 @@ impl Default for SplashTimer {
     }
 }
 
-/** Done for easier transfer within my projects, with sacrificing few clone values. */
 impl<S: States> Plugin for SplashPlugin<S> {
     fn build(&self, app: &mut App) {
         app.init_resource::<SplashTimer>()
@@ -35,10 +35,9 @@ impl<S: States> Plugin for SplashPlugin<S> {
     }
 }
 
-/** Setups splash screen. */
+/** Setups splash screen with background icon. */
 fn setup_splash(mut commands: Commands, asset_server: Res<AssetServer>) {
     let icon = asset_server.load(assets::SPLASH_PATH);
-
     commands
         .spawn((
             (

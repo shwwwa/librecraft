@@ -54,7 +54,7 @@ pub fn gui_scale_changed(
     gui_scale_events: &mut ResMut<Events<GUIScaleChanged>>,
 ) {
     info!("GUI scale was changed: {:?}", *gui_scale);
-    gui_scale_events.send(GUIScaleChanged {
+    gui_scale_events.write(GUIScaleChanged {
         gui_scale: **gui_scale,
     });
 }
@@ -65,7 +65,7 @@ pub fn gui_scale_changed(
 /// - Grabs user cursor if in-game.
 /// - Releases user cursor on lost focus/menu.
 pub fn handle_mouse(
-    mut windows: Query<&mut Window, With<PrimaryWindow>>,
+    mut window_q: Query<&mut Window, With<PrimaryWindow>>,
     mut focus_reader: EventReader<WindowFocused>,
     settings: Res<Settings>,
     gui_state: Res<State<GUIState>>,
@@ -73,43 +73,52 @@ pub fn handle_mouse(
     mut next_gui_state: ResMut<NextState<GUIState>>,
 ) {
     for ev in focus_reader.read() {
-        let is_playing = *gui_state.get() == GUIState::Closed;
+	match window_q.single_mut() {
+	    Ok(mut window) => {
+		let is_playing = *gui_state.get() == GUIState::Closed;
 
-        if is_playing {
-            if settings.pause_on_lost_focus {
-                next_gui_state.set(GUIState::Opened);
-                return;
-            }
+		if is_playing {
+		    if settings.pause_on_lost_focus {
+			next_gui_state.set(GUIState::Opened);
+			return;
+		    }
 
-            let mut window = windows.single_mut();
+		    if ev.focused {
+			window.cursor_options.grab_mode = CursorGrabMode::Locked;
+		    } else {
+			window.cursor_options.grab_mode = CursorGrabMode::None;
+		    }
 
-            if ev.focused {
-                window.cursor_options.grab_mode = CursorGrabMode::Locked;
-            } else {
-                window.cursor_options.grab_mode = CursorGrabMode::None;
-            }
-
-            window.cursor_options.visible = !ev.focused;
-        }
+		    window.cursor_options.visible = !ev.focused;
+		}
+	    },
+	    Err(_) => {
+		warn_once!("No primary window detected. Can't handle mouse.");
+	    }
+	}
     }
 
     for ev in gui_state_reader.read() {
-        let mut window = windows.single_mut();
+        match window_q.single_mut() {
+	    Ok(mut window) => {
+		let is_playing = ev.entered.expect("GUIState unwrap entered panic - tests needed") == GUIState::Closed;
 
-        // todo(gui): may cause panic - tests needed.
-        let is_playing = ev.entered.unwrap() == GUIState::Closed;
+		window.cursor_options.grab_mode = if is_playing {
+		    CursorGrabMode::Locked
+		} else {
+		    CursorGrabMode::None
+		};
+		if !is_playing {
+		    let center = Vec2::new(window.width() / 2., window.height() / 2.);
+		    window.set_cursor_position(Some(center));
+		}
 
-        window.cursor_options.grab_mode = if is_playing {
-            CursorGrabMode::Locked
-        } else {
-            CursorGrabMode::None
-        };
-        if !is_playing {
-            let center = Vec2::new(window.width() / 2., window.height() / 2.);
-            window.set_cursor_position(Some(center));
-        }
-
-        window.cursor_options.visible = !is_playing;
+		window.cursor_options.visible = !is_playing;
+	    },
+	    Err(_) => {
+		warn_once!("No primary window detected. Can't handle mouse.");
+	    }
+	}
     }
 }
 
@@ -120,7 +129,7 @@ pub fn update_auto_gui_scale(
 ) {
     if let GUIScale::Auto(scale) = *gui_scale {
         if scale == 0 {
-            gui_scale_writer.send(GUIScaleChanged {
+            gui_scale_writer.write(GUIScaleChanged {
                 gui_scale: *gui_scale,
             });
         }
@@ -132,7 +141,7 @@ pub fn update_gui_scale(
     mut gui_scale_events: ResMut<Events<GUIScaleChanged>>,
     mut resize_reader: EventReader<WindowResized>,
     mut gui_scale: ResMut<GUIScale>,
-    query_window: Query<&Window>,
+    window_q: Query<&Window>,
 ) {
     let mut gui_scale_cursor = gui_scale_events.get_cursor();
 
@@ -164,17 +173,22 @@ pub fn update_gui_scale(
     }
 
     if scale_change {
-        let resolution = query_window.single();
-        // Basically gets best scale for window. We are appending +1 to make sure result of f32::ceil() is always >= 2.
-        *gui_scale = GUIScale::Auto(
-            (f32::ceil(f32::min(
-                (resolution.width() + 1.) / MIN_WIDTH,
-                (resolution.height() + 1.) / MIN_HEIGHT,
-            )) as u8)
-                - 1,
-        );
-
-        gui_scale_changed(&gui_scale, &mut gui_scale_events);
+	match window_q.single() {
+	    Ok(window) => {
+		let resolution = window_q.single();
+		// Basically gets best scale for window. We are appending +1 to make sure result of f32::ceil() is always >= 2.
+		*gui_scale = GUIScale::Auto(
+		    (f32::ceil(f32::min(
+			(resolution.width() + 1.) / MIN_WIDTH,
+			(resolution.height() + 1.) / MIN_HEIGHT,
+		    )) as u8)
+			- 1,
+		);
+		
+		gui_scale_changed(&gui_scale, &mut gui_scale_events);
+	    },
+	    Err(_) => warn_once("Can't access primary window. GUIScale cannot be updated.")
+	}
     }
 }
 
@@ -215,7 +229,7 @@ pub fn change_gui_scale(
         gui_scale_changed(&gui_scale, &mut gui_scale_events);
 
         settings.gui_scale = gui_scale_to_float(*gui_scale);
-        settings_writer.send(SettingsUpdated {
+        settings_writer.write(SettingsUpdated {
             settings: settings.clone(),
         });
     }

@@ -2,6 +2,7 @@ use bevy::window::{PrimaryWindow, WindowResized, WindowResolution};
 use bevy::winit::WinitWindows;
 use bevy::{prelude::*, window::WindowMode};
 
+use bevy_window_utils::WindowUtils;
 use serde::{Deserialize, Serialize};
 use toml::from_str;
 
@@ -25,14 +26,14 @@ pub struct Settings {
     pub gui_scale: f32,
     pub pause_on_lost_focus: bool,
     pub mute_on_lost_focus: bool,
-    /** Controversional change: replace fonts to be minecraft-like. */
+    /** Controversial change: replace fonts to be minecraft-like. */
     pub replace_fonts: bool,
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            player_name: "unknown".to_string(),
+            player_name: "player1".to_string(),
             fullscreen: false,
             pause_on_lost_focus: true,
             mute_on_lost_focus: true,
@@ -68,36 +69,42 @@ pub fn change_fullscreen(
     keys: Res<ButtonInput<KeyCode>>,
     mut settings: ResMut<Settings>,
     mut settings_writer: EventWriter<SettingsUpdated>,
-    mut query_window: Query<&mut Window, With<PrimaryWindow>>,
+    mut window_q: Query<&mut Window, With<PrimaryWindow>>,
 ) {
     if keys.just_pressed(KeyCode::F11) {
         settings.fullscreen = !settings.fullscreen;
-
-        if settings.fullscreen {
-            query_window.single_mut().mode = WindowMode::Fullscreen(MonitorSelection::Current);
-        } else {
-            query_window.single_mut().mode = WindowMode::Windowed;
-        }
+	match window_q.single_mut() {
+	    Ok(mut window) => {
+		if settings.fullscreen {
+		    window.mode = WindowMode::Fullscreen(MonitorSelection::Current, VideoModeSelection::Current);
+		} else {
+		    window.mode = WindowMode::Windowed;
+		}
+	    },
+	    Err(_) => {
+		warn_once!("No primary window detected. Fullscreen cannot be changed.");
+	    }
+	}
 
         debug!("Fullscreen mode: {}", settings.fullscreen);
 
-        settings_writer.send(SettingsUpdated {
+        settings_writer.write(SettingsUpdated {
             settings: settings.clone(),
         });
     }
 }
 
 pub fn save_window_position(
-    windows: NonSend<WinitWindows>,
+    window_utils: Res<WindowUtils>,
     mut settings: ResMut<Settings>,
     mut settings_writer: EventWriter<SettingsUpdated>,
     mut position_reader: EventReader<WindowMoved>,
 ) {
     for ev in position_reader.read() {
-        match windows.get_window(ev.window) {
-            Some(window_wrapper) => {
-                if settings.maximized != window_wrapper.is_maximized() {
-                    settings.maximized = window_wrapper.is_maximized();
+        match window_utils.is_maximized {
+            Some(is_maximized) => {
+                if settings.maximized != is_maximized {
+                    settings.maximized = is_maximized;
                     info!("Window was maximized/minimized.");
                 }
             }
@@ -107,13 +114,13 @@ pub fn save_window_position(
         settings.position_x = ev.position.x;
         settings.position_y = ev.position.y;
 
-        // produces a lot of events when moving, but so far works
+        // Produces a lot of events when moving, but so far works.
         debug!(
             "Window changed position: {}x{}px",
             settings.position_x, settings.position_y
         );
 
-        settings_writer.send(SettingsUpdated {
+        settings_writer.write(SettingsUpdated {
             settings: settings.clone(),
         });
     }
@@ -130,7 +137,7 @@ pub fn save_window_size(
 
         debug!("Window resized: {}x{}px", settings.size_x, settings.size_y);
 
-        settings_writer.send(SettingsUpdated {
+        settings_writer.write(SettingsUpdated {
             settings: settings.clone(),
         });
     }
@@ -140,7 +147,7 @@ pub fn setup_settings(
     mut commands: Commands,
     mut settings: ResMut<Settings>,
     mut settings_path: ResMut<SettingsPath>,
-    mut query_window: Query<&mut Window, With<PrimaryWindow>>,
+    mut window_q: Query<&mut Window, With<PrimaryWindow>>,
 ) {
     match read_settings((*settings_path.path).to_path_buf(), &mut settings) {
         Ok(()) => {
@@ -183,22 +190,27 @@ pub fn setup_settings(
         commands.insert_resource(GUIScale::Custom(settings.gui_scale));
     }
 
-    let mut window = query_window.single_mut();
+    match window_q.single_mut() {
+	Ok(mut window) => {
+	    if settings.position_x > 0 && settings.position_y > 0 {
+		window.position = WindowPosition::At(IVec2::new(settings.position_x, settings.position_y));
+	    }
 
-    if settings.position_x > 0 && settings.position_y > 0 {
-        window.position = WindowPosition::At(IVec2::new(settings.position_x, settings.position_y));
-    }
+	    if settings.size_x > 0. && settings.size_y > 0. {
+		window.resolution = WindowResolution::new(settings.size_x, settings.size_y);
+	    }
 
-    if settings.size_x > 0. && settings.size_y > 0. {
-        window.resolution = WindowResolution::new(settings.size_x, settings.size_y);
-    }
+	    if settings.maximized {
+		window.set_maximized(true);
+	    }
 
-    if settings.maximized {
-        window.set_maximized(true);
-    }
-
-    if settings.fullscreen {
-        window.mode = WindowMode::Fullscreen(MonitorSelection::Current);
+	    if settings.fullscreen {
+		window.mode = WindowMode::Fullscreen(MonitorSelection::Current, VideoModeSelection::Current);
+	    }
+	},
+	Err(_) => {
+	    warn_once!("No primary window detected. Window settings are ignored.");
+	}
     }
 
     if settings.replace_fonts {
