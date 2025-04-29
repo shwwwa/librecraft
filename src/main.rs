@@ -159,6 +159,10 @@ impl PluginGroup for NecessaryPlugins {
                         }),
                         ..default()
                     })
+                    .set(LogPlugin {
+			filter: "info,wgpu_core=warn,wgpu_hal=warn,librecraft=debug".into(),
+			level: bevy::log::Level::DEBUG,
+		    })
                     .set(ImagePlugin::default_nearest()),
             )
             .add(WindowUtilsPlugin::default())
