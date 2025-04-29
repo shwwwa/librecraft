@@ -5,7 +5,8 @@ edition = "2024"
 description = "An open-source implementation of Minecraft client."
 
 [features]
-default = ["fast-compile"]
+default = []
+hr = ["hot-reloading"]
 hot-reloading = ["bevy/file_watcher"]
 #embed-assets = ["dep:bevy_embedded_assets"]
 embed-assets = []
@@ -63,7 +64,7 @@ features = [
 	 "sysinfo_plugin",
 	 "tonemapping_luts", # needed for camera2d/camera3d
 	 "vorbis",
-#	 "webgl2", ; needed for web
+	 "webgl2",
 	 "x11",
 	 "zstd"
 ]
@@ -95,3 +96,5 @@ toml = "0.8.20"
 # Crate to get dirs specific to each platform.
 dirs = "6.0.0"
 
+[target.wasm32-unknown-unknown]
+runner = "wasm-server-runner"
