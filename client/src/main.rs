@@ -89,13 +89,25 @@ impl PluginGroup for NecessaryPlugins {
                         }),
                         ..default()
                     })
-                    .set(LogPlugin {
-                        filter:
+                    .set(
+                        #[cfg(debug_assertions)]
+                        LogPlugin {
+                            filter:
                             "warn,wgpu_core=warn,wgpu_hal=off,bevy_diagnostic=off,librecraft=debug"
                                 .into(),
-                        level: bevy::log::Level::DEBUG,
-                        ..default()
-                    })
+                            level: bevy::log::Level::DEBUG,
+                            ..default()
+                        },
+                        
+                        #[cfg(not(debug_assertions))]
+                        LogPlugin {
+                            filter:
+                            "warn,wgpu_core=warn,wgpu_hal=off,bevy_diagnostic=warn,librecraft=info"
+                                .into(),
+                            level: bevy::log::Level::INFO,
+                            ..default()
+                        },
+                    )
                     .set(ImagePlugin::default_nearest()),
             )
             .add(WindowUtilsPlugin::default())
