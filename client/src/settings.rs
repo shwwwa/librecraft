@@ -5,7 +5,7 @@ use bevy_window_utils::WindowUtils;
 use serde::{Deserialize, Serialize};
 use toml::from_str;
 
-use crate::assets::{RuntimeAsset, MINECRAFT_FONT_PATH, FONT_PATH};
+use crate::assets::{RuntimeAsset, FONT_PATH, MINECRAFT_FONT_PATH};
 use crate::consts::DEBUG_MODE;
 use crate::gui::GUIScale;
 use std::error::Error;
@@ -56,6 +56,15 @@ pub struct SettingsPath {
     pub save_settings: bool,
 }
 
+impl Default for SettingsPath {
+    fn default() -> Self {
+        Self {
+            path: PathBuf::new(),
+            save_settings: false,
+        }
+    }
+}
+
 #[derive(Event, Debug)]
 pub struct SettingsUpdated {
     pub settings: Settings,
@@ -73,18 +82,21 @@ pub fn change_fullscreen(
 ) {
     if keys.just_pressed(KeyCode::F11) {
         settings.fullscreen = !settings.fullscreen;
-	match window_q.single_mut() {
-	    Ok(mut window) => {
-		if settings.fullscreen {
-		    window.mode = WindowMode::Fullscreen(MonitorSelection::Current, VideoModeSelection::Current);
-		} else {
-		    window.mode = WindowMode::Windowed;
-		}
-	    },
-	    Err(_) => {
-		warn_once!("No primary window detected. Fullscreen cannot be changed.");
-	    }
-	}
+        match window_q.single_mut() {
+            Ok(mut window) => {
+                if settings.fullscreen {
+                    window.mode = WindowMode::Fullscreen(
+                        MonitorSelection::Current,
+                        VideoModeSelection::Current,
+                    );
+                } else {
+                    window.mode = WindowMode::Windowed;
+                }
+            }
+            Err(_) => {
+                warn_once!("No primary window detected. Fullscreen cannot be changed.");
+            }
+        }
 
         debug!("Fullscreen mode: {}", settings.fullscreen);
 
@@ -187,37 +199,38 @@ pub fn setup_settings(
     }
 
     match window_q.single_mut() {
-	Ok(mut window) => {
-	    if settings.position_x > 0 && settings.position_y > 0 {
-		window.position = WindowPosition::At(IVec2::new(settings.position_x, settings.position_y));
-	    }
+        Ok(mut window) => {
+            if settings.position_x > 0 && settings.position_y > 0 {
+                window.position =
+                    WindowPosition::At(IVec2::new(settings.position_x, settings.position_y));
+            }
 
-	    if settings.size_x > 0. && settings.size_y > 0. {
-		window.resolution = WindowResolution::new(settings.size_x, settings.size_y);
-	    }
+            if settings.size_x > 0. && settings.size_y > 0. {
+                window.resolution = WindowResolution::new(settings.size_x, settings.size_y);
+            }
 
-	    if settings.maximized {
-		window.set_maximized(true);
-	    }
+            if settings.maximized {
+                window.set_maximized(true);
+            }
 
-	    if settings.fullscreen {
-		window.mode = WindowMode::Fullscreen(MonitorSelection::Current, VideoModeSelection::Current);
-	    }
-	},
-	Err(_) => {
-	    warn_once!("No primary window detected. Window settings are ignored.");
-	}
+            if settings.fullscreen {
+                window.mode =
+                    WindowMode::Fullscreen(MonitorSelection::Current, VideoModeSelection::Current);
+            }
+        }
+        Err(_) => {
+            warn_once!("No primary window detected. Window settings are ignored.");
+        }
     }
 
     if settings.replace_fonts {
-	commands.insert_resource(RuntimeAsset {
-	    font_path: MINECRAFT_FONT_PATH.to_string(),
-	});
-    }
-    else {
-	commands.insert_resource(RuntimeAsset {
-	    font_path: FONT_PATH.to_string(),
-	});
+        commands.insert_resource(RuntimeAsset {
+            font_path: MINECRAFT_FONT_PATH.to_string(),
+        });
+    } else {
+        commands.insert_resource(RuntimeAsset {
+            font_path: FONT_PATH.to_string(),
+        });
     }
 }
 

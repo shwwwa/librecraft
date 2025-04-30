@@ -160,8 +160,7 @@ pub fn main() {
         .add_systems(Update, limit_fps)
         .insert_resource(SettingsPath {
             path: settings_path,
-            // keep it false, it gets overwritten
-            save_settings: false,
+            ..default()
         })
         .insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
         .init_state::<GameState>()

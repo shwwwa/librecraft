@@ -86,6 +86,9 @@ toml = "0.8.20"
 # Crate to get dirs specific to each platform.
 dirs = "6.0.0"
 
+[[bin]]
+name = "client"
+path = "src/main.rs"
 
 [lints]
 workspace = true
