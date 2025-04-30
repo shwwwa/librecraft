@@ -132,7 +132,9 @@ pub fn main() {
     } else {
         #[cfg(debug_assertions)]
         {
-            warn!("Debug build is used, while debug mode is false. This may end up in unexpected issues.");
+            warn!(
+                "Debug build is used, while debug mode is false. This can cause unexpected issues."
+            );
             settings_path = PathBuf::from_str(DEBUG_SETTINGS_PATH).unwrap();
         }
         #[cfg(not(debug_assertions))]
@@ -192,16 +194,15 @@ fn limit_fps(
 ) {
     if input.just_pressed(KeyCode::Space) {
         use bevy_framepace::Limiter;
-        let hz: f64;
-        match monitor_q.single() {
+        let hz: f64 = match monitor_q.single() {
             Ok(monitor) => {
-                hz = (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
+                (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64
             }
             Err(_) => {
                 warn_once!("No monitor was detected. Can't limit fps.");
                 return;
             }
-        }
+        };
 
         settings.limiter = match settings.limiter {
             Limiter::Auto => Limiter::Off,

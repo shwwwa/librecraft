@@ -3,6 +3,14 @@ name = "librecraft"
 version = "0.2.1"
 edition = "2024"
 description = "An open-source implementation of Minecraft client."
+build = "build.rs"
+
+[package.metadata.winresource]
+OriginalFilename = "librecraft.exe"
+LegalCopyright = "MIT (c) 2025"
+ProductName = "librecraft"
+ProductVersion = "0.2.1"
+FileDescription = "librecraft - an open-source implementation of Minecraft client."
 
 [features]
 default = ["fast-compile"]
@@ -85,6 +93,9 @@ flate2 = { version = "1.1.1"}
 toml = "0.8.20"
 # Crate to get dirs specific to each platform.
 dirs = "6.0.0"
+
+[target.'cfg(windows)'.build-dependencies]
+winresource = "0.1.20"
 
 [[bin]]
 name = "client"
