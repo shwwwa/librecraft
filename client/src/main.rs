@@ -43,7 +43,7 @@ pub mod splash;
 #[cfg(not(debug_assertions))]
 use dirs::config_dir;
 
-use consts::{DEBUG_MODE, DEBUG_SETTINGS_PATH, FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH};
+use consts::*;
 use game::GamePlugin;
 use settings::SettingsPath;
 use splash::SplashPlugin;
@@ -71,7 +71,7 @@ impl PluginGroup for NecessaryPlugins {
             .add_group(
                 DefaultPlugins
                     .set(AssetPlugin {
-                        file_path: "../assets".to_owned(),
+                        file_path: ASSET_FOLDER.to_owned(),
                         ..default()
                     })
                     .set(WindowPlugin {
@@ -92,18 +92,13 @@ impl PluginGroup for NecessaryPlugins {
                     .set(
                         #[cfg(debug_assertions)]
                         LogPlugin {
-                            filter:
-                            "warn,wgpu_core=warn,wgpu_hal=off,bevy_diagnostic=off,librecraft=debug"
-                                .into(),
+                            filter: LOG_FILTER.to_owned(),
                             level: bevy::log::Level::DEBUG,
                             ..default()
                         },
-                        
                         #[cfg(not(debug_assertions))]
                         LogPlugin {
-                            filter:
-                            "warn,wgpu_core=warn,wgpu_hal=off,bevy_diagnostic=warn,librecraft=info"
-                                .into(),
+                            filter: LOG_FILTER.to_owned(),
                             level: bevy::log::Level::INFO,
                             ..default()
                         },
