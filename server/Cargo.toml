@@ -4,7 +4,17 @@ version = "0.2.1"
 edition = "2024"
 
 [dependencies]
+bevy = { version = "0.16.0", default-features = false }
+bevy_app = { version = "0.16.0", default-features = false }
+bevy_log = { version = "0.16.0", default-features = false }
+bevy_ecs = { version = "0.16.0", default-features = false }
 librecraft_shared = { path = "../shared" }
+bevy_renet = { git = "https://github.com/lucaspoffo/renet.git" }
 clap = { version = "4.5.37", default-features = false, features = ["std"] }
+
+[[bin]]
+name = "server"
+path = "src/main.rs"
+
 [lints]
 workspace = true
