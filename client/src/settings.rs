@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use toml::from_str;
 
 use crate::assets::{RuntimeAsset, MINECRAFT_FONT_PATH, FONT_PATH};
+use crate::consts::DEBUG_MODE;
 use crate::gui::GUIScale;
 use std::error::Error;
 use std::path::PathBuf;
@@ -155,13 +156,9 @@ pub fn setup_settings(
         }
         Err(e) => {
             let path: &str = settings_path.path.to_str().unwrap();
-            #[cfg(debug_assertions)]
-            let debug: bool = true;
-            #[cfg(not(debug_assertions))]
-            let debug: bool = false;
 
             warn!("Couldn't retrieve settings from {}: {}.", path, e);
-            if debug {
+            if DEBUG_MODE {
                 warn!("Debug mode enabled, settings file is not created, fallback values in use.");
             } else {
                 warn!("Creating default settings file...");

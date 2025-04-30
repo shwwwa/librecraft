@@ -1,18 +1,21 @@
 #![allow(clippy::default_constructed_unit_structs)]
 // Warns of some basic pitfalls, but basically too pedantic.
-// #![warn(clip`py::pedantic)]
+// #![warn(clippy::pedantic)]
 #![feature(stmt_expr_attributes)]
 // Tells windows not to show console window on release.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 // Unsafe code violates one of design goals and used only in crates.
 #![forbid(unsafe_code)]
 
+#[cfg(all(feature = "embed-assets", feature = "fast-compile"))]
+compile_error!("features `crate/embed-assets` and `crate/fast-compile` are mutually exclusive");
+
 use bevy::prelude::*;
 use bevy::window::{Monitor, PrimaryMonitor};
 use bevy::{
     app::PluginGroupBuilder,
-    log::LogPlugin,
     diagnostic::{FrameTimeDiagnosticsPlugin, SystemInformationDiagnosticsPlugin},
+    log::LogPlugin,
     window::PresentMode,
 };
 
@@ -22,10 +25,10 @@ use bevy_framepace::FramepacePlugin;
 use bevy_renet::RenetClientPlugin;
 use bevy_window_utils::{WindowUtils, WindowUtilsPlugin};
 
-/** Librecraft's main hard-coded constants. */
-pub mod consts;
 /** Path to all assets of the librecraft. */
 pub mod assets;
+/** Librecraft's main hard-coded constants. */
+pub mod consts;
 /** Game's logic resources. */
 pub mod game;
 /** All that belongs to GUI from debug info to hud. (cross-state)*/
@@ -40,17 +43,14 @@ pub mod splash;
 #[cfg(not(debug_assertions))]
 use dirs::config_dir;
 
+use consts::{DEBUG_MODE, DEBUG_SETTINGS_PATH, FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH};
 use game::GamePlugin;
 use settings::SettingsPath;
 use splash::SplashPlugin;
-#[cfg(debug_assertions)]
-use consts::DEBUG_SETTINGS_PATH;
-use consts::{FIXED_TIME_CLOCK, MIN_HEIGHT, MIN_WIDTH};
 
 use std::path::PathBuf;
-use std::time::Duration;
-#[cfg(debug_assertions)]
 use std::str::FromStr;
+use std::time::Duration;
 
 /** Necessary plugins, responsible for generic app functions like windowing or asset packaging (prestartup). */
 struct NecessaryPlugins;
@@ -70,6 +70,10 @@ impl PluginGroup for NecessaryPlugins {
         builder
             .add_group(
                 DefaultPlugins
+                    .set(AssetPlugin {
+                        file_path: "../assets".to_owned(),
+                        ..default()
+                    })
                     .set(WindowPlugin {
                         primary_window: Some(Window {
                             position: WindowPosition::Centered(MonitorSelection::Primary),
@@ -86,10 +90,12 @@ impl PluginGroup for NecessaryPlugins {
                         ..default()
                     })
                     .set(LogPlugin {
-			filter: "warn,wgpu_core=warn,wgpu_hal=off,bevy_diagnostic=off,librecraft=debug".into(),
-			level: bevy::log::Level::DEBUG,
-			..default()
-		    })
+                        filter:
+                            "warn,wgpu_core=warn,wgpu_hal=off,bevy_diagnostic=off,librecraft=debug"
+                                .into(),
+                        level: bevy::log::Level::DEBUG,
+                        ..default()
+                    })
                     .set(ImagePlugin::default_nearest()),
             )
             .add(WindowUtilsPlugin::default())
@@ -112,23 +118,26 @@ pub enum GameState {
 pub fn main() {
     let mut app = App::new();
     let mut settings_path: PathBuf;
-    
+
     /* Panic if no handle to cwd in debug mode. */
-    #[cfg(debug_assertions)]
-    {
-	settings_path = PathBuf::from_str(DEBUG_SETTINGS_PATH).unwrap();
+    if DEBUG_MODE {
+        settings_path = PathBuf::from_str(DEBUG_SETTINGS_PATH).unwrap();
+    } else {
+        #[cfg(debug_assertions)]
+        {
+            warn!("Debug build is used, while debug mode is false. This may end up in unexpected issues.");
+            settings_path = PathBuf::from_str(DEBUG_SETTINGS_PATH).unwrap();
+        }
+        #[cfg(not(debug_assertions))]
+        {
+            settings_path = config_dir().unwrap();
+            settings_path.push(consts::title!());
+        }
     }
-    
-    /* Panic if no handle to config dir in release mode.*/
-    #[cfg(not(debug_assertions))]
-    {
-	settings_path = config_dir().unwrap();
-	settings_path.push(consts::title!());
-    }
-    
+
     settings_path.push("settings");
     settings_path.set_extension("toml");
-    
+
     app.add_plugins(NecessaryPlugins)
         .add_systems(
             PreStartup,
@@ -139,6 +148,7 @@ pub fn main() {
         .add_systems(Update, limit_fps)
         .insert_resource(SettingsPath {
             path: settings_path,
+            // keep it false, it gets overwritten
             save_settings: false,
         })
         .insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
@@ -176,17 +186,17 @@ fn limit_fps(
 ) {
     if input.just_pressed(KeyCode::Space) {
         use bevy_framepace::Limiter;
-	let hz: f64;
-	match monitor_q.single() {
-	    Ok(monitor) => {
-		hz = (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
-	    },
-	    Err(_) => {
-		warn_once!("No monitor was detected. Can't limit fps.");
-		return;
-	    }
-	}
-	
+        let hz: f64;
+        match monitor_q.single() {
+            Ok(monitor) => {
+                hz = (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
+            }
+            Err(_) => {
+                warn_once!("No monitor was detected. Can't limit fps.");
+                return;
+            }
+        }
+
         settings.limiter = match settings.limiter {
             Limiter::Auto => Limiter::Off,
             Limiter::Off => Limiter::from_framerate(30.0),

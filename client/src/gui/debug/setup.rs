@@ -7,6 +7,7 @@ use wgpu_types::DeviceType;
 
 use super::{DisplayText, FocusText, FpsText};
 use crate::assets::RuntimeAsset;
+use crate::consts::DEBUG_MODE;
 
 /** Marker to find debug's hud box entity. */
 #[derive(Component)]
@@ -28,12 +29,15 @@ pub fn setup_debug_hud(
         ..default()
     };
 
+    let vis_state = if DEBUG_MODE { Visibility::Visible } else { Visibility::Hidden };
+    
     let hud_root = commands
         .spawn((
             DebugHudRoot,
             (
                 BackgroundColor(Color::BLACK.with_alpha(0.5)),
                 GlobalZIndex(10),
+		vis_state,
                 Node {
                     position_type: PositionType::Absolute,
                     left: Val::Percent(1.),

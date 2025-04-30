@@ -1,3 +1,8 @@
+#[cfg(debug_assertions)]
+pub const DEBUG_MODE: bool = true;
+#[cfg(not(debug_assertions))]
+pub const DEBUG_MODE: bool = false;
+
 /** Fixed time clock - leave it at 50 hz. */
 pub const FIXED_TIME_CLOCK: f64 = 50.;
 /** Minecraft protocol version that we are trying to support. */
