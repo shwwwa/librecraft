@@ -44,7 +44,7 @@ pub mod splash;
 use dirs::config_dir;
 
 use consts::*;
-use game::GamePlugin;
+use game::{world::SkyboxPlugin, GamePlugin};
 use settings::SettingsPath;
 use splash::SplashPlugin;
 
@@ -163,6 +163,7 @@ pub fn main() {
         .init_state::<GameState>()
         .enable_state_scoped_entities::<GameState>()
         .add_systems(Startup, setup_camera)
+        // librecraft related plugins
         .add_plugins((
             SplashPlugin {
                 state: GameState::Splash,
@@ -170,6 +171,7 @@ pub fn main() {
             GamePlugin {
                 state: GameState::InGame,
             },
+            SkyboxPlugin,
         ))
         .run();
 }
@@ -177,7 +179,7 @@ pub fn main() {
 /** Setups camera for [`App`] to use. */
 fn setup_camera(mut commands: Commands) {
     commands.spawn((
-        Camera2d::default(),
+        Camera3d::default(),
         Camera {
             hdr: true,
             ..default()

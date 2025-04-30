@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy::render::view::screenshot::{Capturing, Screenshot, save_to_disk};
+use bevy::render::view::screenshot::{save_to_disk, Capturing, Screenshot};
 use bevy::window::SystemCursorIcon;
 use bevy::winit::cursor::CursorIcon;
 
@@ -12,6 +12,8 @@ use crate::settings;
 
 /** Accesses player information. */
 pub mod player;
+/** Contains world information. */
+pub mod world;
 
 /** Plugin responsible for game logic. */
 pub struct GamePlugin<S: States> {
