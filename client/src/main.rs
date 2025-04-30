@@ -1,6 +1,6 @@
 #![allow(clippy::default_constructed_unit_structs)]
 // Warns of some basic pitfalls, but basically too pedantic.
-// #![warn(clippy::pedantic)]
+// #![warn(clip`py::pedantic)]
 #![feature(stmt_expr_attributes)]
 // Tells windows not to show console window on release.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
@@ -19,6 +19,7 @@ use bevy::{
 #[cfg(feature = "embed-assets")]
 use bevy_embedded_assets::{self, EmbeddedAssetPlugin};
 use bevy_framepace::FramepacePlugin;
+use bevy_renet::RenetClientPlugin;
 use bevy_window_utils::{WindowUtils, WindowUtilsPlugin};
 
 /** Librecraft's main hard-coded constants. */
@@ -121,7 +122,8 @@ pub fn main() {
     /* Panic if no handle to config dir in release mode.*/
     #[cfg(not(debug_assertions))]
     {
-	settings_path = config_dir().unwrap().push(consts::title!());
+	settings_path = config_dir().unwrap();
+	settings_path.push(consts::title!());
     }
     
     settings_path.push("settings");
