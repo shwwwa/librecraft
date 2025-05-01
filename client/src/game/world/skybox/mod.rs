@@ -90,9 +90,9 @@ fn load_skybox_image(assets: Res<AssetServer>, mut plugin: ResMut<SkyboxPlugin>)
         if let Some(handle) = &plugin.handle {
             match assets.get_load_state(handle.id()) {
                 Some(state) => {
-                    if state.is_failed() {
+                    if state.is_loading() {
                         warn!("loads");
-                    } else if state.is_loading() {
+                    } else if state.is_failed() {
                         error!("Skybox image can't be loaded.");
                         *plugin = SkyboxPlugin::empty();
                     }
@@ -109,16 +109,20 @@ fn load_skybox_image(assets: Res<AssetServer>, mut plugin: ResMut<SkyboxPlugin>)
 }
 
 fn create_skybox(
+    assets: Res<AssetServer>,
     mut commands: Commands,
     mut plugin: ResMut<SkyboxPlugin>,
     mut images: ResMut<Assets<Image>>,
     camera_q: Query<Entity, (Added<Camera3d>, With<SkyboxCamera>)>,
 ) {
     if let Some(handle) = &plugin.handle {
+        let state = assets.get_load_state(handle.id()).unwrap();
+        if !state.is_loaded() {
+            return;
+        }
+
         match image::get_skybox(images, handle) {
-            Ok(image) => {
-                unreachable!()
-            }
+            Ok(image) => {}
             Err(e) => {
                 error!("Skybox is incorrect: {:?}", e);
                 *plugin = SkyboxPlugin::empty();

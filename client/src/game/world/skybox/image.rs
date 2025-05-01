@@ -8,22 +8,35 @@ use super::SkyboxPlugin;
 /// Error that could happened while processing generic skybox image.
 #[derive(Debug, Clone, Copy)]
 pub enum ImageError {
-    FileNotFound,
+    /** Happens if image can't be converted to rgba8 standard. */
     DecodeFailed,
-    /** Happens if background color was not identified through `find_background algorithm. */
+    /** Happens if background color was not identified through `find_background` algorithm. */
     BackgroundNotDetermined,
     NetNotFound,
     NotAligned,
     CopyError,
+    /** Happens if asset can't be retrieved from `Handle`. */
+    AssetNotFound,
 }
 
 pub fn get_skybox(
-    mut images: ResMut<Assets<Image>>,
+    images: ResMut<Assets<Image>>,
     handle: &Handle<Image>,
 ) -> Result<Image, ImageError> {
-    images.get(handle.id());
+    match images.get(handle.id()) {
+        Some(image) => {
+            let dyn_image = image
+                .clone()
+                .try_into_dynamic()
+                .map_err(|_| ImageError::DecodeFailed)?;
+            let dyn_image_rgba = DynamicImage::ImageRgba8(dyn_image.to_rgba8());
 
-    Err(ImageError::DecodeFailed)
+            let measurements = ImageMeasurements::find_measurements(&dyn_image_rgba)?;
+
+            Err(ImageError::CopyError)
+        }
+        None => Err(ImageError::AssetNotFound),
+    }
 }
 
 pub struct ImageMeasurements {
@@ -32,6 +45,10 @@ pub struct ImageMeasurements {
 }
 
 impl ImageMeasurements {
+    pub fn to_image(&self, rgba: &DynamicImage) -> Result<Image, ImageError> {
+        Err(ImageError::NetNotFound)
+    }
+
     pub fn find_measurements(rgba: &DynamicImage) -> Result<Self, ImageError> {
         let background = Self::find_background(&rgba)?;
 
