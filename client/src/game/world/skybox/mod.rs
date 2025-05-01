@@ -13,21 +13,32 @@ pub use image::*;
 pub const SKYBOX_SHADER_HANDLE: Handle<Shader> =
     weak_handle!("7c1959f7-9ad5-4c78-b7f6-fd57e1e1a76a");
 
-/// A procedural skybox plugin for Bevy. Based on bevy_atmosphere and bevy_skybox but over-simplified.
-/// Requires bevy_asset, bevy_render, bevy_image
+/// A procedural skybox plugin for Bevy. Based on bevy_atmosphere and bevy_skybox, but over-simplified.
+///
+/// Requires bevy_asset, bevy_render, bevy_image in order to work.
+///
 /// Scans [`Camera3d`] that have [`SkyboxCamera`] component on it.
 #[derive(Debug, Clone, Resource)]
 pub struct SkyboxPlugin {
     /// String with path to image in [`AssetServer`].
+    /// Is none if asset can't be loaded.
     /// Automatically creates a handle if it wasn't passed.
     image: Option<String>,
-    /// Gets rewritten whenever image is changed.
+    /// Automatically set whenever image is changed.
+    /// If handle is absent, check logs for error.
     handle: Option<Handle<Image>>,
 }
 
 impl Plugin for SkyboxPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(self.clone());
+        app.insert_resource(self.clone())
+            .add_systems(Startup, (check_device_features,))
+            .add_systems(
+                Update,
+                (detect_new_cameras, load_skybox_image, create_skybox),
+            );
+
+        // todo: test usage of skybox shader.
         load_internal_asset!(
             app,
             SKYBOX_SHADER_HANDLE,
@@ -65,49 +76,54 @@ impl SkyboxPlugin {
 #[derive(Component, Default, Debug, Clone)]
 pub struct SkyboxCamera;
 
-fn load_skybox_image(
-    assets: Res<AssetServer>,
-    render_device: Res<RenderDevice>,
-    mut plugin: ResMut<SkyboxPlugin>,
-) {
+fn check_device_features(render_device: Res<RenderDevice>) {
+    let features = render_device.features();
+    let formats = CompressedImageFormats::from_features(features);
+    if !formats.contains(CompressedImageFormats::NONE) {
+        error!("Uncompressed format of images needs support for skybox to work.");
+        return;
+    }
+}
+
+fn load_skybox_image(assets: Res<AssetServer>, mut plugin: ResMut<SkyboxPlugin>) {
     if let Some(image) = &plugin.image {
-        let features = render_device.features();
-        let formats = CompressedImageFormats::from_features(features);
-        if formats.contains(CompressedImageFormats::NONE) {
-            error!("Uncompressed format of images needs support for this plugin to work.");
-            return;
-        }
-
-        let handle: Handle<Image> = assets.load(image);
-
-        // State should be loaded if image exists because handle of image is strong.
-        match assets.get_load_state(handle.id()) {
-            Some(state) => {
-                if state.is_failed() {
-                    warn!("Skybox image can't be loaded.");
-                    return;
-                } else if state.is_loading() {
-                    warn!("Skybox image is loading");
-                    return;
-                } else {
-                    plugin.handle = Some(handle);
+        if let Some(handle) = &plugin.handle {
+            match assets.get_load_state(handle.id()) {
+                Some(state) => {
+                    if state.is_failed() {
+                        warn!("loads");
+                    } else if state.is_loading() {
+                        error!("Skybox image can't be loaded.");
+                        *plugin = SkyboxPlugin::empty();
+                    }
+                }
+                None => {
+                    // We loaded a handle couple of lines before.
+                    unreachable!();
                 }
             }
-            None => {
-                unreachable!();
-            }
+        } else {
+            plugin.handle = Some(assets.load(image));
         }
     }
 }
 
-fn create_and_attach_skybox(
+fn create_skybox(
     mut commands: Commands,
     mut plugin: ResMut<SkyboxPlugin>,
     mut images: ResMut<Assets<Image>>,
     camera_q: Query<Entity, (Added<Camera3d>, With<SkyboxCamera>)>,
 ) {
     if let Some(handle) = &plugin.handle {
-        let mut skybox_image = image::get_skybox(images, handle);
+        match image::get_skybox(images, handle) {
+            Ok(image) => {
+                unreachable!()
+            }
+            Err(e) => {
+                error!("Skybox is incorrect: {:?}", e);
+                *plugin = SkyboxPlugin::empty();
+            }
+        }
     }
 }
 
