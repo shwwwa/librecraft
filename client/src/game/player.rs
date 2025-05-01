@@ -94,13 +94,18 @@ impl Default for Player {
     }
 }
 
+/** Setups player data from assets folder. */
 pub fn setup_player_data(mut player: ResMut<Player>) {
+    // Not in assets because loaded by fs.
     match read_player_data("./assets/playerdata/player.dat", &mut player) {
         Ok(()) => info!("Loaded player data: {:#?}", player),
         Err(e) => error!("Couldn't retrieve player data: {}", e),
     }
 }
 
+/// Reads player data from `file` path, loads into `player`.
+///
+/// Returns error if couldn't retrieve data.
 pub fn read_player_data(file: &str, player: &mut Player) -> Result<(), Box<dyn Error>> {
     debug!("Path to player data: {:?}", std::fs::canonicalize(file));
 

@@ -118,7 +118,7 @@ impl<S: States> Plugin for GamePlugin<S> {
     }
 }
 
-/** System that screenshots whole screen by pressing F2 */
+/** System that screenshots whole screen by pressing F2. */
 fn screenshot(mut commands: Commands, input: Res<ButtonInput<KeyCode>>, mut counter: Local<u32>) {
     if input.just_pressed(KeyCode::F2) {
         let path = format!("./screenshot-{}.png", *counter);
@@ -129,14 +129,14 @@ fn screenshot(mut commands: Commands, input: Res<ButtonInput<KeyCode>>, mut coun
     }
 }
 
-/** Adds an ability to save screenshot to file. */
+/** System that adds an ability to save screenshot to file. */
 fn save_screenshot(
     mut commands: Commands,
     capturing_q: Query<Entity, With<Capturing>>,
     window_q: Query<Entity, With<Window>>,
 ) {
     let Ok(window) = window_q.single() else {
-        warn!("Cannot save screenshot.");
+        warn!("Screenshot can't be saved.");
         return;
     };
 
