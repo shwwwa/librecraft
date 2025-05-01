@@ -21,8 +21,7 @@ embed-assets = ["dep:bevy_embedded_assets"]
 fast-skybox = ["dep:image", "dep:itertools"]
 # Enables music/sounds in project.
 audio = ["bevy/bevy_audio", "bevy/vorbis", "dep:rand"]
-# Frame limiter. (exists as feature until bug is fixed)
-frame_tmp = ["dep:bevy_framepace"]
+
 # Bevy target features.
 linux = ["bevy/x11"] # include if target is linux
 wasm = ["bevy/webgl2"] # include if target is web

@@ -11,7 +11,7 @@
 compile_error!("features `crate/embed-assets` and `crate/fast-compile` are mutually exclusive");
 
 use bevy::prelude::*;
-#[cfg(feature = "frame_tmp")]
+
 use bevy::window::{Monitor, PrimaryMonitor};
 use bevy::{
     app::PluginGroupBuilder,
@@ -22,7 +22,6 @@ use bevy::{
 
 #[cfg(feature = "embed-assets")]
 use bevy_embedded_assets::{self, EmbeddedAssetPlugin};
-#[cfg(feature = "frame_tmp")]
 use bevy_framepace::FramepacePlugin;
 use bevy_renet::RenetClientPlugin;
 use bevy_window_utils::{WindowUtils, WindowUtilsPlugin};
@@ -56,7 +55,6 @@ use game::world::SkyboxCamera;
 
 use std::path::PathBuf;
 use std::str::FromStr;
-#[cfg(feature = "frame_tmp")]
 use std::time::Duration;
 
 /** Necessary plugins, responsible for generic app functions like windowing or asset packaging (prestartup). */
@@ -88,7 +86,7 @@ impl PluginGroup for NecessaryPlugins {
                                 min_height: MIN_HEIGHT,
                                 ..default()
                             },
-                            title: consts::version_string!().to_string(),
+                            title: consts::version_string!().to_owned(),
                             // [`FramepacePlugin`] handles it.
                             present_mode: PresentMode::AutoNoVsync,
                             ..default()
@@ -116,12 +114,7 @@ impl PluginGroup for NecessaryPlugins {
             .add(SystemInformationDiagnosticsPlugin)
             .add(RenetClientPlugin);
 
-        #[cfg(feature = "frame_tmp")]
-        {
-            builder = builder.add(FramepacePlugin);
-        }
-
-        builder
+        builder.add(FramepacePlugin)
     }
 }
 
@@ -159,33 +152,31 @@ pub fn main() {
     settings_path.push("settings");
     settings_path.set_extension("toml");
 
-    app.add_plugins(NecessaryPlugins).add_systems(
-        PreStartup,
-        |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
-            window.window_icon = Some(assets.load(assets::ICON_PATH));
-        },
-    );
-    #[cfg(feature = "frame_tmp")]
-    {
-        app.add_systems(Update, limit_fps);
-    }
-    app.insert_resource(SettingsPath {
-        path: settings_path,
-        ..default()
-    })
-    .insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
-    .init_state::<GameState>()
-    .enable_state_scoped_entities::<GameState>()
-    .add_systems(Startup, setup_camera)
-    .add_plugins((
-        SplashPlugin {
-            state: GameState::Splash,
-        },
-        GamePlugin {
-            state: GameState::InGame,
-        },
-    ))
-    .run();
+    app.add_plugins(NecessaryPlugins)
+        .add_systems(
+            PreStartup,
+            |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
+                window.window_icon = Some(assets.load(assets::ICON_PATH));
+            },
+        )
+        .add_systems(Update, limit_fps)
+        .insert_resource(SettingsPath {
+            path: settings_path,
+            ..default()
+        })
+        .insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
+        .init_state::<GameState>()
+        .enable_state_scoped_entities::<GameState>()
+        .add_systems(Startup, setup_camera)
+        .add_plugins((
+            SplashPlugin {
+                state: GameState::Splash,
+            },
+            GamePlugin {
+                state: GameState::InGame,
+            },
+        ))
+        .run();
 }
 
 /** Setups camera for [`App`] to use. */
@@ -216,7 +207,6 @@ fn setup_camera(mut commands: Commands) {
     ));
 }
 
-#[cfg(feature = "frame_tmp")]
 /** Limits fps ["refresh rate", "off", "30 fps"] */
 fn limit_fps(
     mut settings: ResMut<bevy_framepace::FramepaceSettings>,
