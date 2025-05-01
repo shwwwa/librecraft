@@ -1,6 +1,6 @@
 [package]
 name = "librecraft"
-version = "0.2.1"
+version = "0.3.1"
 edition = "2024"
 description = "An open-source implementation of Minecraft client."
 build = "build.rs"
@@ -9,7 +9,7 @@ build = "build.rs"
 OriginalFilename = "librecraft.exe"
 LegalCopyright = "MIT (c) 2025"
 ProductName = "librecraft"
-ProductVersion = "0.2.1"
+ProductVersion = "0.3.1"
 FileDescription = "librecraft - an open-source implementation of Minecraft client."
 
 [features]
@@ -17,7 +17,7 @@ default = ["fast-compile", "linux"]
 
 # Embeds assets on release. (throws error if used on debug).
 embed-assets = ["dep:bevy_embedded_assets"]
-# Enables usage of unusual skyboxes, allowing for prototyping. (subject to delete).
+# Enables usage of unusual skyboxes, allowing for fast prototyping. (subject to delete).
 fast-skybox = ["dep:image", "dep:itertools"]
 # Enables music/sounds in project.
 audio = ["bevy/bevy_audio", "bevy/vorbis", "dep:rand"]
@@ -33,6 +33,9 @@ hot-reloading = ["bevy/file_watcher"]
 fast-compile = ["bevy/dynamic_linking"]
 gamepad = ["bevy/bevy_gilrs"]           
 animation = ["bevy/animation", "bevy/bevy_animation"]
+# Use it for tracing ECS systems, render logic, engine internals and user app code.
+trace = ["bevy/trace"]
+
 # On release, if default has fast-compile
 # add --no-default-features.
 release = ["embed-assets", "audio"] 
