@@ -3,14 +3,19 @@ use bevy::render::view::screenshot::{save_to_disk, Capturing, Screenshot};
 use bevy::window::SystemCursorIcon;
 use bevy::winit::cursor::CursorIcon;
 
-use crate::assets;
 use crate::gui::debug;
 use crate::gui::hud;
 use crate::gui::menu;
 use crate::gui::{self, GUIState};
-use crate::music;
 use crate::settings;
+
+#[cfg(feature = "fast-skybox")]
+use crate::assets;
+#[cfg(feature = "fast-skybox")]
 use world::skybox;
+
+#[cfg(feature = "audio")]
+use crate::music;
 
 /** Responsible for player logic. */
 pub mod player;
@@ -30,18 +35,20 @@ struct DataSet;
 
 impl<S: States> Plugin for GamePlugin<S> {
     fn build(&self, app: &mut App) {
-        app.init_state::<gui::GUIState>()
-            .configure_sets(
-                Update,
-                (
-                    GameplaySet.run_if(in_state(self.state.clone())),
-                    GameplaySet.run_if(in_state(GUIState::Closed)),
-                ),
-            )
-            .add_plugins(skybox::SkyboxPlugin::from_image_file(
+        app.init_state::<gui::GUIState>().configure_sets(
+            Update,
+            (
+                GameplaySet.run_if(in_state(self.state.clone())),
+                GameplaySet.run_if(in_state(GUIState::Closed)),
+            ),
+        );
+        #[cfg(feature = "fast-skybox")]
+        {
+            app.add_plugins(skybox::SkyboxPlugin::from_image_file(
                 assets::SKYBOX_TEST_PATH,
-            ))
-            .init_resource::<settings::Settings>()
+            ));
+        }
+        app.init_resource::<settings::Settings>()
             .init_resource::<player::Player>()
             .add_event::<gui::GUIScaleChanged>()
             .add_event::<hud::HotbarSelectionChanged>()
@@ -57,54 +64,60 @@ impl<S: States> Plugin for GamePlugin<S> {
                     menu::setup_pause_menu,
                     hud::setup_hotbar,
                     hud::setup_crosshair,
-                    music::setup_soundtrack,
                 )
                     .after(DataSet),
+            );
+        #[cfg(feature = "audio")]
+        {
+            app.add_systems(OnEnter(self.state.clone()), music::setup_soundtrack);
+        }
+        app.add_systems(
+            FixedUpdate,
+            (
+                debug::update_fps_text,
+                debug::update_display_text,
+                debug::update_focus_text,
             )
-            .add_systems(
-                FixedUpdate,
-                (
-                    debug::update_fps_text,
-                    debug::update_display_text,
-                    debug::update_focus_text,
-                )
-                    .run_if(in_state(self.state.clone())),
+                .run_if(in_state(self.state.clone())),
+        )
+        .add_systems(
+            Update,
+            (
+                gui::update_gui_scale,
+                gui::change_gui_scale,
+                gui::handle_mouse,
+                settings::change_fullscreen,
+                settings::update_settings,
+                settings::save_window_position,
+                settings::save_window_size,
+                menu::render_pause_menu,
             )
-            .add_systems(
-                Update,
-                (
-                    gui::update_gui_scale,
-                    gui::change_gui_scale,
-                    gui::handle_mouse,
-                    settings::change_fullscreen,
-                    settings::update_settings,
-                    settings::save_window_position,
-                    settings::save_window_size,
-                    menu::render_pause_menu,
-                )
-                    .run_if(in_state(self.state.clone())),
+                .run_if(in_state(self.state.clone())),
+        )
+        .add_systems(
+            Update,
+            (
+                debug::toggle_debug_hud,
+                gui::update_auto_gui_scale,
+                self::screenshot,
+                self::save_screenshot,
             )
-            .add_systems(
-                Update,
-                (
-                    debug::toggle_debug_hud,
-                    gui::update_auto_gui_scale,
-                    self::screenshot,
-                    self::save_screenshot,
-                )
-                    .in_set(GameplaySet),
+                .in_set(GameplaySet),
+        )
+        .add_systems(
+            Update,
+            (
+                hud::update_hotbar,
+                hud::update_hotbar_selection,
+                hud::update_hotbar_selector,
+                hud::update_crosshair,
             )
-            .add_systems(
-                Update,
-                (
-                    hud::update_hotbar,
-                    hud::update_hotbar_selection,
-                    hud::update_hotbar_selector,
-                    hud::update_crosshair,
-                )
-                    .in_set(GameplaySet),
-            )
-            .add_systems(
+                .in_set(GameplaySet),
+        );
+
+        #[cfg(feature = "audio")]
+        {
+            app.add_systems(
                 Update,
                 (music::fade_in, music::fade_out, music::change_track)
                     .run_if(in_state(self.state.clone())),
@@ -115,6 +128,10 @@ impl<S: States> Plugin for GamePlugin<S> {
                     .run_if(settings::is_mute_on_lost_focus)
                     .run_if(in_state(self.state.clone())),
             );
+        }
+
+        #[cfg(not(feature = "audio"))]
+        warn!("Any audio is disabled in this project because it was not compiled with it!");
     }
 }
 

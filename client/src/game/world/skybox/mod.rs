@@ -1,3 +1,5 @@
+#![cfg(feature = "fast-skybox")]
+
 use bevy::asset::{load_internal_asset, weak_handle};
 use bevy::core_pipeline::Skybox;
 use bevy::image::CompressedImageFormats;

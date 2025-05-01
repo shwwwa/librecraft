@@ -33,21 +33,24 @@ pub mod consts;
 pub mod game;
 /** Librecraft's GUI. (cross-state)*/
 pub mod gui;
-/** Librecraft's music. (then audio->music, audio->sound) */
-pub mod music;
 /** Reads and stores user owned settings. */
 pub mod settings;
 /** Adds splash screen to app (independent). */
 pub mod splash;
 
-#[cfg(not(debug_assertions))]
-use dirs::config_dir;
+#[cfg(feature = "audio")]
+/** Librecraft's music. (then audio->music, audio->sound) */
+pub mod music;
 
 use consts::*;
-use game::world::SkyboxCamera;
 use game::GamePlugin;
 use settings::SettingsPath;
 use splash::SplashPlugin;
+
+#[cfg(not(debug_assertions))]
+use dirs::config_dir;
+#[cfg(feature = "fast-skybox")]
+use game::world::SkyboxCamera;
 
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -193,6 +196,7 @@ fn setup_camera(mut commands: Commands) {
             fov: 120_f32.to_radians(),
             ..default()
         }),
+        #[cfg(feature = "fast-skybox")]
         SkyboxCamera,
         Camera {
             hdr: true,

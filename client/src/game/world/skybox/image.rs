@@ -1,3 +1,5 @@
+#![cfg(feature = "fast-skybox")]
+
 use bevy::{platform::collections::HashMap, prelude::*};
 
 use image::{DynamicImage, GenericImage, GenericImageView, ImageBuffer, Rgba, RgbaImage};

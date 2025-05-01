@@ -17,16 +17,20 @@ default = ["fast-compile", "fast-skybox"]
 
 # Embeds assets on release. (throws error if used on debug).
 embed-assets = ["dep:bevy_embedded_assets"]
-# Enables usage of unusual skyboxes (subject to delete).
+# Enables usage of unusual skyboxes, allowing for prototyping. (subject to delete).
 fast-skybox = ["dep:image", "dep:itertools"]
+# Enables music/sounds in project.
+audio = ["bevy/bevy_audio", "bevy/vorbis", "dep:rand"]
+
 # Bevy specific features.
 hot-reloading = ["bevy/file_watcher"]
 fast-compile = ["bevy/dynamic_linking"]
 wasm = ["bevy/webgl2"]
 android = ["bevy/android-game-activity", "bevy/android_shared_stdcxx"]
+
 # On release, if default has fast-compile
 # add --no-default-features.
-release = ["embed-assets"] 
+release = ["embed-assets", "audio"] 
 
 [dependencies.bevy]
 version = "0.16.0"
@@ -35,7 +39,6 @@ features = [
 	 "animation",
 	 "bevy_animation",
 	 "bevy_asset",
-	 "bevy_audio",
 	 "bevy_color",
 	 "bevy_core_pipeline",
 	 "bevy_gilrs",
@@ -60,7 +63,6 @@ features = [
 	 "smaa_luts",
 	 "sysinfo_plugin",
 	 "tonemapping_luts",
-	 "vorbis",
 	 "x11",
 	 "zstd"
 ]
@@ -74,20 +76,22 @@ image = { version = "0.25.2", default-features = false, features = ["png"], opti
 # bevy_gltf's itertools crate. (fast-skybox)
 itertools = { version = "0.14", optional = true }
 
+# needed for audio (audio)
+rand = { version = "0.8.5", optional = true }
+
 # Adds support for maximized state and window icon. (scope = necessary)
 bevy_window_utils = { version = "0.16.0" }
 # Adds proper frame limiter. (necessary)
 bevy_framepace = { version = "0.19.0", default-features = false }
 # Adds support for embedded assets. (necessary)
 bevy_embedded_assets = { version = "0.13.0", optional = true }
-# (tmp)
+# Adds support for network (network) (subject to delete).
 bevy_renet = { git = "https://github.com/lucaspoffo/renet.git" }
+
 # Bevy's identical log crate. (all)
 log = { version = "0.4.26", default-features = false, features = ["max_level_debug", "release_max_level_warn"] }
 # Bevy's anyhow. (all)
 anyhow = "1.0.97"
-# wip (music)
-rand = "0.8.5"
 # Bevy's wgpu types. (debug)
 wgpu-types = "24.0.0"
 # Deserialization and serialization support. (settings, player)

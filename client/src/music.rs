@@ -1,5 +1,7 @@
+#![cfg(feature = "audio")]
+
+use bevy::audio::{PlaybackMode, Volume};
 use bevy::prelude::*;
-use bevy::audio::{Volume, PlaybackMode};
 use bevy::window::{PrimaryWindow, WindowFocused};
 use rand::prelude::*;
 
@@ -74,9 +76,9 @@ pub fn fade_in(
             }
         }
 
-	let volume = Volume::Linear(audio.volume().to_linear() + time.delta_secs() / FADE_TIME);
+        let volume = Volume::Linear(audio.volume().to_linear() + time.delta_secs() / FADE_TIME);
         audio.set_volume(volume);
-	
+
         if audio.volume() >= Volume::Linear(1.0) {
             audio.set_volume(Volume::Linear(1.0));
             commands.entity(entity).remove::<FadeIn>();
@@ -90,10 +92,9 @@ pub fn fade_out(
     time: Res<Time>,
 ) {
     for (mut audio, entity) in audio_sink_q.iter_mut() {
-
-	let volume = Volume::Linear(audio.volume().to_linear() - time.delta_secs() / FADE_TIME);
+        let volume = Volume::Linear(audio.volume().to_linear() - time.delta_secs() / FADE_TIME);
         audio.set_volume(volume);
-	
+
         if audio.volume() <= Volume::Linear(0.0) {
             info!("deleting fade out tracks");
             commands.entity(entity).despawn();
@@ -137,7 +138,7 @@ pub fn change_track(
             .choose(&mut rand::thread_rng())
             .unwrap()
             .clone();
-	
+
         info!("Next track: {:?}", chosen_track);
         // Volume is set to ZERO to make use of fade in system, which increments volume until FADE_TIME
         commands.spawn((
