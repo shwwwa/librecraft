@@ -1,12 +1,13 @@
 use bevy::prelude::*;
 
-use image::{DynamicImage, GenericImageView, Rgba};
+use image::{DynamicImage, GenericImageView, ImageReader, Rgba};
 use itertools::Itertools;
+
+use super::SkyboxPlugin;
 
 /// Error that could happened while processing generic skybox image.
 #[derive(Debug, Clone, Copy)]
 pub enum ImageError {
-    BadEnv,
     FileNotFound,
     DecodeFailed,
     /** Happens if background color was not identified through `find_background algorithm. */
@@ -14,6 +15,15 @@ pub enum ImageError {
     NetNotFound,
     NotAligned,
     CopyError,
+}
+
+pub fn get_skybox(
+    mut images: ResMut<Assets<Image>>,
+    handle: &Handle<Image>,
+) -> Result<Image, ImageError> {
+    images.get(handle.id());
+
+    Err(ImageError::DecodeFailed)
 }
 
 pub struct ImageMeasurements {
