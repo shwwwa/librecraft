@@ -6,6 +6,7 @@ use bevy::render::renderer::RenderDevice;
 
 pub mod image;
 pub use image::*;
+use wgpu_types::{TextureViewDescriptor, TextureViewDimension};
 
 /// The `Handle` for the shader for the [`SkyboxMaterial`]
 ///
@@ -85,25 +86,25 @@ fn check_device_features(render_device: Res<RenderDevice>) {
     }
 }
 
-fn load_skybox_image(assets: Res<AssetServer>, mut plugin: ResMut<SkyboxPlugin>) {
+fn load_skybox_image(
+    assets: Res<AssetServer>,
+    mut commands: Commands,
+    mut plugin: ResMut<SkyboxPlugin>,
+    camera_q: Query<Entity, With<SkyboxCamera>>,
+) {
     if let Some(image) = &plugin.image {
         if let Some(handle) = &plugin.handle {
-            match assets.get_load_state(handle.id()) {
-                Some(state) => {
-                    if state.is_loading() {
-                        warn!("loads");
-                    } else if state.is_failed() {
-                        error!("Skybox image can't be loaded.");
-                        *plugin = SkyboxPlugin::empty();
-                    }
-                }
-                None => {
-                    // We loaded a handle couple of lines before.
-                    unreachable!();
-                }
+            let state = assets.load_state(handle.id());
+            if state.is_failed() {
+                error!("Skybox image can't be loaded.");
+                *plugin = SkyboxPlugin::empty();
             }
         } else {
             plugin.handle = Some(assets.load(image));
+        }
+    } else {
+        for cam in camera_q.iter() {
+            commands.entity(cam).remove::<Skybox>();
         }
     }
 }
@@ -116,15 +117,39 @@ fn create_skybox(
     camera_q: Query<Entity, (Added<Camera3d>, With<SkyboxCamera>)>,
 ) {
     if let Some(handle) = &plugin.handle {
-        let state = assets.get_load_state(handle.id()).unwrap();
+        let state = assets.load_state(handle.id());
         if !state.is_loaded() {
             return;
         }
 
-        match image::get_skybox(images, handle) {
-            Ok(image) => {}
+        match image::get_skybox(&images, handle) {
+            Ok(mut image) => {
+                if image.texture_descriptor.array_layer_count() != 1 {
+                    error!("Array layer count is incorrect.");
+                    *plugin = SkyboxPlugin::empty();
+                }
+
+                image.reinterpret_stacked_2d_as_array(6);
+                if image.texture_descriptor.array_layer_count() != 6 {
+                    error!("Array layer count is incorrect after reinterpreting.");
+                    *plugin = SkyboxPlugin::empty();
+                }
+
+                image.texture_view_descriptor = Some(TextureViewDescriptor {
+                    dimension: Some(TextureViewDimension::Cube),
+                    ..default()
+                });
+
+                let skybox_handle = images.add(image);
+                plugin.handle = Some(skybox_handle.clone());
+
+                for cam in camera_q.iter() {
+                    insert_skybox_camera(&mut commands, cam, &skybox_handle);
+                }
+                warn!("syccess!");
+            }
             Err(e) => {
-                error!("Skybox is incorrect: {:?}", e);
+                error!("Skybox image is incorrect: {:?}", e);
                 *plugin = SkyboxPlugin::empty();
             }
         }
@@ -137,13 +162,18 @@ fn detect_new_cameras(
     plugin: Res<SkyboxPlugin>,
     camera_q: Query<Entity, (Added<Camera3d>, With<SkyboxCamera>)>,
 ) {
-    if let Some(skybox_handle) = &plugin.handle {
+    if let Some(handle) = &plugin.handle {
         for cam in camera_q.iter() {
-            commands.entity(cam).insert(Skybox {
-                image: skybox_handle.clone(),
-                brightness: 1000.,
-                ..default()
-            });
+            insert_skybox_camera(&mut commands, cam, handle);
         }
     }
+}
+
+/// Inserts `Skybox` to `cam` `Entity`.
+fn insert_skybox_camera(commands: &mut Commands, cam: Entity, handle: &Handle<Image>) {
+    commands.entity(cam).insert(Skybox {
+        image: handle.clone(),
+        brightness: 1000.,
+        ..default()
+    });
 }

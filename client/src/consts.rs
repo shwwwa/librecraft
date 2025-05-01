@@ -1,13 +1,11 @@
 #[cfg(debug_assertions)]
 pub const DEBUG_MODE: bool = true;
 #[cfg(debug_assertions)]
-pub const LOG_FILTER: &str =
-    "warn,wgpu_core=warn,wgpu_hal=off,bevy_diagnostic=off,librecraft=debug";
+pub const LOG_FILTER: &str = "warn,wgpu_core=warn,wgpu_hal=off,bevy_diagnostic=off,client=debug";
 #[cfg(not(debug_assertions))]
 pub const DEBUG_MODE: bool = false;
 #[cfg(not(debug_assertions))]
-pub const LOG_FILTER: &str =
-    "warn,wgpu_core=warn,wgpu_hal=off,bevy_diagnostic=warn,librecraft=info";
+pub const LOG_FILTER: &str = "warn,wgpu_core=warn,wgpu_hal=off,bevy_diagnostic=warn,client=info";
 
 /** Path to asset folder. */
 pub const ASSET_FOLDER: &str = "../assets";
