@@ -13,7 +13,7 @@ ProductVersion = "0.2.1"
 FileDescription = "librecraft - an open-source implementation of Minecraft client."
 
 [features]
-default = ["fast-compile", "fast-skybox"]
+default = ["fast-compile", "linux"]
 
 # Embeds assets on release. (throws error if used on debug).
 embed-assets = ["dep:bevy_embedded_assets"]
@@ -21,13 +21,19 @@ embed-assets = ["dep:bevy_embedded_assets"]
 fast-skybox = ["dep:image", "dep:itertools"]
 # Enables music/sounds in project.
 audio = ["bevy/bevy_audio", "bevy/vorbis", "dep:rand"]
+# Frame limiter. (exists as feature until bug is fixed)
+frame_tmp = ["dep:bevy_framepace"]
+# Bevy target features.
+linux = ["bevy/x11"] # include if target is linux
+wasm = ["bevy/webgl2"] # include if target is web
+android = ["bevy/android-game-activity", "bevy/android_shared_stdcxx"] # include if target is android
 
 # Bevy specific features.
+# Requires to recompile bevy libraries if changed.
 hot-reloading = ["bevy/file_watcher"]
 fast-compile = ["bevy/dynamic_linking"]
-wasm = ["bevy/webgl2"]
-android = ["bevy/android-game-activity", "bevy/android_shared_stdcxx"]
-
+gamepad = ["bevy/bevy_gilrs"]           
+animation = ["bevy/animation", "bevy/bevy_animation"]
 # On release, if default has fast-compile
 # add --no-default-features.
 release = ["embed-assets", "audio"] 
@@ -36,12 +42,9 @@ release = ["embed-assets", "audio"]
 version = "0.16.0"
 default-features = false
 features = [
-	 "animation",
-	 "bevy_animation",
 	 "bevy_asset",
 	 "bevy_color",
 	 "bevy_core_pipeline",
-	 "bevy_gilrs",
 	 "bevy_gizmos",
 	 "bevy_gltf",
 	 "bevy_mesh_picking_backend",
@@ -79,10 +82,10 @@ itertools = { version = "0.14", optional = true }
 # needed for audio (audio)
 rand = { version = "0.8.5", optional = true }
 
-# Adds support for maximized state and window icon. (scope = necessary)
+# Adds support for maximized state and window icon. (let feature `taskbar` be) (scope = necessary)
 bevy_window_utils = { version = "0.16.0" }
 # Adds proper frame limiter. (necessary)
-bevy_framepace = { version = "0.19.0", default-features = false }
+bevy_framepace = { version = "0.19.0", default-features = false, optional = true }
 # Adds support for embedded assets. (necessary)
 bevy_embedded_assets = { version = "0.13.0", optional = true }
 # Adds support for network (network) (subject to delete).
