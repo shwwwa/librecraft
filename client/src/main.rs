@@ -25,15 +25,15 @@ use bevy_framepace::FramepacePlugin;
 use bevy_renet::RenetClientPlugin;
 use bevy_window_utils::{WindowUtils, WindowUtilsPlugin};
 
-/** Path to all assets of the librecraft. */
+/** Librecraft's module of assets path. */
 pub mod assets;
 /** Librecraft's main hard-coded constants. */
 pub mod consts;
-/** Game's logic resources. */
+/** Librecraft's game logic. */
 pub mod game;
-/** All that belongs to GUI from debug info to hud. (cross-state)*/
+/** Librecraft's GUI. (cross-state)*/
 pub mod gui;
-/** Responsible for audio. (then audio->music, audio->sound) */
+/** Librecraft's music. (then audio->music, audio->sound) */
 pub mod music;
 /** Reads and stores user owned settings. */
 pub mod settings;
@@ -44,7 +44,7 @@ pub mod splash;
 use dirs::config_dir;
 
 use consts::*;
-use game::{world::SkyboxPlugin, GamePlugin};
+use game::GamePlugin;
 use settings::SettingsPath;
 use splash::SplashPlugin;
 
@@ -171,7 +171,6 @@ pub fn main() {
             GamePlugin {
                 state: GameState::InGame,
             },
-            SkyboxPlugin,
         ))
         .run();
 }

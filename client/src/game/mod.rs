@@ -3,16 +3,18 @@ use bevy::render::view::screenshot::{save_to_disk, Capturing, Screenshot};
 use bevy::window::SystemCursorIcon;
 use bevy::winit::cursor::CursorIcon;
 
+use crate::assets;
 use crate::gui::debug;
 use crate::gui::hud;
 use crate::gui::menu;
 use crate::gui::{self, GUIState};
 use crate::music;
 use crate::settings;
+use world::skybox;
 
-/** Accesses player information. */
+/** Responsible for player logic. */
 pub mod player;
-/** Contains world information. */
+/** Responsible for world logic. */
 pub mod world;
 
 /** Plugin responsible for game logic. */
@@ -36,6 +38,9 @@ impl<S: States> Plugin for GamePlugin<S> {
                     GameplaySet.run_if(in_state(GUIState::Closed)),
                 ),
             )
+            .add_plugins(skybox::SkyboxPlugin::from_image_file(
+                assets::SKYBOX_UNEDITED_PATH,
+            ))
             .init_resource::<settings::Settings>()
             .init_resource::<player::Player>()
             .add_event::<gui::GUIScaleChanged>()
@@ -84,8 +89,8 @@ impl<S: States> Plugin for GamePlugin<S> {
                 (
                     debug::toggle_debug_hud,
                     gui::update_auto_gui_scale,
-                    screenshot,
-                    save_screenshot,
+                    self::screenshot,
+                    self::save_screenshot,
                 )
                     .in_set(GameplaySet),
             )
