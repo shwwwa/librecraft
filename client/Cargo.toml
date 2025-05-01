@@ -13,14 +13,19 @@ ProductVersion = "0.2.1"
 FileDescription = "librecraft - an open-source implementation of Minecraft client."
 
 [features]
-default = ["fast-compile"]
-hr = ["hot-reloading"]
-hot-reloading = ["bevy/file_watcher"]
+default = ["fast-compile", "fast-skybox"]
+
+# Embeds assets on release. (throws error if used on debug).
 embed-assets = ["dep:bevy_embedded_assets"]
+# Enables usage of unusual skyboxes (subject to delete).
+fast-skybox = ["dep:image", "dep:itertools"]
+# Bevy specific features.
+hot-reloading = ["bevy/file_watcher"]
 fast-compile = ["bevy/dynamic_linking"]
 wasm = ["bevy/webgl2"]
 android = ["bevy/android-game-activity", "bevy/android_shared_stdcxx"]
-# on release, if default has dylib, call cargo build -r --no-default-features --features release
+# On release, if default has fast-compile
+# add --no-default-features.
 release = ["embed-assets"] 
 
 [dependencies.bevy]
@@ -37,7 +42,6 @@ features = [
 	 "bevy_gizmos",
 	 "bevy_gltf",
 	 "bevy_mesh_picking_backend",
-#	 "bevy_pbr" ; needed for probe reflections
 	 "bevy_picking",
 	 "bevy_render",
 	 "bevy_scene",
@@ -49,15 +53,13 @@ features = [
 	 "bevy_ui_picking_backend",
 	 "bevy_window",
 	 "bevy_winit",
-#	 "custom_cursor",
-#	 "default_font", # default fallback font
 	 "hdr",
 	 "ktx2",
 	 "multi_threaded",
 	 "png",
 	 "smaa_luts",
 	 "sysinfo_plugin",
-	 "tonemapping_luts", # needed for camera2d/camera3d
+	 "tonemapping_luts",
 	 "vorbis",
 	 "x11",
 	 "zstd"
@@ -66,6 +68,11 @@ features = [
 
 [dependencies]
 librecraft_shared = { path = "../shared" }
+
+# bevy_image's subimage crate. Needed because bevy didn't provide extern access to it. (fast-skybox)
+image = { version = "0.25.2", default-features = false, features = ["png"], optional = true }
+# bevy_gltf's itertools crate. (fast-skybox)
+itertools = { version = "0.14", optional = true }
 
 # Adds support for maximized state and window icon. (scope = necessary)
 bevy_window_utils = { version = "0.16.0" }
@@ -77,10 +84,6 @@ bevy_embedded_assets = { version = "0.13.0", optional = true }
 bevy_renet = { git = "https://github.com/lucaspoffo/renet.git" }
 # Bevy's identical log crate. (all)
 log = { version = "0.4.26", default-features = false, features = ["max_level_debug", "release_max_level_warn"] }
-# bevy_image's subimage crate. Needed because bevy didn't provide extern access to it. (skybox)
-image = { version = "0.25.2", default-features = false, features = ["png"] }
-# bevy_gltf's itertools crate.
-itertools = { version = "0.14" }
 # Bevy's anyhow. (all)
 anyhow = "1.0.97"
 # wip (music)
