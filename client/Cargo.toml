@@ -84,7 +84,7 @@ rand = { version = "0.8.5", optional = true }
 # Adds support for maximized state and window icon. (let feature `taskbar` be) (scope = necessary)
 bevy_window_utils = { version = "0.16.0" }
 # Adds proper frame limiter. (necessary)
-bevy_framepace = { version = "0.19.0", default-features = false, optional = true }
+bevy_framepace = { version = "0.19.0", default-features = false }
 # Adds support for embedded assets. (necessary)
 bevy_embedded_assets = { version = "0.13.0", optional = true }
 # Adds support for network (network) (subject to delete).
