@@ -39,7 +39,7 @@ impl<S: States> Plugin for GamePlugin<S> {
                 ),
             )
             .add_plugins(skybox::SkyboxPlugin::from_image_file(
-                assets::SKYBOX_UNEDITED_PATH,
+                assets::SKYBOX_TEST_PATH,
             ))
             .init_resource::<settings::Settings>()
             .init_resource::<player::Player>()

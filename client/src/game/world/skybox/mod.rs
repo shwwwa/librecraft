@@ -146,7 +146,7 @@ fn create_skybox(
                 for cam in camera_q.iter() {
                     insert_skybox_camera(&mut commands, cam, &skybox_handle);
                 }
-                warn!("syccess!");
+                info!("Skybox was successfully initialized!");
             }
             Err(e) => {
                 error!("Skybox image is incorrect: {:?}", e);

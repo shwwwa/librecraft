@@ -125,7 +125,7 @@ pub struct ImageMeasurements {
 impl ImageMeasurements {
     /// Transforms `DynamicImage` to bevy `Image` format, by copying 6 faces.
     pub fn to_image(&self, rgba: &DynamicImage) -> Result<Image, ImageError> {
-        let side = self.measure_side_length();
+        let side = self.measure_side_length()?;
         let mut image = RgbaImage::new(side, side * 6);
 
         // +X
@@ -251,20 +251,20 @@ impl ImageMeasurements {
     /// and are all square, so that we can copy pixel for pixel into the output without needing to scale.
     ///
     /// Use minimums to avoid overlapping outside the net or even the source image.
-    fn measure_side_length(&self) -> u32 {
+    fn measure_side_length(&self) -> Result<u32, ImageError> {
         let min_x = self
             .vec_x
             .windows(2)
             .map(|x| x[1] - x[0])
             .min()
-            .expect("Four x intervals");
+            .expect("Four y intervals");
+
         let min_y = self
             .vec_y
             .windows(2)
             .map(|y| y[1] - y[0])
             .min()
             .expect("Three y intervals");
-        let side = min_x.min(min_y);
-        side
+        Ok(min_x.min(min_y))
     }
 }

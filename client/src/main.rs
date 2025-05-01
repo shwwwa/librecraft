@@ -44,6 +44,7 @@ pub mod splash;
 use dirs::config_dir;
 
 use consts::*;
+use game::world::SkyboxCamera;
 use game::GamePlugin;
 use settings::SettingsPath;
 use splash::SplashPlugin;
@@ -163,7 +164,6 @@ pub fn main() {
         .init_state::<GameState>()
         .enable_state_scoped_entities::<GameState>()
         .add_systems(Startup, setup_camera)
-        // librecraft related plugins
         .add_plugins((
             SplashPlugin {
                 state: GameState::Splash,
@@ -177,8 +177,23 @@ pub fn main() {
 
 /** Setups camera for [`App`] to use. */
 fn setup_camera(mut commands: Commands) {
+    // Sets up directional light.
+    commands.spawn((
+        DirectionalLight {
+            illuminance: 32000.0,
+            ..default()
+        },
+        Transform::from_xyz(0.0, 2.0, 0.0)
+            .with_rotation(Quat::from_rotation_x(-std::f32::consts::PI / 4.)),
+    ));
+
     commands.spawn((
         Camera3d::default(),
+        Projection::from(PerspectiveProjection {
+            fov: 120_f32.to_radians(),
+            ..default()
+        }),
+        SkyboxCamera,
         Camera {
             hdr: true,
             ..default()
@@ -195,6 +210,7 @@ fn limit_fps(
 ) {
     if input.just_pressed(KeyCode::Space) {
         use bevy_framepace::Limiter;
+
         let hz: f64 = match monitor_q.single() {
             Ok(monitor) => {
                 (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64
