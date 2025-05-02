@@ -113,10 +113,10 @@ impl<S: States> Plugin for GamePlugin<S> {
         .add_systems(
             Update,
             (
-                debug::toggle_debug_hud,
-                gui::update_auto_gui_scale,
                 self::screenshot,
                 self::save_screenshot,
+                debug::toggle_debug_hud,
+                gui::update_auto_gui_scale,
                 hud::update_hotbar,
                 hud::update_hotbar_selection,
                 hud::update_hotbar_selector,
@@ -141,7 +141,7 @@ impl<S: States> Plugin for GamePlugin<S> {
         }
 
         #[cfg(not(feature = "audio"))]
-        warn!("You are using librecraft's build that has no audio module.");
+        warn!("You are using librecraft build that has no audio module.");
     }
 }
 

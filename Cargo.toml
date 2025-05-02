@@ -4,9 +4,7 @@
 [workspace]
 resolver = "2"
 members = [
-#    "shared",
     "client", "server", "shared",
-#    "server",
 ]
 
 # Enable a small amount of optimization in the dev profile.
