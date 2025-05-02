@@ -131,7 +131,7 @@ impl<S: States> Plugin for GamePlugin<S> {
         }
 
         #[cfg(not(feature = "audio"))]
-        warn!("Any audio is disabled in this project because it was not compiled with it!");
+        warn!("You are using librecraft's build that has no audio module.");
     }
 }
 

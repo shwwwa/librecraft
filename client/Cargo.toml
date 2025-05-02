@@ -74,7 +74,7 @@ features = [
 
 
 [dependencies]
-librecraft_shared = { path = "../shared" }
+#librecraft_shared = { path = "../shared" }
 
 # bevy_image's subimage crate. Needed because bevy didn't provide extern access to it. (fast-skybox)
 image = { version = "0.25.2", default-features = false, features = ["png"], optional = true }
