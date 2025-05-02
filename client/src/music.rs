@@ -7,7 +7,7 @@ use rand::prelude::*;
 
 use crate::assets;
 
-/** Used to get references for all music in-game e.g. to mute it. */
+/// Used to get references for all music in-game e.g. to mute it.
 #[derive(Component)]
 pub struct Music;
 
@@ -34,10 +34,7 @@ impl SoundtrackPlayer {
 }
 
 pub fn setup_soundtrack(asset_server: Res<AssetServer>, mut commands: Commands) {
-    commands.insert_resource(SoundtrackTimer(Timer::from_seconds(
-        20.0,
-        TimerMode::Repeating,
-    )));
+    commands.insert_resource(SoundtrackTimer(Timer::from_seconds(20.0, TimerMode::Repeating)));
 
     let calm1 = asset_server.load::<AudioSource>(assets::CALM1_PATH);
     let calm2 = asset_server.load::<AudioSource>(assets::CALM2_PATH);
@@ -55,9 +52,8 @@ pub fn setup_soundtrack(asset_server: Res<AssetServer>, mut commands: Commands) 
     let piano2 = asset_server.load::<AudioSource>(assets::PIANO2_PATH);
     let piano3 = asset_server.load::<AudioSource>(assets::PIANO3_PATH);
 
-    let track_list = vec![
-        calm1, calm2, calm3, hal1, hal2, hal3, hal4, nuance1, nuance2, piano1, piano2, piano3,
-    ];
+    let track_list =
+        vec![calm1, calm2, calm3, hal1, hal2, hal3, hal4, nuance1, nuance2, piano1, piano2, piano3];
 
     commands.insert_resource(SoundtrackPlayer::new(track_list));
 }
@@ -133,21 +129,15 @@ pub fn change_track(
             commands.entity(track).insert(FadeOut);
         }
         // todo: tracks cannot repeat themselves
-        let chosen_track = soundtrack_player
-            .track_list
-            .choose(&mut rand::thread_rng())
-            .unwrap()
-            .clone();
+        let chosen_track =
+            soundtrack_player.track_list.choose(&mut rand::thread_rng()).unwrap().clone();
 
         info!("Next track: {:?}", chosen_track);
-        // Volume is set to ZERO to make use of fade in system, which increments volume until FADE_TIME
+        // Volume is set to ZERO to make use of fade in system, which increments volume until
+        // FADE_TIME
         commands.spawn((
             AudioPlayer(chosen_track),
-            PlaybackSettings {
-                mode: PlaybackMode::Loop,
-                volume: Volume::SILENT,
-                ..default()
-            },
+            PlaybackSettings { mode: PlaybackMode::Loop, volume: Volume::SILENT, ..default() },
             FadeIn,
             Music,
         ));

@@ -1,25 +1,21 @@
-use bevy::{MinimalPlugins, prelude::*};
+use std::net::UdpSocket;
+use std::time::{Duration, SystemTime};
+
+use bevy::MinimalPlugins;
+use bevy::prelude::*;
 use bevy_app::{App, PluginGroup, ScheduleRunnerPlugin, Update};
 use bevy_log::info;
-
-use bevy_renet::{
-    RenetServerPlugin,
-    netcode::{NetcodeServerPlugin, NetcodeServerTransport, ServerAuthentication, ServerConfig},
-    renet::{ConnectionConfig, DefaultChannel, RenetServer, ServerEvent},
+use bevy_renet::RenetServerPlugin;
+use bevy_renet::netcode::{
+    NetcodeServerPlugin, NetcodeServerTransport, ServerAuthentication, ServerConfig,
 };
+use bevy_renet::renet::{ConnectionConfig, DefaultChannel, RenetServer, ServerEvent};
 use librecraft_shared::add;
-
-use std::{
-    net::UdpSocket,
-    time::{Duration, SystemTime},
-};
 
 fn main() {
     let mut app = App::new();
     app.add_plugins(
-        MinimalPlugins.set(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f64(
-            1.0 / 20.0,
-        ))),
+        MinimalPlugins.set(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f64(1.0 / 20.0))),
     );
     app.add_plugins(RenetServerPlugin);
 
@@ -30,9 +26,7 @@ fn main() {
     let server_addr = "127.0.0.1:1337".parse().unwrap();
     let socket = UdpSocket::bind(server_addr).unwrap();
     let server_config = ServerConfig {
-        current_time: SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap(),
+        current_time: SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap(),
         max_clients: 64,
         protocol_id: 0,
         public_addresses: vec![server_addr],
@@ -45,7 +39,7 @@ fn main() {
     app.add_systems(Update, receive_message);
     app.add_systems(Update, handle_events);
     app.add_systems(Update, log_tick_rate);
-    
+
     app.run();
 }
 
@@ -75,10 +69,10 @@ fn handle_events(mut server_events: EventReader<ServerEvent>) {
         match event {
             ServerEvent::ClientConnected { client_id } => {
                 info!("Client {client_id} connected");
-            }
+            },
             ServerEvent::ClientDisconnected { client_id, reason } => {
                 info!("Client {client_id} disconnected: {reason}");
-            }
+            },
         }
     }
 }

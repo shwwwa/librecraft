@@ -10,54 +10,49 @@
 #[cfg(all(feature = "embed-assets", feature = "fast-compile"))]
 compile_error!("features `crate/embed-assets` and `crate/fast-compile` are mutually exclusive");
 
+use bevy::app::PluginGroupBuilder;
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, SystemInformationDiagnosticsPlugin};
+use bevy::log::LogPlugin;
 use bevy::prelude::*;
-
-use bevy::window::{Monitor, PrimaryMonitor};
-use bevy::{
-    app::PluginGroupBuilder,
-    diagnostic::{FrameTimeDiagnosticsPlugin, SystemInformationDiagnosticsPlugin},
-    log::LogPlugin,
-    window::PresentMode,
-};
-
+use bevy::window::{Monitor, PresentMode, PrimaryMonitor};
 #[cfg(feature = "embed-assets")]
 use bevy_embedded_assets::{self, EmbeddedAssetPlugin};
 use bevy_framepace::FramepacePlugin;
 use bevy_renet::RenetClientPlugin;
 use bevy_window_utils::{WindowUtils, WindowUtilsPlugin};
 
-/** Librecraft's module of assets path. */
+/// Librecraft's module of assets path.
 pub mod assets;
-/** Librecraft's main hard-coded constants. */
+/// Librecraft's main hard-coded constants.
 pub mod consts;
-/** Librecraft's game logic. */
+/// Librecraft's game logic.
 pub mod game;
-/** Librecraft's GUI. (cross-state)*/
+/// Librecraft's GUI. (cross-state)
 pub mod gui;
-/** Reads and stores user owned settings. */
+/// Reads and stores user owned settings.
 pub mod settings;
-/** Adds splash screen to app (independent). */
+/// Adds splash screen to app (independent).
 pub mod splash;
 
 #[cfg(feature = "audio")]
-/** Librecraft's music. (then audio->music, audio->sound) */
+/// Librecraft's music. (then audio->music, audio->sound)
 pub mod music;
-
-use consts::*;
-use game::GamePlugin;
-use settings::SettingsPath;
-use splash::SplashPlugin;
-
-#[cfg(not(debug_assertions))]
-use dirs::config_dir;
-#[cfg(feature = "fast-skybox")]
-use game::world::SkyboxCamera;
 
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::time::Duration;
 
-/** Necessary plugins, responsible for generic app functions like windowing or asset packaging (prestartup). */
+use consts::*;
+#[cfg(not(debug_assertions))]
+use dirs::config_dir;
+use game::GamePlugin;
+#[cfg(feature = "fast-skybox")]
+use game::world::SkyboxCamera;
+use settings::SettingsPath;
+use splash::SplashPlugin;
+
+/// Necessary plugins, responsible for generic app functions like windowing or asset packaging
+/// (prestartup).
 struct NecessaryPlugins;
 
 impl PluginGroup for NecessaryPlugins {
@@ -74,10 +69,7 @@ impl PluginGroup for NecessaryPlugins {
         builder = builder
             .add_group(
                 DefaultPlugins
-                    .set(AssetPlugin {
-                        file_path: ASSET_FOLDER.to_owned(),
-                        ..default()
-                    })
+                    .set(AssetPlugin { file_path: ASSET_FOLDER.to_owned(), ..default() })
                     .set(WindowPlugin {
                         primary_window: Some(Window {
                             position: WindowPosition::Centered(MonitorSelection::Primary),
@@ -118,7 +110,7 @@ impl PluginGroup for NecessaryPlugins {
     }
 }
 
-/** Main game state (alike scenes) */
+/// Main game state (alike scenes)
 #[derive(States, Clone, Copy, Default, Eq, PartialEq, Debug, Hash)]
 pub enum GameState {
     #[default]
@@ -126,12 +118,12 @@ pub enum GameState {
     InGame,
 }
 
-/** Main entry of the program. */
+/// Main entry of the program.
 pub fn main() {
     let mut app = App::new();
     let mut settings_path: PathBuf;
 
-    /* Panic if no handle to cwd in debug mode. */
+    // Panic if no handle to cwd in debug mode.
     if DEBUG_MODE {
         settings_path = PathBuf::from_str(DEBUG_SETTINGS_PATH).unwrap();
     } else {
@@ -153,61 +145,41 @@ pub fn main() {
     settings_path.set_extension("toml");
 
     app.add_plugins(NecessaryPlugins)
-        .add_systems(
-            PreStartup,
-            |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
-                window.window_icon = Some(assets.load(assets::ICON_PATH));
-            },
-        )
-        .add_systems(Update, limit_fps)
-        .insert_resource(SettingsPath {
-            path: settings_path,
-            ..default()
+        .add_systems(PreStartup, |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
+            window.window_icon = Some(assets.load(assets::ICON_PATH));
         })
+        .add_systems(Update, limit_fps)
+        .insert_resource(SettingsPath { path: settings_path, ..default() })
         .insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
         .init_state::<GameState>()
         .enable_state_scoped_entities::<GameState>()
         .add_systems(Startup, setup_camera)
-        .add_plugins((
-            SplashPlugin {
-                state: GameState::Splash,
-            },
-            GamePlugin {
-                state: GameState::InGame,
-            },
-        ))
+        .add_plugins((SplashPlugin { state: GameState::Splash }, GamePlugin {
+            state: GameState::InGame,
+        }))
         .run();
 }
 
-/** Setups camera for [`App`] to use. */
+/// Setups camera for [`App`] to use.
 fn setup_camera(mut commands: Commands) {
     // Sets up directional light.
     commands.spawn((
-        DirectionalLight {
-            illuminance: 32000.0,
-            ..default()
-        },
+        DirectionalLight { illuminance: 32000.0, ..default() },
         Transform::from_xyz(0.0, 2.0, 0.0)
             .with_rotation(Quat::from_rotation_x(-std::f32::consts::PI / 4.)),
     ));
 
     commands.spawn((
         Camera3d::default(),
-        Projection::from(PerspectiveProjection {
-            fov: 120_f32.to_radians(),
-            ..default()
-        }),
+        Projection::from(PerspectiveProjection { fov: 120_f32.to_radians(), ..default() }),
         #[cfg(feature = "fast-skybox")]
         SkyboxCamera,
-        Camera {
-            hdr: true,
-            ..default()
-        },
+        Camera { hdr: true, ..default() },
         Msaa::Off,
     ));
 }
 
-/** Limits fps ["refresh rate", "off", "30 fps"] */
+/// Limits fps ["refresh rate", "off", "30 fps"]
 fn limit_fps(
     mut settings: ResMut<bevy_framepace::FramepaceSettings>,
     monitor_q: Query<&Monitor, With<PrimaryMonitor>>,
@@ -219,11 +191,11 @@ fn limit_fps(
         let hz: f64 = match monitor_q.single() {
             Ok(monitor) => {
                 (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64
-            }
+            },
             Err(_) => {
                 warn_once!("No monitor was detected. Can't limit fps.");
                 return;
-            }
+            },
         };
 
         settings.limiter = match settings.limiter {
@@ -235,7 +207,7 @@ fn limit_fps(
                 } else {
                     Limiter::Off
                 }
-            }
+            },
         };
     }
 }

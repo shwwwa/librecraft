@@ -1,8 +1,6 @@
-use bevy::diagnostic::DiagnosticsStore;
-use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
+use bevy::diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin};
 use bevy::prelude::*;
-use bevy::window::Monitor;
-use bevy::window::PrimaryMonitor;
+use bevy::window::{Monitor, PrimaryMonitor};
 
 // Marker to find fps text entity
 #[derive(Component)]
@@ -15,19 +13,18 @@ pub fn update_fps_text(
 ) {
     for (mut span, mut color) in fps_q.iter_mut() {
         // Try to get a "smoothed" FPS value from Bevy
-        if let Some(value) = diagnostics
-            .get(&FrameTimeDiagnosticsPlugin::FPS)
-            .and_then(|fps| fps.smoothed())
+        if let Some(value) =
+            diagnostics.get(&FrameTimeDiagnosticsPlugin::FPS).and_then(|fps| fps.smoothed())
         {
             **span = format!("{value:>3.0}");
 
-	    let mut hz: f64 = 60.;
-	    match monitor_q.single() {
-		Ok(monitor) => {
-		    hz = (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
-		}
-		Err(_) => warn!("Couldn't get monitor refresh rate") 
-	    }
+            let mut hz: f64 = 60.;
+            match monitor_q.single() {
+                Ok(monitor) => {
+                    hz = (monitor.refresh_rate_millihertz.unwrap_or(0).div_ceil(10000) * 10) as f64;
+                },
+                Err(_) => warn!("Couldn't get monitor refresh rate"),
+            }
 
             // Adjust text color based on FPS value.
             color.0 = if value >= hz {

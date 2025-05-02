@@ -16,7 +16,8 @@ use wgpu_types::{TextureViewDescriptor, TextureViewDimension};
 pub const SKYBOX_SHADER_HANDLE: Handle<Shader> =
     weak_handle!("7c1959f7-9ad5-4c78-b7f6-fd57e1e1a76a");
 
-/// A procedural skybox plugin for Bevy. Based on bevy_atmosphere and bevy_skybox, but over-simplified.
+/// A procedural skybox plugin for Bevy. Based on bevy_atmosphere and bevy_skybox, but
+/// over-simplified.
 ///
 /// Requires bevy_asset, bevy_render, bevy_image in order to work.
 ///
@@ -36,18 +37,10 @@ impl Plugin for SkyboxPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(self.clone())
             .add_systems(Startup, (check_device_features,))
-            .add_systems(
-                Update,
-                (detect_new_cameras, load_skybox_image, create_skybox),
-            );
+            .add_systems(Update, (detect_new_cameras, load_skybox_image, create_skybox));
 
         // todo: test usage of skybox shader.
-        load_internal_asset!(
-            app,
-            SKYBOX_SHADER_HANDLE,
-            "shaders/skybox.wgsl",
-            Shader::from_wgsl
-        );
+        load_internal_asset!(app, SKYBOX_SHADER_HANDLE, "shaders/skybox.wgsl", Shader::from_wgsl);
     }
 }
 
@@ -57,18 +50,12 @@ impl SkyboxPlugin {
     ///
     /// Creates [`Skybox`] entity from all cameras that have [`SkyboxCamera`] component.
     pub fn from_image_file(image: &str) -> SkyboxPlugin {
-        Self {
-            image: Some(image.to_owned()),
-            handle: None,
-        }
+        Self { image: Some(image.to_owned()), handle: None }
     }
 
     /// Removes [`Skybox`] entity from all cameras that have [`SkyboxCamera`] component.
     pub fn empty() -> SkyboxPlugin {
-        Self {
-            image: None,
-            handle: None,
-        }
+        Self { image: None, handle: None }
     }
 }
 
@@ -149,11 +136,11 @@ fn create_skybox(
                     insert_skybox_camera(&mut commands, cam, &skybox_handle);
                 }
                 info!("Skybox was successfully initialized!");
-            }
+            },
             Err(e) => {
                 error!("Skybox image is incorrect: {:?}", e);
                 *plugin = SkyboxPlugin::empty();
-            }
+            },
         }
     }
 }
@@ -173,9 +160,5 @@ fn detect_new_cameras(
 
 /// Inserts `Skybox` to `cam` `Entity`.
 fn insert_skybox_camera(commands: &mut Commands, cam: Entity, handle: &Handle<Image>) {
-    commands.entity(cam).insert(Skybox {
-        image: handle.clone(),
-        brightness: 1000.,
-        ..default()
-    });
+    commands.entity(cam).insert(Skybox { image: handle.clone(), brightness: 1000., ..default() });
 }

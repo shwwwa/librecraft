@@ -1,17 +1,17 @@
-use bevy::window::{PrimaryWindow, WindowResized, WindowResolution};
-use bevy::{prelude::*, window::WindowMode};
+use std::error::Error;
+use std::path::PathBuf;
 
+use bevy::prelude::*;
+use bevy::window::{PrimaryWindow, WindowMode, WindowResized, WindowResolution};
 use bevy_window_utils::WindowUtils;
 use serde::{Deserialize, Serialize};
 use toml::from_str;
 
-use crate::assets::{RuntimeAsset, FONT_PATH, MINECRAFT_FONT_PATH};
+use crate::assets::{FONT_PATH, MINECRAFT_FONT_PATH, RuntimeAsset};
 use crate::consts::DEBUG_MODE;
 use crate::gui::GUIScale;
-use std::error::Error;
-use std::path::PathBuf;
 
-/** -1 for default values on startup (pos - centered). */
+/// -1 for default values on startup (pos - centered).
 #[allow(dead_code)]
 #[derive(Deserialize, Serialize, Clone, Resource, Debug)]
 pub struct Settings {
@@ -26,7 +26,7 @@ pub struct Settings {
     pub gui_scale: f32,
     pub pause_on_lost_focus: bool,
     pub mute_on_lost_focus: bool,
-    /** Controversial change: replace fonts to be minecraft-like. */
+    /// Controversial change: replace fonts to be minecraft-like.
     pub replace_fonts: bool,
 }
 
@@ -49,7 +49,7 @@ impl Default for Settings {
     }
 }
 
-/** Contains only 2 fields: path to settings file and ability to save changes. */
+/// Contains only 2 fields: path to settings file and ability to save changes.
 #[derive(Resource)]
 pub struct SettingsPath {
     pub path: PathBuf,
@@ -58,10 +58,7 @@ pub struct SettingsPath {
 
 impl Default for SettingsPath {
     fn default() -> Self {
-        Self {
-            path: PathBuf::new(),
-            save_settings: false,
-        }
+        Self { path: PathBuf::new(), save_settings: false }
     }
 }
 
@@ -92,17 +89,15 @@ pub fn change_fullscreen(
                 } else {
                     window.mode = WindowMode::Windowed;
                 }
-            }
+            },
             Err(_) => {
                 warn_once!("No primary window detected. Fullscreen cannot be changed.");
-            }
+            },
         }
 
         debug!("Fullscreen mode: {}", settings.fullscreen);
 
-        settings_writer.write(SettingsUpdated {
-            settings: settings.clone(),
-        });
+        settings_writer.write(SettingsUpdated { settings: settings.clone() });
     }
 }
 
@@ -119,7 +114,7 @@ pub fn save_window_position(
                     settings.maximized = is_maximized;
                     info!("Window was maximized/minimized.");
                 }
-            }
+            },
             None => info!("Couldn't intercept maximized method."),
         }
 
@@ -127,14 +122,9 @@ pub fn save_window_position(
         settings.position_y = ev.position.y;
 
         // Produces a lot of events when moving, but so far works.
-        debug!(
-            "Window changed position: {}x{}px",
-            settings.position_x, settings.position_y
-        );
+        debug!("Window changed position: {}x{}px", settings.position_x, settings.position_y);
 
-        settings_writer.write(SettingsUpdated {
-            settings: settings.clone(),
-        });
+        settings_writer.write(SettingsUpdated { settings: settings.clone() });
     }
 }
 
@@ -149,9 +139,7 @@ pub fn save_window_size(
 
         debug!("Window resized: {}x{}px", settings.size_x, settings.size_y);
 
-        settings_writer.write(SettingsUpdated {
-            settings: settings.clone(),
-        });
+        settings_writer.write(SettingsUpdated { settings: settings.clone() });
     }
 }
 
@@ -165,7 +153,7 @@ pub fn setup_settings(
         Ok(()) => {
             info!("{:?}", *settings);
             settings_path.save_settings = true;
-        }
+        },
         Err(e) => {
             let path: &str = settings_path.path.to_str().unwrap();
 
@@ -178,13 +166,13 @@ pub fn setup_settings(
                     Ok(()) => {
                         info!("Default settings file was created.");
                         settings_path.save_settings = true;
-                    }
+                    },
                     Err(e) => {
                         warn!("Default settings file can't be created: {}", e);
-                    }
+                    },
                 }
             }
-        }
+        },
     }
 
     let gui_scale = f32::floor(settings.gui_scale);
@@ -217,20 +205,16 @@ pub fn setup_settings(
                 window.mode =
                     WindowMode::Fullscreen(MonitorSelection::Current, VideoModeSelection::Current);
             }
-        }
+        },
         Err(_) => {
             warn_once!("No primary window detected. Window settings are ignored.");
-        }
+        },
     }
 
     if settings.replace_fonts {
-        commands.insert_resource(RuntimeAsset {
-            font_path: MINECRAFT_FONT_PATH.to_string(),
-        });
+        commands.insert_resource(RuntimeAsset { font_path: MINECRAFT_FONT_PATH.to_string() });
     } else {
-        commands.insert_resource(RuntimeAsset {
-            font_path: FONT_PATH.to_string(),
-        });
+        commands.insert_resource(RuntimeAsset { font_path: FONT_PATH.to_string() });
     }
 }
 

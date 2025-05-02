@@ -1,7 +1,5 @@
-use bevy::{
-    prelude::*,
-    window::{WindowFocused, WindowResized},
-};
+use bevy::prelude::*;
+use bevy::window::{WindowFocused, WindowResized};
 
 // Marker to find display text entity
 #[derive(Component)]

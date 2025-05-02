@@ -1,6 +1,6 @@
-use crate::gui::{GUIScale, GUIScaleChanged, gui_scale_to_float};
-
 use bevy::prelude::*;
+
+use crate::gui::{GUIScale, GUIScaleChanged, gui_scale_to_float};
 
 #[derive(Component)]
 pub struct HorizontalLine;
@@ -13,12 +13,7 @@ pub fn setup_crosshair(mut commands: Commands, gui_scale: Res<GUIScale>) {
     commands
         .spawn((Node {
             position_type: PositionType::Absolute,
-            margin: UiRect {
-                left: Val::Auto,
-                right: Val::Auto,
-                top: Val::Auto,
-                bottom: Val::Auto,
-            },
+            margin: UiRect { left: Val::Auto, right: Val::Auto, top: Val::Auto, bottom: Val::Auto },
             ..default()
         },))
         .with_children(|parent| {

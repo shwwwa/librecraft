@@ -1,10 +1,13 @@
-use bevy::{prelude::*, ui::FocusPolicy};
+use bevy::prelude::*;
+use bevy::ui::FocusPolicy;
 
+use crate::assets::RuntimeAsset;
+use crate::game::player::Player;
+use crate::gui::GUIState;
 use crate::settings::Settings;
-use crate::{GameState, game::player::Player, gui::GUIState};
-use crate::{assets::RuntimeAsset, consts};
+use crate::{GameState, consts};
 
-/** Marker to find pause menu background entity. */
+/// Marker to find pause menu background entity.
 #[derive(Component)]
 pub struct PauseMenu;
 
@@ -15,7 +18,7 @@ pub enum PauseButtonAction {
     Exit,
 }
 
-/** Creates and setups pause menu. */
+/// Creates and setups pause menu.
 pub fn setup_pause_menu(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -25,7 +28,7 @@ pub fn setup_pause_menu(
     settings: Res<Settings>,
 ) {
     let text_font_16 = TextFont {
-	font: asset_server.load(runtime_asset.font_path.clone()),
+        font: asset_server.load(runtime_asset.font_path.clone()),
         font_size: 16.,
         ..default()
     };
@@ -71,11 +74,7 @@ pub fn setup_pause_menu(
         .id();
 
     let data_version_text = commands
-        .spawn((
-            Text::new("Data version: "),
-            text_font_14.clone(),
-            TextColor(Color::WHITE),
-        ))
+        .spawn((Text::new("Data version: "), text_font_14.clone(), TextColor(Color::WHITE)))
         .with_child((
             TextSpan::new(player.data_version.to_string()),
             text_font_14.clone(),
@@ -84,11 +83,7 @@ pub fn setup_pause_menu(
         .id();
 
     let dimension_text = commands
-        .spawn((
-            Text::new("Dimension: "),
-            text_font_14.clone(),
-            TextColor(Color::WHITE),
-        ))
+        .spawn((Text::new("Dimension: "), text_font_14.clone(), TextColor(Color::WHITE)))
         .with_child((
             TextSpan::new(player.dimension.clone()),
             text_font_14.clone(),
@@ -97,11 +92,7 @@ pub fn setup_pause_menu(
         .id();
 
     let score_text = commands
-        .spawn((
-            Text::new("Score: "),
-            text_font_14.clone(),
-            TextColor(Color::WHITE),
-        ))
+        .spawn((Text::new("Score: "), text_font_14.clone(), TextColor(Color::WHITE)))
         .with_child((
             TextSpan::new(player.score.to_string()),
             text_font_14.clone(),
@@ -161,11 +152,7 @@ pub fn setup_pause_menu(
         .id();
 
     let pause_text = commands
-        .spawn((
-            Text::new("Pause menu"),
-            text_font_16.clone(),
-            TextColor(Color::WHITE),
-        ))
+        .spawn((Text::new("Pause menu"), text_font_16.clone(), TextColor(Color::WHITE)))
         .id();
 
     commands.entity(pause_menu).add_children(&[
@@ -181,13 +168,9 @@ pub fn setup_pause_menu(
         data_version_text,
     ]);
 
-    commands
-        .entity(pause_right_corner_root)
-        .add_children(&[about_text]);
+    commands.entity(pause_right_corner_root).add_children(&[about_text]);
 
-    commands
-        .entity(pause_player_name_root)
-        .add_children(&[player_name_text]);
+    commands.entity(pause_player_name_root).add_children(&[player_name_text]);
 
     commands.entity(pause_gui_root).add_children(&[pause_text]);
     commands.entity(pause_gui_root).with_children(|wrapper| {
@@ -216,17 +199,13 @@ pub fn setup_pause_menu(
                     ),
                 ))
                 .with_children(|button| {
-                    button.spawn((
-                        Text::new(msg),
-                        text_font_16.clone(),
-                        TextColor(Color::WHITE),
-                    ));
+                    button.spawn((Text::new(msg), text_font_16.clone(), TextColor(Color::WHITE)));
                 });
         }
     });
 }
 
-/** Renders pause menu on request */
+/// Renders pause menu on request
 pub fn render_pause_menu(
     keys: Res<ButtonInput<KeyCode>>,
     mut button_q: Query<(&PauseButtonAction, &mut BorderColor, &Interaction)>,
@@ -237,33 +216,33 @@ pub fn render_pause_menu(
     mut exit: EventWriter<AppExit>,
 ) {
     match visibility_q.single_mut() {
-	Ok(mut vis) => {
-	    for ev in gui_state_reader.read() {
-		if GUIState::Closed == ev.entered.unwrap() {
-		    *vis = Visibility::Hidden;
-		} else {
-		    *vis = Visibility::Visible;
-		}
-	    }
+        Ok(mut vis) => {
+            for ev in gui_state_reader.read() {
+                if GUIState::Closed == ev.entered.unwrap() {
+                    *vis = Visibility::Hidden;
+                } else {
+                    *vis = Visibility::Visible;
+                }
+            }
 
-	    if keys.just_pressed(KeyCode::Escape) {
-		let is_closed: bool = *gui_state.get() == GUIState::Closed;
+            if keys.just_pressed(KeyCode::Escape) {
+                let is_closed: bool = *gui_state.get() == GUIState::Closed;
 
-		if is_closed {
-		    next_gui_state.set(GUIState::Opened);
-		} else {
-		    next_gui_state.set(GUIState::Closed);
-		}
+                if is_closed {
+                    next_gui_state.set(GUIState::Opened);
+                } else {
+                    next_gui_state.set(GUIState::Closed);
+                }
 
-		let state = if is_closed { "opened" } else { "closed" };
-		info!("Pause menu was {} (via key).", state);
-	    }
+                let state = if is_closed { "opened" } else { "closed" };
+                info!("Pause menu was {} (via key).", state);
+            }
 
-	    if *vis != Visibility::Visible {
-		return;
-	    }
-	},
-	Err(_) => warn_once!("Can't get visibility from pause menu.")
+            if *vis != Visibility::Visible {
+                return;
+            }
+        },
+        Err(_) => warn_once!("Can't get visibility from pause menu."),
     }
 
     for (action, mut b_color, interaction) in button_q.iter_mut() {
@@ -272,20 +251,20 @@ pub fn render_pause_menu(
                 PauseButtonAction::Resume => {
                     next_gui_state.set(GUIState::Closed);
                     info!("Resuming game.");
-                }
+                },
                 PauseButtonAction::Options => {
                     info!("todo!(options)");
-                }
+                },
                 PauseButtonAction::Exit => {
                     exit.write(AppExit::Success);
-                }
+                },
             },
             Interaction::Hovered => {
                 b_color.0 = Color::WHITE;
-            }
+            },
             Interaction::None => {
                 b_color.0 = Color::BLACK;
-            }
+            },
         }
     }
 }

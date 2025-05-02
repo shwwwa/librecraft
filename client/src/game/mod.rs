@@ -1,28 +1,23 @@
 use bevy::prelude::*;
-use bevy::render::view::screenshot::{save_to_disk, Capturing, Screenshot};
+use bevy::render::view::screenshot::{Capturing, Screenshot, save_to_disk};
 use bevy::window::SystemCursorIcon;
 use bevy::winit::cursor::CursorIcon;
-
-use crate::gui::debug;
-use crate::gui::hud;
-use crate::gui::menu;
-use crate::gui::{self, GUIState};
-use crate::settings;
-
-#[cfg(feature = "fast-skybox")]
-use crate::assets;
 #[cfg(feature = "fast-skybox")]
 use world::skybox;
 
+#[cfg(feature = "fast-skybox")]
+use crate::assets;
+use crate::gui::{self, GUIState, debug, hud, menu};
 #[cfg(feature = "audio")]
 use crate::music;
+use crate::settings;
 
-/** Responsible for player logic. */
+/// Responsible for player logic.
 pub mod player;
-/** Responsible for world logic. */
+/// Responsible for world logic.
 pub mod world;
 
-/** Plugin responsible for game logic. */
+/// Plugin responsible for game logic.
 pub struct GamePlugin<S: States> {
     pub state: S,
 }
@@ -44,9 +39,7 @@ impl<S: States> Plugin for GamePlugin<S> {
         );
         #[cfg(feature = "fast-skybox")]
         {
-            app.add_plugins(skybox::SkyboxPlugin::from_image_file(
-                assets::SKYBOX_TEST_PATH,
-            ));
+            app.add_plugins(skybox::SkyboxPlugin::from_image_file(assets::SKYBOX_TEST_PATH));
         }
         app.init_resource::<settings::Settings>()
             .init_resource::<player::Player>()
@@ -73,11 +66,7 @@ impl<S: States> Plugin for GamePlugin<S> {
         }
         app.add_systems(
             FixedUpdate,
-            (
-                debug::update_fps_text,
-                debug::update_display_text,
-                debug::update_focus_text,
-            )
+            (debug::update_fps_text, debug::update_display_text, debug::update_focus_text)
                 .run_if(in_state(self.state.clone())),
         )
         .add_systems(
@@ -135,18 +124,16 @@ impl<S: States> Plugin for GamePlugin<S> {
     }
 }
 
-/** System that screenshots whole screen by pressing F2. */
+/// System that screenshots whole screen by pressing F2.
 fn screenshot(mut commands: Commands, input: Res<ButtonInput<KeyCode>>, mut counter: Local<u32>) {
     if input.just_pressed(KeyCode::F2) {
         let path = format!("./screenshot-{}.png", *counter);
         *counter += 1;
-        commands
-            .spawn(Screenshot::primary_window())
-            .observe(save_to_disk(path));
+        commands.spawn(Screenshot::primary_window()).observe(save_to_disk(path));
     }
 }
 
-/** System that adds an ability to save screenshot to file. */
+/// System that adds an ability to save screenshot to file.
 fn save_screenshot(
     mut commands: Commands,
     capturing_q: Query<Entity, With<Capturing>>,
@@ -160,12 +147,10 @@ fn save_screenshot(
     match capturing_q.iter().count() {
         0 => {
             commands.entity(window).remove::<CursorIcon>();
-        }
+        },
         x if x > 0 => {
-            commands
-                .entity(window)
-                .insert(CursorIcon::from(SystemCursorIcon::Progress));
-        }
-        _ => {}
+            commands.entity(window).insert(CursorIcon::from(SystemCursorIcon::Progress));
+        },
+        _ => {},
     }
 }

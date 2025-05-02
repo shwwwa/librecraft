@@ -1,24 +1,24 @@
 #![cfg(feature = "fast-skybox")]
 
-use bevy::{platform::collections::HashMap, prelude::*};
-
+use bevy::platform::collections::HashMap;
+use bevy::prelude::*;
 use image::{DynamicImage, GenericImage, GenericImageView, ImageBuffer, Rgba, RgbaImage};
 use itertools::Itertools;
 
 /// Error that could happened while processing generic skybox image.
 #[derive(Debug, Clone, Copy)]
 pub enum ImageError {
-    /** Happens if image can't be converted to rgba8 standard. */
+    /// Happens if image can't be converted to rgba8 standard.
     DecodeFailed,
-    /** Happens if background color was not identified through `find_background` algorithm. */
+    /// Happens if background color was not identified through `find_background` algorithm.
     BackgroundNotDetermined,
-    /** Happens if background/non-background pixel was not found. */
+    /// Happens if background/non-background pixel was not found.
     NetNotFound,
-    /** Happens if something in image is not aligned. */
+    /// Happens if something in image is not aligned.
     NotAligned,
-    /** Happens if something happened while copying a face. */
+    /// Happens if something happened while copying a face.
     CopyError,
-    /** Happens if asset can't be retrieved from `Handle`. */
+    /// Happens if asset can't be retrieved from `Handle`.
     AssetNotFound,
 }
 
@@ -29,16 +29,14 @@ pub fn get_skybox(
 ) -> Result<Image, ImageError> {
     match images.get(handle.id()) {
         Some(image) => {
-            let dyn_image = image
-                .clone()
-                .try_into_dynamic()
-                .map_err(|_| ImageError::DecodeFailed)?;
+            let dyn_image =
+                image.clone().try_into_dynamic().map_err(|_| ImageError::DecodeFailed)?;
             let dyn_image_rgba = DynamicImage::ImageRgba8(dyn_image.to_rgba8());
 
             let measurements = ImageMeasurements::find_measurements(&dyn_image_rgba)?;
 
             Ok(measurements.to_image(&dyn_image_rgba)?)
-        }
+        },
         None => Err(ImageError::AssetNotFound),
     }
 }
@@ -90,10 +88,7 @@ pub fn find_background(rgba: &DynamicImage) -> Result<Rgba<u8>, ImageError> {
     let samples: Vec<Rgba<u8>> = (0..4)
         .cartesian_product(0..2)
         .map(|(x, y)| {
-            rgba.get_pixel(
-                (x * 2 + 1) * rgba.width() / 8,
-                (y * 4 + 1) * rgba.height() / 6,
-            )
+            rgba.get_pixel((x * 2 + 1) * rgba.width() / 8, (y * 4 + 1) * rgba.height() / 6)
         })
         .collect::<Vec<Rgba<u8>>>();
 
@@ -107,11 +102,7 @@ pub fn find_background(rgba: &DynamicImage) -> Result<Rgba<u8>, ImageError> {
 
     if let Some(background) = sample_hist.iter().last() {
         // At least half should be the background color.
-        if background.1 >= 4 {
-            Ok(background.0)
-        } else {
-            Err(ImageError::BackgroundNotDetermined)
-        }
+        if background.1 >= 4 { Ok(background.0) } else { Err(ImageError::BackgroundNotDetermined) }
     } else {
         Err(ImageError::BackgroundNotDetermined)
     }
@@ -167,12 +158,7 @@ impl ImageMeasurements {
         image
             .copy_from(
                 &rgba
-                    .view(
-                        self.vec_x[x_idx] + offset_x,
-                        self.vec_y[y_idx] + offset_y,
-                        side,
-                        side,
-                    )
+                    .view(self.vec_x[x_idx] + offset_x, self.vec_y[y_idx] + offset_y, side, side)
                     .to_image(),
                 0,
                 side * (out_idx as u32),
@@ -201,18 +187,10 @@ impl ImageMeasurements {
         let short_x_min = (top_x_min + bot_x_min) / 2;
         let short_x_max = (top_x_max + bot_x_max) / 2;
         // Assuming the shape, calculate the x values of the vertices and check them.
-        let vec_x = vec![
-            mid_x_min,
-            (short_x_min + mid_x_min) / 2,
-            short_x_min,
-            short_x_max,
-            mid_x_max,
-        ];
-        let mut diff_x = vec_x
-            .as_slice()
-            .windows(2)
-            .map(|w| w[1] as i32 - w[0] as i32)
-            .collect::<Vec<i32>>();
+        let vec_x =
+            vec![mid_x_min, (short_x_min + mid_x_min) / 2, short_x_min, short_x_max, mid_x_max];
+        let mut diff_x =
+            vec_x.as_slice().windows(2).map(|w| w[1] as i32 - w[0] as i32).collect::<Vec<i32>>();
         diff_x.sort_unstable();
         if diff_x[3] - diff_x[0] > 16 {
             return Err(ImageError::NotAligned);
@@ -236,11 +214,8 @@ impl ImageMeasurements {
 
         // Assuming the shape, calculate the y values to return and check them.
         let vec_y = vec![mid_y_min, short_y_min, short_y_max, mid_y_max];
-        let mut diff_y = vec_y
-            .as_slice()
-            .windows(2)
-            .map(|w| w[1] as i32 - w[0] as i32)
-            .collect::<Vec<i32>>();
+        let mut diff_y =
+            vec_y.as_slice().windows(2).map(|w| w[1] as i32 - w[0] as i32).collect::<Vec<i32>>();
         diff_y.sort_unstable();
         if diff_y[2] - diff_y[0] > 16 {
             return Err(ImageError::NotAligned);
@@ -250,23 +225,14 @@ impl ImageMeasurements {
     }
 
     /// Determines the size of each image in the net, assuming that they all have to be the same
-    /// and are all square, so that we can copy pixel for pixel into the output without needing to scale.
+    /// and are all square, so that we can copy pixel for pixel into the output without needing to
+    /// scale.
     ///
     /// Use minimums to avoid overlapping outside the net or even the source image.
     fn measure_side_length(&self) -> Result<u32, ImageError> {
-        let min_x = self
-            .vec_x
-            .windows(2)
-            .map(|x| x[1] - x[0])
-            .min()
-            .expect("Four y intervals");
+        let min_x = self.vec_x.windows(2).map(|x| x[1] - x[0]).min().expect("Four y intervals");
 
-        let min_y = self
-            .vec_y
-            .windows(2)
-            .map(|y| y[1] - y[0])
-            .min()
-            .expect("Three y intervals");
+        let min_y = self.vec_y.windows(2).map(|y| y[1] - y[0]).min().expect("Three y intervals");
         Ok(min_x.min(min_y))
     }
 }

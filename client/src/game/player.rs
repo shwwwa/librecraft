@@ -1,12 +1,13 @@
+// use valence_nbt::serde::CompoundSerializer;
+use std::error::Error;
+use std::io::prelude::*;
+
 use bevy::prelude::*;
 use flate2::read::GzDecoder;
 use serde::{Deserialize, Serialize};
-//use valence_nbt::serde::CompoundSerializer;
-use std::error::Error;
-use std::io::prelude::*;
 use valence_nbt::from_binary;
 
-/** Slot in inventory's storage. */
+/// Slot in inventory's storage.
 #[derive(Deserialize, Serialize, PartialEq, Clone, Debug, Default)]
 #[serde(rename_all(deserialize = "PascalCase"))]
 pub struct Slot {
@@ -14,10 +15,10 @@ pub struct Slot {
     #[serde(rename = "id")]
     pub id: String,
     pub count: i8,
-    /* pub tag: unused */
+    // pub tag: unused
 }
 
-/** Contains player's abilities. */
+/// Contains player's abilities.
 #[derive(Deserialize, Serialize, PartialEq, Clone, Debug)]
 #[serde(rename_all(deserialize = "camelCase"))]
 pub struct Abilities {
@@ -45,11 +46,11 @@ impl Default for Abilities {
     }
 }
 
-/** Contains player's nbt data. */
+/// Contains player's nbt data.
 #[derive(Deserialize, Serialize, Clone, Resource, Debug)]
 #[serde(rename_all(deserialize = "PascalCase"))]
 pub struct Player {
-    /** Data version of player's NBT. */
+    /// Data version of player's NBT.
     pub data_version: i32,
     pub absorption_amount: f32,
     pub dimension: String,
@@ -94,7 +95,7 @@ impl Default for Player {
     }
 }
 
-/** Setups player data from assets folder. */
+/// Setups player data from assets folder.
 pub fn setup_player_data(mut player: ResMut<Player>) {
     // Not in assets because loaded by fs.
     match read_player_data("./assets/playerdata/player.dat", &mut player) {
@@ -119,7 +120,7 @@ pub fn read_player_data(file: &str, player: &mut Player) -> Result<(), Box<dyn E
     let (compound, _) = from_binary::<String>(&mut nbt_binary_data.as_slice()).unwrap();
     *player = Player::deserialize(compound)?;
 
-    //let compound_2 = player.serialize(CompoundSerializer).unwrap();
-    //info!("{:#?}", compound_2);
+    // let compound_2 = player.serialize(CompoundSerializer).unwrap();
+    // info!("{:#?}", compound_2);
     Ok(())
 }
