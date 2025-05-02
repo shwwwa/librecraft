@@ -13,7 +13,7 @@ ProductVersion = "0.3.1"
 FileDescription = "librecraft - an open-source implementation of Minecraft client."
 
 [features]
-default = ["fast-compile", "linux"]
+default = ["fast-compile", "linux", "vergen"]
 
 # Embeds assets on release. (throws error if used on debug).
 embed-assets = ["dep:bevy_embedded_assets"]
@@ -21,6 +21,8 @@ embed-assets = ["dep:bevy_embedded_assets"]
 fast-skybox = ["dep:image", "dep:itertools"]
 # Enables music/sounds in project.
 audio = ["bevy/bevy_audio", "bevy/vorbis", "dep:rand"]
+# Enables debug info such as git hash and build date.
+vergen = ["dep:vergen-git2"]
 
 # Bevy target features.
 linux = ["bevy/x11"] # include if target is linux
@@ -84,12 +86,13 @@ itertools = { version = "0.14", optional = true }
 # needed for audio (audio)
 rand = { version = "0.8.5", optional = true }
 
+# Adds support for embedded assets. (embed-assets)
+bevy_embedded_assets = { version = "0.13.0", optional = true }
+
 # Adds support for maximized state and window icon. (let feature `taskbar` be) (scope = necessary)
 bevy_window_utils = { version = "0.16.0" }
 # Adds proper frame limiter. (necessary)
-bevy_framepace = { version = "0.19.0", default-features = false }
-# Adds support for embedded assets. (necessary)
-bevy_embedded_assets = { version = "0.13.0", optional = true }
+bevy_framepace = { version = "0.19.0" }
 # Adds support for network (network) (subject to delete).
 bevy_renet = { git = "https://github.com/lucaspoffo/renet.git" }
 
@@ -109,6 +112,9 @@ flate2 = { version = "1.1.1"}
 toml = "0.8.20"
 # Crate to get dirs specific to each platform.
 dirs = "6.0.0"
+
+[build-dependencies]
+vergen-git2 = { version = "1", features = ["build"], optional = true }
 
 # Sets up resource for windows target in compile-time.
 [target.'cfg(windows)'.build-dependencies]

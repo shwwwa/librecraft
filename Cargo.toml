@@ -1,5 +1,5 @@
 # Welcome to librecraft project! This is a workspace of 3 projects, client, server, and shared.
-# For contributing, please use what is stated in CONTRIBUTING.md
+# For contributing, please see CONTRIBUTING.md.
 
 [workspace]
 resolver = "2"
