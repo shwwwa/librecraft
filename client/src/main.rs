@@ -69,7 +69,10 @@ impl PluginGroup for NecessaryPlugins {
         builder = builder
             .add_group(
                 DefaultPlugins
-                    .set(AssetPlugin { file_path: ASSET_FOLDER.to_owned(), ..default() })
+                    .set(AssetPlugin {
+                        file_path: ASSET_FOLDER.to_owned(),
+                        ..default()
+                    })
                     .set(WindowPlugin {
                         primary_window: Some(Window {
                             position: WindowPosition::Centered(MonitorSelection::Primary),
@@ -110,7 +113,7 @@ impl PluginGroup for NecessaryPlugins {
     }
 }
 
-/// Main game state (alike scenes)
+/// Main game state (alike scenes).
 #[derive(States, Clone, Copy, Default, Eq, PartialEq, Debug, Hash)]
 pub enum GameState {
     #[default]
@@ -145,18 +148,29 @@ pub fn main() {
     settings_path.set_extension("toml");
 
     app.add_plugins(NecessaryPlugins)
-        .add_systems(PreStartup, |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
-            window.window_icon = Some(assets.load(assets::ICON_PATH));
-        })
+        .add_systems(
+            PreStartup,
+            |assets: Res<AssetServer>, mut window: ResMut<WindowUtils>| {
+                window.window_icon = Some(assets.load(assets::ICON_PATH));
+            },
+        )
         .add_systems(Update, limit_fps)
-        .insert_resource(SettingsPath { path: settings_path, ..default() })
+        .insert_resource(SettingsPath {
+            path: settings_path,
+            ..default()
+        })
         .insert_resource(Time::<Fixed>::from_hz(FIXED_TIME_CLOCK))
         .init_state::<GameState>()
         .enable_state_scoped_entities::<GameState>()
         .add_systems(Startup, setup_camera)
-        .add_plugins((SplashPlugin { state: GameState::Splash }, GamePlugin {
-            state: GameState::InGame,
-        }))
+        .add_plugins((
+            SplashPlugin {
+                state: GameState::Splash,
+            },
+            GamePlugin {
+                state: GameState::InGame,
+            },
+        ))
         .run();
 }
 
@@ -164,17 +178,26 @@ pub fn main() {
 fn setup_camera(mut commands: Commands) {
     // Sets up directional light.
     commands.spawn((
-        DirectionalLight { illuminance: 32000.0, ..default() },
+        DirectionalLight {
+            illuminance: 32000.0,
+            ..default()
+        },
         Transform::from_xyz(0.0, 2.0, 0.0)
             .with_rotation(Quat::from_rotation_x(-std::f32::consts::PI / 4.)),
     ));
 
     commands.spawn((
         Camera3d::default(),
-        Projection::from(PerspectiveProjection { fov: 120_f32.to_radians(), ..default() }),
+        Projection::from(PerspectiveProjection {
+            fov: 120_f32.to_radians(),
+            ..default()
+        }),
         #[cfg(feature = "fast-skybox")]
         SkyboxCamera,
-        Camera { hdr: true, ..default() },
+        Camera {
+            hdr: true,
+            ..default()
+        },
         Msaa::Off,
     ));
 }

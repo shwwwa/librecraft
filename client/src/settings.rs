@@ -58,7 +58,10 @@ pub struct SettingsPath {
 
 impl Default for SettingsPath {
     fn default() -> Self {
-        Self { path: PathBuf::new(), save_settings: false }
+        Self {
+            path: PathBuf::new(),
+            save_settings: false,
+        }
     }
 }
 
@@ -97,7 +100,9 @@ pub fn change_fullscreen(
 
         debug!("Fullscreen mode: {}", settings.fullscreen);
 
-        settings_writer.write(SettingsUpdated { settings: settings.clone() });
+        settings_writer.write(SettingsUpdated {
+            settings: settings.clone(),
+        });
     }
 }
 
@@ -122,9 +127,14 @@ pub fn save_window_position(
         settings.position_y = ev.position.y;
 
         // Produces a lot of events when moving, but so far works.
-        debug!("Window changed position: {}x{}px", settings.position_x, settings.position_y);
+        debug!(
+            "Window changed position: {}x{}px",
+            settings.position_x, settings.position_y
+        );
 
-        settings_writer.write(SettingsUpdated { settings: settings.clone() });
+        settings_writer.write(SettingsUpdated {
+            settings: settings.clone(),
+        });
     }
 }
 
@@ -139,7 +149,9 @@ pub fn save_window_size(
 
         debug!("Window resized: {}x{}px", settings.size_x, settings.size_y);
 
-        settings_writer.write(SettingsUpdated { settings: settings.clone() });
+        settings_writer.write(SettingsUpdated {
+            settings: settings.clone(),
+        });
     }
 }
 
@@ -212,9 +224,13 @@ pub fn setup_settings(
     }
 
     if settings.replace_fonts {
-        commands.insert_resource(RuntimeAsset { font_path: MINECRAFT_FONT_PATH.to_string() });
+        commands.insert_resource(RuntimeAsset {
+            font_path: MINECRAFT_FONT_PATH.to_string(),
+        });
     } else {
-        commands.insert_resource(RuntimeAsset { font_path: FONT_PATH.to_string() });
+        commands.insert_resource(RuntimeAsset {
+            font_path: FONT_PATH.to_string(),
+        });
     }
 }
 

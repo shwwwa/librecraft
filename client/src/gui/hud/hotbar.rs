@@ -37,7 +37,9 @@ pub fn setup_hotbar(
     let scale: f32 = gui_scale_to_float(*gui_scale);
     commands
         .spawn((
-            Hotbar { selected: player.selected_item_slot },
+            Hotbar {
+                selected: player.selected_item_slot,
+            },
             Node {
                 display: Display::Flex,
                 position_type: PositionType::Absolute,
@@ -49,12 +51,18 @@ pub fn setup_hotbar(
                 margin: UiRect::all(Val::Auto),
                 ..default()
             },
-            ImageNode { image: asset_server.load(HOTBAR_PATH), ..default() },
+            ImageNode {
+                image: asset_server.load(HOTBAR_PATH),
+                ..default()
+            },
             GlobalZIndex(1),
         ))
         .with_child((
             HotbarSelection,
-            ImageNode { image: asset_server.load(HOTBAR_SELECTION_PATH), ..default() },
+            ImageNode {
+                image: asset_server.load(HOTBAR_SELECTION_PATH),
+                ..default()
+            },
             Node {
                 display: Display::Flex,
                 position_type: PositionType::Relative,
@@ -66,7 +74,9 @@ pub fn setup_hotbar(
             GlobalZIndex(1),
         ));
 
-    hotbar_sel_writer.write(HotbarSelectionChanged { selected: player.selected_item_slot });
+    hotbar_sel_writer.write(HotbarSelectionChanged {
+        selected: player.selected_item_slot,
+    });
 }
 
 pub fn update_hotbar(
@@ -128,7 +138,9 @@ pub fn update_hotbar_selection(
                 hotbar.selected = 8;
             }
 
-            hotbar_sel_writer.write(HotbarSelectionChanged { selected: hotbar.selected });
+            hotbar_sel_writer.write(HotbarSelectionChanged {
+                selected: hotbar.selected,
+            });
         }
         for ev in evr_scroll.read() {
             if ev.y > 0. {
@@ -145,7 +157,9 @@ pub fn update_hotbar_selection(
                 }
             }
 
-            hotbar_sel_writer.write(HotbarSelectionChanged { selected: hotbar.selected });
+            hotbar_sel_writer.write(HotbarSelectionChanged {
+                selected: hotbar.selected,
+            });
         }
     }
 }

@@ -13,8 +13,9 @@ pub fn update_fps_text(
 ) {
     for (mut span, mut color) in fps_q.iter_mut() {
         // Try to get a "smoothed" FPS value from Bevy
-        if let Some(value) =
-            diagnostics.get(&FrameTimeDiagnosticsPlugin::FPS).and_then(|fps| fps.smoothed())
+        if let Some(value) = diagnostics
+            .get(&FrameTimeDiagnosticsPlugin::FPS)
+            .and_then(|fps| fps.smoothed())
         {
             **span = format!("{value:>3.0}");
 

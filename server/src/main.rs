@@ -15,7 +15,9 @@ use librecraft_shared::add;
 fn main() {
     let mut app = App::new();
     app.add_plugins(
-        MinimalPlugins.set(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f64(1.0 / 20.0))),
+        MinimalPlugins.set(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f64(
+            1.0 / 20.0,
+        ))),
     );
     app.add_plugins(RenetServerPlugin);
 
@@ -26,7 +28,9 @@ fn main() {
     let server_addr = "127.0.0.1:1337".parse().unwrap();
     let socket = UdpSocket::bind(server_addr).unwrap();
     let server_config = ServerConfig {
-        current_time: SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap(),
+        current_time: SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap(),
         max_clients: 64,
         protocol_id: 0,
         public_addresses: vec![server_addr],

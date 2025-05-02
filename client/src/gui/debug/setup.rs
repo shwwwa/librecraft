@@ -28,35 +28,59 @@ pub fn setup_debug_hud(
         ..default()
     };
 
-    let vis_state = if DEBUG_MODE { Visibility::Visible } else { Visibility::Hidden };
+    let vis_state = if DEBUG_MODE {
+        Visibility::Visible
+    } else {
+        Visibility::Hidden
+    };
 
     let hud_root = commands
         .spawn((
             DebugHudRoot,
-            (BackgroundColor(Color::BLACK.with_alpha(0.5)), GlobalZIndex(10), vis_state, Node {
-                position_type: PositionType::Absolute,
-                left: Val::Percent(1.),
-                top: Val::Percent(1.),
-                // Resized depending on text inside.
-                bottom: Val::Auto,
-                right: Val::Auto,
-                padding: UiRect::all(Val::Px(4.0)),
-                flex_direction: FlexDirection::Column,
-                ..Default::default()
-            }),
+            (
+                BackgroundColor(Color::BLACK.with_alpha(0.5)),
+                GlobalZIndex(10),
+                vis_state,
+                Node {
+                    position_type: PositionType::Absolute,
+                    left: Val::Percent(1.),
+                    top: Val::Percent(1.),
+                    // Resized depending on text inside.
+                    bottom: Val::Auto,
+                    right: Val::Auto,
+                    padding: UiRect::all(Val::Px(4.0)),
+                    flex_direction: FlexDirection::Column,
+                    ..Default::default()
+                },
+            ),
         ))
         .id();
 
     let fps_text = commands
-        .spawn((Text::new("FPS: "), text_font.clone(), TextColor(Color::WHITE)))
-        .with_child((FpsText, TextSpan::new("N/A"), text_font.clone(), TextColor(Color::WHITE)))
+        .spawn((
+            Text::new("FPS: "),
+            text_font.clone(),
+            TextColor(Color::WHITE),
+        ))
+        .with_child((
+            FpsText,
+            TextSpan::new("N/A"),
+            text_font.clone(),
+            TextColor(Color::WHITE),
+        ))
         .id();
 
-    let mut monitor_text =
-        commands.spawn((Text::new("Monitor: "), text_font.clone(), TextColor(Color::WHITE)));
+    let mut monitor_text = commands.spawn((
+        Text::new("Monitor: "),
+        text_font.clone(),
+        TextColor(Color::WHITE),
+    ));
 
     for (_, monitor, is_primary) in monitor_q.iter() {
-        let mut monitor_info = monitor.name.clone().unwrap_or_else(|| "undefined".to_string());
+        let mut monitor_info = monitor
+            .name
+            .clone()
+            .unwrap_or_else(|| "undefined".to_string());
         if !is_primary {
             monitor_info.push_str(" (primary) ");
         }
@@ -75,8 +99,11 @@ pub fn setup_debug_hud(
 
     let monitor_info_text = monitor_text.id();
 
-    let mut display_text =
-        commands.spawn((Text::new("Display: "), text_font.clone(), TextColor(Color::WHITE)));
+    let mut display_text = commands.spawn((
+        Text::new("Display: "),
+        text_font.clone(),
+        TextColor(Color::WHITE),
+    ));
 
     let (width, height): (f32, f32);
     match window_q.single() {
@@ -108,8 +135,11 @@ pub fn setup_debug_hud(
         ));
     let display_info_text = display_text.id();
 
-    let mut system_text =
-        commands.spawn((Text::new("System: "), text_font.clone(), TextColor(Color::WHITE)));
+    let mut system_text = commands.spawn((
+        Text::new("System: "),
+        text_font.clone(),
+        TextColor(Color::WHITE),
+    ));
 
     let system_info = format!(
         "{} ({}), cpu: {} (x{}), memory: {}",
@@ -124,8 +154,11 @@ pub fn setup_debug_hud(
 
     let system_info_text = system_text.id();
 
-    let mut adapter_text =
-        commands.spawn((Text::new("Adapter: "), text_font.clone(), TextColor(Color::WHITE)));
+    let mut adapter_text = commands.spawn((
+        Text::new("Adapter: "),
+        text_font.clone(),
+        TextColor(Color::WHITE),
+    ));
 
     let device_type: String = match adapter.device_type {
         DeviceType::Other | DeviceType::DiscreteGpu => "".to_string(),
@@ -134,8 +167,10 @@ pub fn setup_debug_hud(
         DeviceType::Cpu => " (cpu)".to_string(),
     };
 
-    let adapter_info =
-        format!("{}{}, {} ({})", adapter.name, device_type, adapter.driver_info, adapter.backend);
+    let adapter_info = format!(
+        "{}{}, {} ({})",
+        adapter.name, device_type, adapter.driver_info, adapter.backend
+    );
 
     adapter_text.with_child((
         TextSpan::new(adapter_info),

@@ -39,7 +39,9 @@ impl<S: States> Plugin for GamePlugin<S> {
         );
         #[cfg(feature = "fast-skybox")]
         {
-            app.add_plugins(skybox::SkyboxPlugin::from_image_file(assets::SKYBOX_TEST_PATH));
+            app.add_plugins(skybox::SkyboxPlugin::from_image_file(
+                assets::SKYBOX_TEST_PATH,
+            ));
         }
         app.init_resource::<settings::Settings>()
             .init_resource::<player::Player>()
@@ -66,7 +68,11 @@ impl<S: States> Plugin for GamePlugin<S> {
         }
         app.add_systems(
             FixedUpdate,
-            (debug::update_fps_text, debug::update_display_text, debug::update_focus_text)
+            (
+                debug::update_fps_text,
+                debug::update_display_text,
+                debug::update_focus_text,
+            )
                 .run_if(in_state(self.state.clone())),
         )
         .add_systems(
@@ -129,7 +135,9 @@ fn screenshot(mut commands: Commands, input: Res<ButtonInput<KeyCode>>, mut coun
     if input.just_pressed(KeyCode::F2) {
         let path = format!("./screenshot-{}.png", *counter);
         *counter += 1;
-        commands.spawn(Screenshot::primary_window()).observe(save_to_disk(path));
+        commands
+            .spawn(Screenshot::primary_window())
+            .observe(save_to_disk(path));
     }
 }
 
@@ -149,7 +157,9 @@ fn save_screenshot(
             commands.entity(window).remove::<CursorIcon>();
         },
         x if x > 0 => {
-            commands.entity(window).insert(CursorIcon::from(SystemCursorIcon::Progress));
+            commands
+                .entity(window)
+                .insert(CursorIcon::from(SystemCursorIcon::Progress));
         },
         _ => {},
     }

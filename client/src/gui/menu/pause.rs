@@ -74,7 +74,11 @@ pub fn setup_pause_menu(
         .id();
 
     let data_version_text = commands
-        .spawn((Text::new("Data version: "), text_font_14.clone(), TextColor(Color::WHITE)))
+        .spawn((
+            Text::new("Data version: "),
+            text_font_14.clone(),
+            TextColor(Color::WHITE),
+        ))
         .with_child((
             TextSpan::new(player.data_version.to_string()),
             text_font_14.clone(),
@@ -83,7 +87,11 @@ pub fn setup_pause_menu(
         .id();
 
     let dimension_text = commands
-        .spawn((Text::new("Dimension: "), text_font_14.clone(), TextColor(Color::WHITE)))
+        .spawn((
+            Text::new("Dimension: "),
+            text_font_14.clone(),
+            TextColor(Color::WHITE),
+        ))
         .with_child((
             TextSpan::new(player.dimension.clone()),
             text_font_14.clone(),
@@ -92,7 +100,11 @@ pub fn setup_pause_menu(
         .id();
 
     let score_text = commands
-        .spawn((Text::new("Score: "), text_font_14.clone(), TextColor(Color::WHITE)))
+        .spawn((
+            Text::new("Score: "),
+            text_font_14.clone(),
+            TextColor(Color::WHITE),
+        ))
         .with_child((
             TextSpan::new(player.score.to_string()),
             text_font_14.clone(),
@@ -152,7 +164,11 @@ pub fn setup_pause_menu(
         .id();
 
     let pause_text = commands
-        .spawn((Text::new("Pause menu"), text_font_16.clone(), TextColor(Color::WHITE)))
+        .spawn((
+            Text::new("Pause menu"),
+            text_font_16.clone(),
+            TextColor(Color::WHITE),
+        ))
         .id();
 
     commands.entity(pause_menu).add_children(&[
@@ -168,9 +184,13 @@ pub fn setup_pause_menu(
         data_version_text,
     ]);
 
-    commands.entity(pause_right_corner_root).add_children(&[about_text]);
+    commands
+        .entity(pause_right_corner_root)
+        .add_children(&[about_text]);
 
-    commands.entity(pause_player_name_root).add_children(&[player_name_text]);
+    commands
+        .entity(pause_player_name_root)
+        .add_children(&[player_name_text]);
 
     commands.entity(pause_gui_root).add_children(&[pause_text]);
     commands.entity(pause_gui_root).with_children(|wrapper| {
@@ -199,7 +219,11 @@ pub fn setup_pause_menu(
                     ),
                 ))
                 .with_children(|button| {
-                    button.spawn((Text::new(msg), text_font_16.clone(), TextColor(Color::WHITE)));
+                    button.spawn((
+                        Text::new(msg),
+                        text_font_16.clone(),
+                        TextColor(Color::WHITE),
+                    ));
                 });
         }
     });

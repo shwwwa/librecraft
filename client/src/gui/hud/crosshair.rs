@@ -13,7 +13,12 @@ pub fn setup_crosshair(mut commands: Commands, gui_scale: Res<GUIScale>) {
     commands
         .spawn((Node {
             position_type: PositionType::Absolute,
-            margin: UiRect { left: Val::Auto, right: Val::Auto, top: Val::Auto, bottom: Val::Auto },
+            margin: UiRect {
+                left: Val::Auto,
+                right: Val::Auto,
+                top: Val::Auto,
+                bottom: Val::Auto,
+            },
             ..default()
         },))
         .with_children(|parent| {

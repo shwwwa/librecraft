@@ -54,7 +54,9 @@ pub fn gui_scale_changed(
     gui_scale_events: &mut ResMut<Events<GUIScaleChanged>>,
 ) {
     info!("GUI scale was changed: {:?}", *gui_scale);
-    gui_scale_events.send(GUIScaleChanged { gui_scale: **gui_scale });
+    gui_scale_events.send(GUIScaleChanged {
+        gui_scale: **gui_scale,
+    });
 }
 
 /// Controls user's mouse.
@@ -99,11 +101,16 @@ pub fn handle_mouse(
     for ev in gui_state_reader.read() {
         match window_q.single_mut() {
             Ok(mut window) => {
-                let is_playing = ev.entered.expect("GUIState unwrap entered panic - tests needed")
+                let is_playing = ev
+                    .entered
+                    .expect("GUIState unwrap entered panic - tests needed")
                     == GUIState::Closed;
 
-                window.cursor_options.grab_mode =
-                    if is_playing { CursorGrabMode::Locked } else { CursorGrabMode::None };
+                window.cursor_options.grab_mode = if is_playing {
+                    CursorGrabMode::Locked
+                } else {
+                    CursorGrabMode::None
+                };
                 if !is_playing {
                     let center = Vec2::new(window.width() / 2., window.height() / 2.);
                     window.set_cursor_position(Some(center));
@@ -125,7 +132,9 @@ pub fn update_auto_gui_scale(
 ) {
     if let GUIScale::Auto(scale) = *gui_scale {
         if scale == 0 {
-            gui_scale_writer.write(GUIScaleChanged { gui_scale: *gui_scale });
+            gui_scale_writer.write(GUIScaleChanged {
+                gui_scale: *gui_scale,
+            });
         }
     }
 }
@@ -223,6 +232,8 @@ pub fn change_gui_scale(
         gui_scale_changed(&gui_scale, &mut gui_scale_events);
 
         settings.gui_scale = gui_scale_to_float(*gui_scale);
-        settings_writer.write(SettingsUpdated { settings: settings.clone() });
+        settings_writer.write(SettingsUpdated {
+            settings: settings.clone(),
+        });
     }
 }

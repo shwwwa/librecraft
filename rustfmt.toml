@@ -15,6 +15,4 @@ normalize_doc_attributes = true
 overflow_delimited_expr = true
 # Some macros break with this.
 reorder_impl_items = false
-use_field_init_shorthand = true
-use_small_heuristics = "Max"
 wrap_comments = true
