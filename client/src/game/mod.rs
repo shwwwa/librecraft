@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy::render::view::screenshot::{Capturing, Screenshot, save_to_disk};
+use bevy::render::view::screenshot::{save_to_disk, Capturing, Screenshot};
 use bevy::window::SystemCursorIcon;
 use bevy::winit::cursor::CursorIcon;
 #[cfg(feature = "fast-skybox")]
@@ -7,10 +7,11 @@ use world::skybox;
 
 #[cfg(feature = "fast-skybox")]
 use crate::assets;
-use crate::gui::{self, GUIState, debug, hud, menu};
+use crate::gui::debug::DebugGUIState;
+use crate::gui::{self, debug, hud, menu, GUIState};
 #[cfg(feature = "audio")]
 use crate::music;
-use crate::settings;
+use crate::{consts, settings};
 
 /// Responsible for player logic.
 pub mod player;
@@ -28,15 +29,35 @@ struct GameplaySet;
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 struct DataSet;
 
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+struct DebugSet;
+
 impl<S: States> Plugin for GamePlugin<S> {
     fn build(&self, app: &mut App) {
-        app.init_state::<gui::GUIState>().configure_sets(
-            Update,
-            (
-                GameplaySet.run_if(in_state(self.state.clone())),
-                GameplaySet.run_if(in_state(GUIState::Closed)),
-            ),
-        );
+        let debug_state: DebugGUIState;
+        if consts::DEBUG_MODE {
+            debug_state = DebugGUIState::Opened;
+        } else {
+            debug_state = DebugGUIState::Closed;
+        }
+
+        app.init_state::<gui::GUIState>()
+            .configure_sets(
+                Update,
+                (
+                    GameplaySet.run_if(in_state(self.state.clone())),
+                    GameplaySet.run_if(in_state(GUIState::Closed)),
+                ),
+            )
+            .insert_state(debug_state)
+            .configure_sets(
+                Update,
+                (
+                    DebugSet.run_if(in_state(self.state.clone())),
+                    DebugSet.run_if(in_state(DebugGUIState::Opened)),
+                ),
+            );
+
         #[cfg(feature = "fast-skybox")]
         {
             app.add_plugins(skybox::SkyboxPlugin::from_image_file(
@@ -67,15 +88,6 @@ impl<S: States> Plugin for GamePlugin<S> {
             app.add_systems(OnEnter(self.state.clone()), music::setup_soundtrack);
         }
         app.add_systems(
-            FixedUpdate,
-            (
-                debug::update_fps_text,
-                debug::update_display_text,
-                debug::update_focus_text,
-            )
-                .run_if(in_state(self.state.clone())),
-        )
-        .add_systems(
             Update,
             (
                 gui::update_gui_scale,
@@ -92,16 +104,19 @@ impl<S: States> Plugin for GamePlugin<S> {
         .add_systems(
             Update,
             (
-                debug::toggle_debug_hud,
-                gui::update_auto_gui_scale,
-                self::screenshot,
-                self::save_screenshot,
+                debug::update_fps_text,
+                debug::update_display_text,
+                debug::update_focus_text,
             )
-                .in_set(GameplaySet),
+                .in_set(DebugSet),
         )
         .add_systems(
             Update,
             (
+                debug::toggle_debug_hud,
+                gui::update_auto_gui_scale,
+                self::screenshot,
+                self::save_screenshot,
                 hud::update_hotbar,
                 hud::update_hotbar_selection,
                 hud::update_hotbar_selector,

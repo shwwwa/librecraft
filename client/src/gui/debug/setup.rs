@@ -6,8 +6,7 @@ use wgpu_types::DeviceType;
 
 use super::{DisplayText, FocusText, FpsText};
 use crate::assets::RuntimeAsset;
-use crate::consts::DEBUG_MODE;
-
+use crate::gui::debug::DebugGUIState;
 /// Marker to find debug's hud box entity.
 #[derive(Component)]
 pub struct DebugHudRoot;
@@ -15,6 +14,7 @@ pub struct DebugHudRoot;
 /// Setups debug hud in the left-up corner of the screen.
 pub fn setup_debug_hud(
     mut commands: Commands,
+    debug_state: Res<State<DebugGUIState>>,
     asset_server: Res<AssetServer>,
     runtime_asset: Res<RuntimeAsset>,
     system: Res<SystemInfo>,
@@ -28,7 +28,7 @@ pub fn setup_debug_hud(
         ..default()
     };
 
-    let vis_state = if DEBUG_MODE {
+    let vis_state = if *debug_state.get() == DebugGUIState::Opened {
         Visibility::Visible
     } else {
         Visibility::Hidden
@@ -112,7 +112,7 @@ pub fn setup_debug_hud(
             height = window.resolution.height();
         },
         Err(_) => {
-            warn!("Can't get primary window. Window resolution is absent from debug hud.");
+            warn!("Cannot get access to `PrimaryWindow`.");
             width = 0.;
             height = 0.;
         },
@@ -141,10 +141,20 @@ pub fn setup_debug_hud(
         TextColor(Color::WHITE),
     ));
 
-    let system_info = format!(
-        "{} ({}), cpu: {} (x{}), memory: {}",
-        system.os, system.kernel, system.cpu, system.core_count, system.memory
-    );
+    let system_info: String;
+    if system.os != "Unknown" {
+        system_info = format!(
+            "{} ({}), cpu: {} (x{}), memory: {}",
+            system.os, system.kernel, system.cpu, system.core_count, system.memory
+        );
+    } else {
+        if !crate::consts::DEBUG_MODE {
+            warn!("Cannot get access to system information.");
+            system_info = system.os.clone();
+        } else {
+            system_info = "Debug mode".to_owned();
+        }
+    }
 
     system_text.with_child((
         TextSpan::new(system_info),

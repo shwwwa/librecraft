@@ -45,9 +45,9 @@ use std::time::Duration;
 use consts::*;
 #[cfg(not(debug_assertions))]
 use dirs::config_dir;
-use game::GamePlugin;
 #[cfg(feature = "fast-skybox")]
 use game::world::SkyboxCamera;
+use game::GamePlugin;
 use settings::SettingsPath;
 use splash::SplashPlugin;
 
