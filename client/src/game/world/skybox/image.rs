@@ -260,7 +260,7 @@ impl ImageMeasurements {
             .windows(2)
             .map(|x| x[1] - x[0])
             .min()
-            .expect("Four y intervals");
+            .expect("Four x intervals");
 
         let min_y = self
             .vec_y

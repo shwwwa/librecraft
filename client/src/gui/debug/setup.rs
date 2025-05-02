@@ -80,7 +80,7 @@ pub fn setup_debug_hud(
         let mut monitor_info = monitor
             .name
             .clone()
-            .unwrap_or_else(|| "undefined".to_string());
+            .unwrap_or_else(|| "undefined".to_owned());
         if !is_primary {
             monitor_info.push_str(" (primary) ");
         }
@@ -129,7 +129,7 @@ pub fn setup_debug_hud(
         ))
         .with_child((
             FocusText,
-            TextSpan::new("".to_string()),
+            TextSpan::new("".to_owned()),
             text_font.clone(),
             TextColor(Color::WHITE),
         ));
@@ -171,10 +171,10 @@ pub fn setup_debug_hud(
     ));
 
     let device_type: String = match adapter.device_type {
-        DeviceType::Other | DeviceType::DiscreteGpu => "".to_string(),
-        DeviceType::IntegratedGpu => " (integrated)".to_string(),
-        DeviceType::VirtualGpu => " (virtual)".to_string(),
-        DeviceType::Cpu => " (cpu)".to_string(),
+        DeviceType::Other | DeviceType::DiscreteGpu => "".to_owned(),
+        DeviceType::IntegratedGpu => " (integrated)".to_owned(),
+        DeviceType::VirtualGpu => " (virtual)".to_owned(),
+        DeviceType::Cpu => " (cpu)".to_owned(),
     };
 
     let adapter_info = format!(

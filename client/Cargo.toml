@@ -13,15 +13,15 @@ ProductVersion = "0.3.1"
 FileDescription = "librecraft - an open-source implementation of Minecraft client."
 
 [features]
-default = ["fast-compile", "linux", "vergen"]
+default = ["fast-compile", "fast-skybox", "linux", "vergen"]
 
 # Embeds assets on release. (throws error if used on debug).
 embed-assets = ["dep:bevy_embedded_assets"]
 # Enables usage of unusual skyboxes, allowing for fast prototyping. (subject to delete).
-fast-skybox = ["dep:image", "dep:itertools"]
+fast-skybox = ["dep:image", "dep:itertools", "dep:bevy_image_export", "bevy/basis-universal"]
 # Enables music/sounds in project.
 audio = ["bevy/bevy_audio", "bevy/vorbis", "dep:rand"]
-# Enables debug info such as git hash and build date.
+# Enables debug info such as git hash and build date. REQUIRED WHEN RUNNING UNDER DEBUG.
 vergen = ["dep:vergen-git2"]
 
 # Bevy target features.
@@ -82,6 +82,8 @@ features = [
 image = { version = "0.25.2", default-features = false, features = ["png"], optional = true }
 # bevy_gltf's itertools crate. (fast-skybox)
 itertools = { version = "0.14", optional = true }
+# 
+bevy_image_export = { version = "0.13", optional = true }
 
 # needed for audio (audio)
 rand = { version = "0.8.5", optional = true }

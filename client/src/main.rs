@@ -176,7 +176,6 @@ pub fn main() {
 
 /// Setups camera for [`App`] to use.
 fn setup_camera(mut commands: Commands) {
-    // Sets up directional light.
     commands.spawn((
         DirectionalLight {
             illuminance: 32000.0,
@@ -202,7 +201,7 @@ fn setup_camera(mut commands: Commands) {
     ));
 }
 
-/// Limits fps ["refresh rate", "off", "30 fps"]
+/// Limits fps. Switches via `Space` in order: ["refresh rate", "off", "30 fps"].
 fn limit_fps(
     mut settings: ResMut<bevy_framepace::FramepaceSettings>,
     monitor_q: Query<&Monitor, With<PrimaryMonitor>>,

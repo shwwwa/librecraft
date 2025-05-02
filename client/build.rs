@@ -1,3 +1,4 @@
+#[cfg(feature = "vergen")]
 use vergen_git2::{BuildBuilder, Emitter, Git2Builder};
 
 #[cfg(target_os = "windows")]

@@ -4,11 +4,11 @@ use bevy::asset::{load_internal_asset, weak_handle};
 use bevy::core_pipeline::Skybox;
 use bevy::image::CompressedImageFormats;
 use bevy::prelude::*;
+use bevy::render::render_resource::{TextureViewDescriptor, TextureViewDimension};
 use bevy::render::renderer::RenderDevice;
 
 pub mod image;
 pub use image::*;
-use wgpu_types::{TextureViewDescriptor, TextureViewDimension};
 
 /// The `Handle` for the shader for the [`SkyboxMaterial`]
 ///
